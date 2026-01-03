@@ -1,0 +1,2051 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Granja Porcina - Gestión (v1)</title>
+<style>
+  :root{--bg:#0b1220;--panel:#111a2e;--line:#223055;--text:#eef3ff;--muted:#a8b3cf;--acc:#7dd3fc;--bad:#ff6b6b;--ok:#34d399;--warn:#fbbf24;}
+  *{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:linear-gradient(180deg,#070b14,var(--bg));color:var(--text)}
+  header{position:sticky;top:0;z-index:5;background:rgba(11,18,32,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  .bar{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:12px 14px;flex-wrap:wrap}
+  .brand{display:flex;gap:10px;align-items:center}
+  .logo{width:36px;height:36px;border-radius:12px;background:conic-gradient(from 180deg,var(--acc),#a78bfa,var(--acc));display:grid;place-items:center;color:#071023;font-weight:900}
+  .title{display:flex;flex-direction:column;line-height:1.05}
+  .title b{font-size:13.5px} .title span{font-size:12px;color:var(--muted)}
+  nav{display:flex;gap:8px;flex-wrap:wrap}
+  nav button{border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--text);padding:8px 10px;border-radius:12px;cursor:pointer;font-weight:650;font-size:12.5px}
+  nav button.active{border-color:rgba(125,211,252,.6);background:rgba(125,211,252,.12)}
+  .right{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+  .search{border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--text);padding:8px 10px;border-radius:12px;min-width:min(420px,80vw);outline:none}
+  .btn{border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--text);padding:8px 10px;border-radius:12px;cursor:pointer;font-weight:650;font-size:12.5px}
+  .btn.primary{border-color:rgba(125,211,252,.6);background:rgba(125,211,252,.14)}
+  .btn.danger{border-color:rgba(255,107,107,.7);background:rgba(255,107,107,.12)}
+  main{padding:14px}
+  .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:12px}
+  .card{grid-column:span 12;border:1px solid var(--line);background:rgba(255,255,255,.03);border-radius:16px;overflow:hidden}
+  .hd{padding:12px 12px 10px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+  .hd h2{margin:0;font-size:14px} .hd p{margin:4px 0 0;color:var(--muted);font-size:12px}
+  .bd{padding:12px}
+  .kpis{display:grid;grid-template-columns:repeat(12,1fr);gap:10px}
+  .kpi{grid-column:span 3;border:1px solid rgba(255,255,255,.10);border-radius:14px;padding:10px;background:linear-gradient(135deg,rgba(125,211,252,.10),rgba(167,139,250,.08))}
+  .kpi small{color:var(--muted)} .kpi b{display:block;font-size:20px;margin-top:6px}
+  table{width:100%;border-collapse:collapse;font-size:12.5px;min-width:860px}
+  th,td{padding:10px;border-bottom:1px solid rgba(255,255,255,.06);vertical-align:top}
+  th{text-align:left;color:var(--muted);font-size:11.5px;letter-spacing:.2px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;position:sticky;top:0;background:rgba(11,18,32,.96)}
+  tr:hover td{background:rgba(255,255,255,.02)}
+  .wrap{overflow:auto;border:1px solid rgba(255,255,255,.08);border-radius:14px}
+  .tag{display:inline-block;padding:3px 8px;border-radius:999px;border:1px solid rgba(255,255,255,.12);font-size:11px;color:var(--text);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  .tag.ok{border-color:rgba(52,211,153,.6);background:rgba(52,211,153,.12)}
+  .tag.bad{border-color:rgba(255,107,107,.7);background:rgba(255,107,107,.12)}
+  .tag.warn{border-color:rgba(251,191,36,.7);background:rgba(251,191,36,.12)}
+  .muted{color:var(--muted)} .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  .row{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+  dialog{border:1px solid rgba(255,255,255,.14);border-radius:16px;background:rgba(11,18,32,.96);color:var(--text);width:min(900px,calc(100vw - 24px))}
+  dialog::backdrop{background:rgba(0,0,0,.65)}
+  form.grid2{display:grid;grid-template-columns:repeat(12,1fr);gap:10px}
+  .f6{grid-column:span 6} .f4{grid-column:span 4} .f3{grid-column:span 3} .f12{grid-column:span 12}
+  label{display:block;color:var(--muted);font-size:12px;margin-bottom:6px}
+  input,select,textarea{width:100%;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.02);color:var(--text);padding:9px 10px;border-radius:12px;outline:none}
+  textarea{min-height:86px;resize:vertical}
+  .dlgHd{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;padding:12px;border-bottom:1px solid rgba(255,255,255,.08)}
+  .dlgHd b{font-size:14px} .dlgHd span{display:block;color:var(--muted);font-size:12px;margin-top:4px}
+  .dlgBd{padding:12px;max-height:65vh;overflow:auto}
+  .dlgFt{padding:12px;border-top:1px solid rgba(255,255,255,.08);display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+  .toast{position:fixed;right:12px;bottom:12px;display:flex;flex-direction:column;gap:10px;z-index:20}
+  .toast .t{border:1px solid rgba(255,255,255,.14);border-radius:14px;background:rgba(11,18,32,.96);padding:10px 12px;width:min(420px,calc(100vw - 24px))}
+  .t.ok{border-color:rgba(52,211,153,.6)} .t.bad{border-color:rgba(255,107,107,.7)} .t.warn{border-color:rgba(251,191,36,.7)}
+  @media (max-width:900px){ .kpi{grid-column:span 6} table{min-width:720px} .search{min-width:min(300px,86vw)} }
+  @media (max-width:520px){ .kpi{grid-column:span 12} .f6,.f4,.f3{grid-column:span 12} nav{gap:6px} }
+
+
+/* =========================================================
+   TEMA PROFESIONAL — VERDE & BLANCO (override total)
+   Insertado al final para dominar estilos anteriores.
+   ========================================================= */
+:root{
+  --bg:#ffffff;
+  --panel:#ffffff;
+  --panel2:#f2fbf5;
+  --text:#0b1220;                 /* casi negro para legibilidad */
+  --muted:#4b5563;
+  --accent:#16a34a;               /* verde principal */
+  --accent2:#065f46;              /* verde profundo */
+  --danger:#b91c1c;               /* rojo sutil SOLO para eliminar/acciones críticas */
+  --ok:#16a34a;
+  --warn:#0f766e;
+  --line:rgba(15,23,42,.12);
+  --shadow: 0 10px 28px rgba(2,6,23,.10);
+}
+
+/* Fondo general */
+body{
+  background:
+    radial-gradient(1000px 620px at 6% -10%, rgba(34,197,94,.18), transparent 55%),
+    radial-gradient(900px 520px at 95% 0%, rgba(6,95,70,.12), transparent 55%),
+    linear-gradient(180deg, #ffffff, #f4fbf6);
+  color: var(--text);
+}
+
+/* Sidebar */
+.sidebar{
+  background: rgba(255,255,255,.78) !important;
+  border-right: 1px solid var(--line) !important;
+}
+.brand{
+  background: rgba(255,255,255,.96) !important;
+  border-color: var(--line) !important;
+}
+.logo{
+  background: linear-gradient(135deg, var(--accent), var(--accent2)) !important;
+  color:#ffffff !important;
+}
+.footer-mini{
+  border-top: 1px dashed rgba(15,23,42,.14) !important;
+}
+.footer-mini .chip{
+  background: rgba(255,255,255,.92) !important;
+  border-color: var(--line) !important;
+  color: rgba(15,23,42,.75) !important;
+}
+
+/* Navegación */
+.nav button{
+  background: rgba(255,255,255,.80) !important;
+  border-color: var(--line) !important;
+  color: var(--text) !important;
+}
+.nav button:hover{
+  background: rgba(34,197,94,.08) !important;
+  border-color: rgba(34,197,94,.40) !important;
+}
+.nav button.active{
+  background: linear-gradient(135deg, rgba(34,197,94,.22), rgba(6,95,70,.10)) !important;
+  border-color: rgba(34,197,94,.55) !important;
+}
+
+/* Buscador y paneles */
+.search{
+  background: rgba(255,255,255,.92) !important;
+  border-color: var(--line) !important;
+  box-shadow: var(--shadow) !important;
+}
+.search input{ color: var(--text) !important; }
+
+/* Tarjetas */
+.card{
+  background: rgba(255,255,255,.92) !important;
+  border-color: var(--line) !important;
+  box-shadow: var(--shadow) !important;
+}
+.card .hd{
+  border-bottom: 1px solid rgba(15,23,42,.06) !important;
+  background: linear-gradient(180deg, rgba(34,197,94,.06), rgba(255,255,255,0)) !important;
+}
+
+/* KPI */
+.kpi{
+  border-color: rgba(15,23,42,.10) !important;
+  background: linear-gradient(135deg, rgba(34,197,94,.16), rgba(6,95,70,.06)) !important;
+}
+.kpi:before{
+  background: radial-gradient(circle at 30% 30%, rgba(34,197,94,.18), transparent 65%) !important;
+  opacity:.95 !important;
+}
+
+/* Botones */
+.btn{
+  background: rgba(255,255,255,.92) !important;
+  border-color: var(--line) !important;
+  color: var(--text) !important;
+}
+.btn:hover{
+  background: rgba(34,197,94,.08) !important;
+  border-color: rgba(34,197,94,.40) !important;
+}
+.btn.primary{
+  background: linear-gradient(135deg, rgba(34,197,94,.24), rgba(6,95,70,.10)) !important;
+  border-color: rgba(34,197,94,.60) !important;
+}
+.btn.ok{
+  background: rgba(34,197,94,.12) !important;
+  border-color: rgba(34,197,94,.48) !important;
+}
+.btn.danger{
+  background: rgba(185,28,28,.08) !important;
+  border-color: rgba(185,28,28,.32) !important;
+}
+
+/* Inputs */
+input, select, textarea{
+  background: rgba(255,255,255,.98) !important;
+  border-color: rgba(15,23,42,.16) !important;
+  color: var(--text) !important;
+}
+input:focus, select:focus, textarea:focus{
+  border-color: rgba(34,197,94,.60) !important;
+  box-shadow: 0 0 0 3px rgba(34,197,94,.18) !important;
+}
+
+/* Pills y tags */
+.pill{
+  border-color: rgba(34,197,94,.28) !important;
+  background: rgba(34,197,94,.08) !important;
+  color: rgba(6,95,70,.92) !important;
+}
+.tag{
+  border-color: rgba(15,23,42,.12) !important;
+  background: rgba(255,255,255,.84) !important;
+  color: rgba(15,23,42,.86) !important;
+}
+.tag.ok{
+  border-color: rgba(34,197,94,.42) !important;
+  background: rgba(34,197,94,.12) !important;
+}
+.tag.warn{
+  border-color: rgba(6,95,70,.40) !important;
+  background: rgba(6,95,70,.10) !important;
+}
+.tag.info{
+  border-color: rgba(34,197,94,.30) !important;
+  background: rgba(34,197,94,.08) !important;
+}
+/* "bad" debe seguir siendo visible (ventas pendientes, etc.) */
+.tag.bad{
+  border-color: rgba(185,28,28,.42) !important;
+  background: rgba(185,28,28,.10) !important;
+}
+
+/* Tablas */
+.tablewrap{
+  border-color: rgba(15,23,42,.10) !important;
+}
+th{
+  background: rgba(248,250,249,.98) !important;
+  color: rgba(15,23,42,.62) !important;
+  border-bottom-color: rgba(15,23,42,.06) !important;
+}
+td{
+  border-bottom-color: rgba(15,23,42,.06) !important;
+}
+tr:hover td{
+  background: rgba(34,197,94,.05) !important;
+}
+
+/* Modal & Toast */
+.modal{
+  background: rgba(255,255,255,.97) !important;
+  border-color: rgba(15,23,42,.14) !important;
+}
+.modal .mh{
+  border-bottom: 1px solid rgba(15,23,42,.08) !important;
+}
+.modal .mf{
+  border-top: 1px solid rgba(15,23,42,.08) !important;
+}
+.x{
+  background: rgba(255,255,255,.92) !important;
+  border-color: rgba(15,23,42,.14) !important;
+  color: rgba(15,23,42,.90) !important;
+}
+.x:hover{ border-color: rgba(34,197,94,.50) !important; }
+
+.toast .t{
+  background: rgba(255,255,255,.96) !important;
+  border-color: rgba(15,23,42,.14) !important;
+}
+.toast .t.ok{ border-color: rgba(34,197,94,.50) !important; }
+.toast .t.warn{ border-color: rgba(6,95,70,.40) !important; }
+.toast .t.bad{ border-color: rgba(185,28,28,.50) !important; }
+
+/* Asegura textos "muted" */
+.muted{ color: var(--muted) !important; }
+
+
+
+/* =========================================================
+   PATCH: Verde & Blanco 100% (todo combina)
+   - Elimina rojos/azules residuales
+   - Backdrops y estados "bad/danger" también en verde
+   ========================================================= */
+:root{
+  --accent:#16a34a !important;
+  --accent2:#065f46 !important;
+  --danger: var(--accent2) !important; /* ahora todo en verde */
+  --ok: var(--accent) !important;
+  --warn: var(--accent2) !important;
+}
+
+/* Overlay del modal en verde (no negro) */
+.modal-backdrop{
+  background: rgba(6,95,70,.38) !important;
+}
+
+/* Todo lo "danger/bad" pasa a verde */
+.btn.danger{
+  background: rgba(6,95,70,.12) !important;
+  border-color: rgba(6,95,70,.45) !important;
+  color: var(--text) !important;
+}
+.btn.danger:hover{
+  background: rgba(6,95,70,.16) !important;
+  border-color: rgba(6,95,70,.55) !important;
+}
+
+.tag.bad{
+  border-color: rgba(6,95,70,.45) !important;
+  background: rgba(6,95,70,.12) !important;
+  color: rgba(15,23,42,.86) !important;
+}
+.toast .t.bad{
+  border-color: rgba(6,95,70,.55) !important;
+}
+
+/* Asegura que cualquier borde "line" use el mismo tono */
+.card, .brand, .search, .tablewrap, .nav button, .btn, input, select, textarea,
+.footer-mini .chip, .x, .modal, .toast .t{
+  border-color: var(--line) !important;
+}
+
+/* Asegura que fondos de paneles/quebres sean blancos */
+.sidebar, .brand, .search, .card, .btn, .pill, .tag, input, select, textarea,
+.modal, .toast .t{
+  background-clip: padding-box !important;
+}
+
+/* Estados visuales coherentes */
+.nav button:hover,
+.btn:hover{
+  box-shadow: 0 10px 26px rgba(2,6,23,.08) !important;
+}
+
+/* Mantén texto siempre oscuro (evita restos claros) */
+*{ color-scheme: light; }
+
+
+
+/* =========================================================
+   PATCH v3 — Verde & Blanco (Header + Dialog + Variables)
+   Corrige: barra superior oscura, botones del nav, modal oscuro
+   ========================================================= */
+:root{
+  /* Variables usadas por el CSS original */
+  --acc: var(--accent) !important;     /* antes azul */
+  --bad: var(--accent2) !important;    /* antes rojo */
+  --bg:#ffffff !important;
+  --panel:#ffffff !important;
+  --text:#0b1220 !important;
+  --muted:#475569 !important;
+  --line:rgba(15,23,42,.12) !important;
+}
+
+/* Barra superior (antes oscura) */
+header{
+  background: rgba(255,255,255,.86) !important;
+  border-bottom: 1px solid var(--line) !important;
+  box-shadow: 0 10px 26px rgba(2,6,23,.08) !important;
+  backdrop-filter: blur(12px) saturate(1.1) !important;
+}
+
+/* Navegación superior (nav sin clase) */
+nav button{
+  background: rgba(255,255,255,.92) !important;
+  border: 1px solid var(--line) !important;
+  color: var(--text) !important;
+}
+nav button:hover{
+  background: rgba(34,197,94,.10) !important;
+  border-color: rgba(34,197,94,.40) !important;
+}
+nav button.active{
+  background: rgba(34,197,94,.14) !important;
+  border-color: rgba(34,197,94,.55) !important;
+}
+
+/* Input de búsqueda (en header) */
+input.search{
+  background: rgba(255,255,255,.96) !important;
+  border: 1px solid var(--line) !important;
+  color: var(--text) !important;
+}
+input.search::placeholder{ color: rgba(15,23,42,.55) !important; }
+input.search:focus{
+  border-color: rgba(34,197,94,.60) !important;
+  box-shadow: 0 0 0 3px rgba(34,197,94,.18) !important;
+}
+
+/* Botón principal más "pro": verde sólido */
+.btn.primary{
+  background: linear-gradient(135deg, var(--accent), var(--accent2)) !important;
+  border-color: rgba(6,95,70,.65) !important;
+  color: #ffffff !important;
+}
+.btn.primary:hover{
+  filter: brightness(1.02) !important;
+}
+
+/* Dialog (modal nativo) — antes oscuro */
+dialog{
+  background: rgba(255,255,255,.98) !important;
+  border: 1px solid rgba(15,23,42,.14) !important;
+  box-shadow: 0 18px 45px rgba(2,6,23,.18) !important;
+}
+dialog::backdrop{
+  background: rgba(6,95,70,.34) !important;
+}
+
+.dlgHd{
+  border-bottom: 1px solid rgba(15,23,42,.08) !important;
+  background: linear-gradient(180deg, rgba(34,197,94,.06), rgba(255,255,255,0)) !important;
+}
+.dlgFt{
+  border-top: 1px solid rgba(15,23,42,.08) !important;
+}
+
+
+
+/* =========================================================
+   PATCH v4 — Header Verde bonito (con contraste)
+   ========================================================= */
+header{
+  background: linear-gradient(135deg, var(--accent), var(--accent2)) !important;
+  border-bottom: 1px solid rgba(255,255,255,.18) !important;
+  box-shadow: 0 14px 36px rgba(2,6,23,.18) !important;
+  backdrop-filter: blur(10px) saturate(1.2) !important;
+}
+
+/* Texto en header */
+header, header *{
+  color: #ffffff !important;
+}
+
+/* Textos secundarios */
+header .muted, header small, header .sub, header .subtitle, header .meta{
+  color: rgba(255,255,255,.82) !important;
+}
+
+/* Logo dentro del header (si existe) */
+header .logo{
+  background: rgba(255,255,255,.95) !important;
+  color: rgba(6,95,70,.98) !important;
+  box-shadow: 0 10px 22px rgba(2,6,23,.14) !important;
+}
+
+/* Navegación superior */
+nav button{
+  background: rgba(255,255,255,.14) !important;
+  border: 1px solid rgba(255,255,255,.22) !important;
+  color: #ffffff !important;
+}
+nav button:hover{
+  background: rgba(255,255,255,.22) !important;
+  border-color: rgba(255,255,255,.30) !important;
+}
+nav button.active{
+  background: rgba(255,255,255,.26) !important;
+  border-color: rgba(255,255,255,.36) !important;
+  box-shadow: 0 10px 24px rgba(2,6,23,.14) !important;
+}
+
+/* Buscador del header */
+input.search{
+  background: rgba(255,255,255,.16) !important;
+  border: 1px solid rgba(255,255,255,.28) !important;
+  color: #ffffff !important;
+}
+input.search::placeholder{ color: rgba(255,255,255,.75) !important; }
+input.search:focus{
+  background: rgba(255,255,255,.20) !important;
+  border-color: rgba(255,255,255,.38) !important;
+  box-shadow: 0 0 0 3px rgba(255,255,255,.16) !important;
+}
+
+/* Botones en header (rápido/nueva venta) si usan .btn */
+header .btn{
+  background: rgba(255,255,255,.14) !important;
+  border: 1px solid rgba(255,255,255,.22) !important;
+  color: #ffffff !important;
+}
+header .btn:hover{
+  background: rgba(255,255,255,.22) !important;
+  border-color: rgba(255,255,255,.30) !important;
+}
+
+/* Para íconos/svg dentro del header */
+header svg, header svg *{
+  fill: currentColor !important;
+  stroke: currentColor !important;
+}
+
+
+
+/* =========================================================
+   PATCH v5 — Arreglo de Brand (logo + nombre) en header
+   - Quita el bloque claro detrás del nombre
+   - Alinea y mejora contraste/jerarquía
+   ========================================================= */
+header .brand{
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  gap: 12px !important;
+  align-items: center !important;
+}
+
+/* Logo como "badge" blanco */
+header .brand .logo{
+  width: 38px !important;
+  height: 38px !important;
+  border-radius: 14px !important;
+  background: rgba(255,255,255,.96) !important;
+  color: rgba(6,95,70,.98) !important;
+  border: 1px solid rgba(255,255,255,.32) !important;
+  box-shadow: 0 10px 22px rgba(2,6,23,.14) !important;
+}
+
+/* Texto del nombre (bien visible) */
+header .brand .title{
+  display:flex !important;
+  flex-direction: column !important;
+  line-height: 1.08 !important;
+}
+header .brand .title b{
+  font-size: 15px !important;
+  font-weight: 900 !important;
+  letter-spacing: .2px !important;
+  text-shadow: 0 1px 0 rgba(2,6,23,.12) !important;
+}
+header .brand .title span{
+  font-size: 12px !important;
+  color: rgba(255,255,255,.85) !important;
+}
+
+/* Evita que el brand tome un ancho raro en pantallas grandes */
+header .bar{
+  align-items: center !important;
+}
+header .brand{
+  max-width: 320px !important;
+}
+header .brand .title{
+  max-width: 260px !important;
+}
+header .brand .title b,
+header .brand .title span{
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+/* En pantallas pequeñas: permite que baje el texto sin romper */
+@media (max-width: 520px){
+  header .brand{
+    max-width: 100% !important;
+  }
+  header .brand .title{
+    max-width: 100% !important;
+  }
+  header .brand .title b,
+  header .brand .title span{
+    white-space: normal !important;
+  }
+}
+
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <div class="brand">
+      <div class="logo">GP</div>
+      <div class="title">
+        <b id="farmName">Granja Porcina</b>
+        <span>Cerdas • Camadas • Ventas • Finanzas</span>
+      </div>
+    </div>
+    <nav id="nav"></nav>
+    <div class="right">
+      <input id="q" class="search" placeholder="Buscar: cerda, camada, cliente, insumo, venta…" />
+      <button class="btn" id="quick">➕ Rápido</button>
+      <button class="btn primary" id="newSale">Nueva venta</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div id="view"></div>
+</main>
+
+<dialog id="dlg">
+  <div class="dlgHd">
+    <div>
+      <b id="dlgTitle">Modal</b>
+      <span id="dlgSub">—</span>
+    </div>
+    <button class="btn" id="dlgClose">✕</button>
+  </div>
+  <div class="dlgBd" id="dlgBody"></div>
+  <div class="dlgFt" id="dlgFt"></div>
+</dialog>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(() => {
+  "use strict";
+  const $ = (s, el=document) => el.querySelector(s);
+  const $$ = (s, el=document) => Array.from(el.querySelectorAll(s));
+  const KEY = "granja_porcina_v1_compact";
+  const uid = (p="id") => p + "_" + Math.random().toString(16).slice(2) + "_" + Date.now().toString(16);
+  const today = () => new Date().toISOString().slice(0,10);
+  const num = (v) => { const n = Number(String(v??"").replace(/[^\d.-]/g,"")); return Number.isFinite(n)?n:0; };
+  const addDays = (iso, d) => { const x = new Date(iso+"T00:00:00"); x.setDate(x.getDate()+d); return x.toISOString().slice(0,10); };
+  const daysBetween = (a,b) => Math.round((new Date(b+"T00:00:00") - new Date(a+"T00:00:00"))/(1000*60*60*24));
+  const esc = (s) => String(s??"").replace(/[<>&]/g, ch => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[ch]));
+  const fmtCOP = (n) => { n=num(n); try { return n.toLocaleString("es-CO",{style:"currency",currency:"COP",maximumFractionDigits:0}); } catch { return "COP "+Math.round(n).toString(); } };
+
+  const defaults = () => ({
+    settings:{farmName:"Granja Porcina",currency:"COP",gestationDays:114},
+    sows:[], breedings:[], farrowings:[], batches:[],
+    inventory:[], stockMovements:[],
+    clients:[], sales:[], payments:[],
+    transactions:[], tasks:[]
+  });
+
+  let state = load();
+  function load(){ try{ const r=localStorage.getItem(KEY); return r?Object.assign(defaults(),JSON.parse(r)):defaults(); } catch { return defaults(); } }
+  function save(){ localStorage.setItem(KEY, JSON.stringify(state)); renderNavBadges(); }
+
+  function toast(type, title, msg){
+    const el=document.createElement("div");
+    el.className="t "+(type||"");
+    el.innerHTML = `<div style="font-weight:900;font-size:13px">${esc(title)}</div><div class="muted" style="margin-top:4px;font-size:12px">${esc(msg||"")}</div>`;
+    $("#toast").appendChild(el);
+    setTimeout(()=>{ el.style.opacity="0"; el.style.transform="translateY(6px)"; }, 2600);
+    setTimeout(()=>el.remove(), 3400);
+  }
+
+  // ------- Modal (dialog) -------
+  const dlg=$("#dlg"), dlgTitle=$("#dlgTitle"), dlgSub=$("#dlgSub"), dlgBody=$("#dlgBody"), dlgFt=$("#dlgFt");
+  $("#dlgClose").onclick = () => dlg.close();
+  dlg.addEventListener("click",(e)=>{ if(e.target===dlg) dlg.close(); });
+  function openModal({title,sub,body,footer,onMount}){
+    dlgTitle.textContent=title||"";
+    dlgSub.textContent=sub||"";
+    dlgBody.innerHTML=body||"";
+    dlgFt.innerHTML=footer||`<button class="btn" id="mClose">Cerrar</button>`;
+    dlg.showModal();
+    const c=$("#mClose",dlgFt); if(c) c.onclick=()=>dlg.close();
+    if(typeof onMount==="function") onMount();
+  }
+
+  // ------- Data helpers -------
+  const get = {
+    sow:(id)=>state.sows.find(x=>x.id===id)||null,
+    breeding:(id)=>state.breedings.find(x=>x.id===id)||null,
+    batch:(id)=>state.batches.find(x=>x.id===id)||null,
+    inv:(id)=>state.inventory.find(x=>x.id===id)||null,
+    client:(id)=>state.clients.find(x=>x.id===id)||null,
+    sale:(id)=>state.sales.find(x=>x.id===id)||null
+  };
+
+  function pregnantBreedings(){
+    const closed=new Set(state.farrowings.map(f=>f.breedingId).filter(Boolean));
+    return state.breedings.filter(b=>!closed.has(b.id));
+  }
+  function pigletsAvailable(){ return state.batches.filter(b=>(b.status||"disponible")!=="cerrado").reduce((s,b)=>s+num(b.countCurrent),0); }
+  function lowStock(){ return state.inventory.filter(i=>num(i.qty)<=num(i.minQty||0)); }
+  function receivables(){
+    return state.sales.map(s=>({s,pending:Math.max(0,num(s.total)-num(s.paidAmount))})).filter(x=>x.pending>0);
+  }
+  function sumMonth(type){
+    const m=today().slice(0,7);
+    return state.transactions.filter(t=>t.type===type && String(t.date||"").slice(0,7)===m).reduce((s,t)=>s+num(t.amount),0);
+  }
+
+  // ------- UI Nav -------
+  const tabs = [
+    ["dashboard","📊 Dashboard"],
+    ["sows","🐷 Cerdas"],
+    ["breed","🧬 Reproducción"],
+    ["litters","👶 Camadas"],
+    ["inv","📦 Inventario"],
+    ["sales","💳 Ventas"],
+    ["finance","💰 Finanzas"],
+    ["tasks","⏰ Tareas"],
+    ["settings","⚙️ Ajustes"]
+  ];
+  let current="dashboard", q="";
+  function renderNav(){
+    $("#nav").innerHTML = tabs.map(([id,label])=>`<button data-tab="${id}" class="${id===current?"active":""}">${label}</button>`).join("");
+    $("#nav").onclick = (e)=>{
+      const b=e.target.closest("button[data-tab]"); if(!b) return;
+      current=b.dataset.tab; renderNav(); render();
+    };
+  }
+  function renderNavBadges(){
+    $("#farmName").textContent = state.settings.farmName || "Granja Porcina";
+  }
+
+  $("#q").addEventListener("input",(e)=>{ q=(e.target.value||"").trim().toLowerCase(); render(); });
+  function matchQ(...fields){
+    if(!q) return true;
+    const s=fields.map(x=>String(x??"").toLowerCase()).join(" | ");
+    return s.includes(q);
+  }
+
+  // ------- Main render -------
+  const view=$("#view");
+  function shell(title, sub, actions, body){
+    return `<div class="grid">
+      <div class="card">
+        <div class="hd">
+          <div><h2>${esc(title)}</h2><p>${esc(sub||"")}</p></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">${actions||""}</div>
+        </div>
+        <div class="bd">${body||""}</div>
+      </div>
+    </div>`;
+  }
+
+  function render(){
+    renderNavBadges();
+    if(current==="dashboard") renderDashboard();
+    else if(current==="sows") renderSows();
+    else if(current==="breed") renderBreedings();
+    else if(current==="litters") renderLitters();
+    else if(current==="inv") renderInventory();
+    else if(current==="sales") renderSales();
+    else if(current==="finance") renderFinance();
+    else if(current==="tasks") renderTasks();
+    else if(current==="settings") renderSettings();
+  }
+
+  // ------- Dashboard -------
+  function renderDashboard(){
+    const preg=pregnantBreedings();
+    const upcoming=preg.map(b=>({b,s:get.sow(b.sowId),inDays:b.expectedFarrowing?daysBetween(today(),b.expectedFarrowing):null}))
+      .filter(x=>x.s && x.inDays!==null && x.inDays>=0 && x.inDays<=14).sort((a,b)=>a.inDays-b.inDays);
+
+    const inc=sumMonth("ingreso"), exp=sumMonth("gasto"), net=inc-exp;
+    const alerts=[];
+    upcoming.forEach(x=>alerts.push({t:"warn",a:"Parto cercano",d:`${x.s.tag||x.s.name||"cerda"} • ${x.b.expectedFarrowing} (${x.inDays} días)`}));
+    lowStock().slice(0,6).forEach(i=>alerts.push({t:"bad",a:"Stock bajo",d:`${i.name} • ${i.qty} ${i.unit} (mín ${i.minQty||0})`}));
+    receivables().slice(0,6).forEach(x=>alerts.push({t:"warn",a:"Cobro pendiente",d:`${get.client(x.s.clientId)?.name||"cliente"} • ${fmtCOP(x.pending)} • ${x.s.date}`}));
+
+    const kpis = `<div class="kpis">
+      <div class="kpi"><small>Cerdas</small><b>${state.sows.length}</b><div class="muted mono">Registro maestro</div></div>
+      <div class="kpi"><small>Gestaciones abiertas</small><b>${preg.length}</b><div class="muted mono">Servicios sin parto</div></div>
+      <div class="kpi"><small>Lechones disponibles</small><b>${pigletsAvailable()}</b><div class="muted mono">Suma camadas</div></div>
+      <div class="kpi"><small>Flujo del mes</small><b>${fmtCOP(net)}</b><div class="muted mono">${fmtCOP(inc)} - ${fmtCOP(exp)}</div></div>
+    </div>`;
+
+    const alertsHTML = alerts.length ? `<div class="wrap" style="margin-top:12px">
+      <table><thead><tr><th>Tipo</th><th>Detalle</th><th class="mono">Acción</th></tr></thead>
+      <tbody>${alerts.map(x=>`<tr>
+        <td><span class="tag ${x.t}">${x.t==="bad"?"Crítico":x.t==="warn"?"Atención":"Info"}</span></td>
+        <td><b>${esc(x.a)}</b><div class="muted">${esc(x.d)}</div></td>
+        <td>
+          ${x.a==="Stock bajo"?`<button class="btn" data-go="inv">Inventario</button>`:
+            x.a==="Cobro pendiente"?`<button class="btn" data-go="sales">Ventas</button>`:
+            `<button class="btn" data-go="breed">Reproducción</button>`}
+        </td>
+      </tr>`).join("")}</tbody></table></div>` : `<div class="muted" style="margin-top:10px">Sin alertas por ahora.</div>`;
+
+    view.innerHTML = shell(
+      "Dashboard",
+      "Vista rápida con métricas y alertas automáticas.",
+      `<button class="btn primary" id="addSow">➕ Nueva cerda</button>
+       <button class="btn" id="addInv">📦 Nuevo insumo</button>
+       <button class="btn" id="addBreeding">🧬 Servicio</button>
+       <button class="btn" id="addFarrowing">👶 Parto</button>`,
+      kpis + alertsHTML
+    );
+
+    $("#addSow").onclick=()=>openSow();
+    $("#addInv").onclick=()=>openInvItem();
+    $("#addBreeding").onclick=()=>openBreeding();
+    $("#addFarrowing").onclick=()=>openFarrowing();
+
+    view.onclick = (e)=>{
+      const b=e.target.closest("button[data-go]"); if(!b) return;
+      current=b.dataset.go; renderNav(); render();
+    };
+  }
+
+  // ------- Sows -------
+  function renderSows(){
+    const closed=new Set(state.farrowings.map(f=>f.breedingId).filter(Boolean));
+    const rows = state.sows
+      .filter(s=>matchQ(s.tag,s.name,s.breed,s.status,s.notes))
+      .sort((a,b)=>(a.tag||"").localeCompare(b.tag||""))
+      .map(s=>{
+        const last = state.breedings.filter(b=>b.sowId===s.id).sort((a,b)=>(b.date||"").localeCompare(a.date||""))[0];
+        const preg = last && !closed.has(last.id);
+        const due = preg ? last.expectedFarrowing : "";
+        const inD = due ? daysBetween(today(), due) : null;
+        return `<tr>
+          <td class="mono">${esc(s.tag||"—")}<div class="muted">${esc(s.name||"")}</div></td>
+          <td>${esc(s.breed||"—")}<div class="muted">${esc(s.status||"activa")}</div></td>
+          <td>${preg?`<span class="tag warn">Preñada</span>`:`<span class="tag">—</span>`}</td>
+          <td class="mono">${preg?`${esc(due)} (${inD} días)`:"—"}</td>
+          <td>
+            <button class="btn" data-act="detail" data-id="${s.id}">Ver</button>
+            <button class="btn" data-act="edit" data-id="${s.id}">Editar</button>
+            <button class="btn danger" data-act="del" data-id="${s.id}">Eliminar</button>
+          </td>
+        </tr>`;
+      }).join("");
+
+    view.innerHTML = shell(
+      "Cerdas",
+      "Registro maestro de animales.",
+      `<button class="btn primary" id="add">➕ Nueva cerda</button>
+       <button class="btn" id="svc">🧬 Registrar servicio</button>`,
+      `<div class="wrap"><table>
+        <thead><tr><th>Identificación</th><th>Raza/Estado</th><th>Gestación</th><th>Parto estimado</th><th>Acciones</th></tr></thead>
+        <tbody>${rows || `<tr><td colspan="5" class="muted">Sin cerdas todavía.</td></tr>`}</tbody>
+      </table></div>`
+    );
+
+    $("#add").onclick=()=>openSow();
+    $("#svc").onclick=()=>openBreeding();
+
+    view.onclick = (e)=>{
+      const b=e.target.closest("button[data-act]"); if(!b) return;
+      const id=b.dataset.id, act=b.dataset.act;
+      if(act==="edit") openSow(id);
+      if(act==="detail") sowDetail(id);
+      if(act==="del") delSow(id);
+    };
+  }
+
+  function sowForm(s){
+    s = s || {tag:"",name:"",breed:"",dob:"",status:"activa",notes:""};
+    return `<form id="sowForm" class="grid2">
+      <div class="f3"><label>Arete/Tag *</label><input name="tag" required value="${esc(s.tag)}" placeholder="Ej: C-021"/></div>
+      <div class="f3"><label>Nombre</label><input name="name" value="${esc(s.name)}"/></div>
+      <div class="f3"><label>Raza</label><input name="breed" value="${esc(s.breed)}"/></div>
+      <div class="f3"><label>Nacimiento</label><input type="date" name="dob" value="${esc(s.dob)}"/></div>
+      <div class="f4"><label>Estado</label><select name="status">${["activa","seca","lactante","vendida","descartada","muerta"].map(x=>`<option ${s.status===x?"selected":""} value="${x}">${x}</option>`).join("")}</select></div>
+      <div class="f12"><label>Notas</label><textarea name="notes">${esc(s.notes)}</textarea></div>
+    </form>`;
+  }
+
+  function openSow(id){
+    const s=id?get.sow(id):null;
+    openModal({
+      title: id?"Editar cerda":"Nueva cerda",
+      sub:"Crea el registro base para reproducción y camadas.",
+      body: sowForm(s),
+      footer:`<button class="btn" id="mClose">Cancelar</button><button class="btn primary" id="save">Guardar</button>`,
+      onMount: ()=>{ $("#save").onclick=()=>saveSow(id); }
+    });
+  }
+
+  function saveSow(id){
+    const f=$("#sowForm"); const fd=new FormData(f);
+    const tag=(fd.get("tag")||"").toString().trim();
+    if(!tag){ toast("bad","Falta Tag","El Tag es obligatorio."); return; }
+    const dup=state.sows.find(x=>x.tag?.toLowerCase()===tag.toLowerCase() && x.id!==id);
+    if(dup){ toast("bad","Duplicado","Ya existe ese Tag."); return; }
+    const payload={
+      id:id||uid("sow"), tag,
+      name:(fd.get("name")||"").toString().trim(),
+      breed:(fd.get("breed")||"").toString().trim(),
+      dob:(fd.get("dob")||"").toString(),
+      status:(fd.get("status")||"activa").toString(),
+      notes:(fd.get("notes")||"").toString().trim()
+    };
+    if(id) state.sows=state.sows.map(x=>x.id===id?payload:x);
+    else state.sows.push(payload);
+    save(); dlg.close(); toast("ok","Guardado","Cerda guardada."); render();
+  }
+
+  function sowDetail(id){
+    const s=get.sow(id); if(!s) return;
+    const br=state.breedings.filter(b=>b.sowId===id).sort((a,b)=>(b.date||"").localeCompare(a.date||"")).slice(0,10);
+    const fa=state.farrowings.filter(f=>f.sowId===id).sort((a,b)=>(b.date||"").localeCompare(a.date||"")).slice(0,10);
+    const ba=state.batches.filter(b=>b.sowId===id).sort((a,b)=>(b.birthDate||"").localeCompare(a.birthDate||"")).slice(0,10);
+    openModal({
+      title:`Cerda: ${s.tag||s.name||"—"}`,
+      sub:"Historial rápido",
+      body:`<div class="grid">
+        <div class="card"><div class="bd">
+          <div class="row"><div><div class="muted">Tag</div><b class="mono">${esc(s.tag||"—")}</b><div class="muted">${esc(s.name||"")}</div></div>
+          <div><div class="muted">Raza/Estado</div><b>${esc(s.breed||"—")}</b><div class="muted">${esc(s.status||"activa")}</div></div>
+          <div><div class="muted">Notas</div><div class="muted">${esc(s.notes||"—")}</div></div></div>
+        </div></div>
+        <div class="card"><div class="hd"><div><h2>Reproducción</h2><p>Últimos 10</p></div></div><div class="bd">
+          <div class="wrap"><table><thead><tr><th>Servicio</th><th>Método</th><th>Parto est.</th><th>Notas</th></tr></thead>
+          <tbody>${br.map(b=>`<tr><td class="mono">${esc(b.date)}</td><td>${esc(b.method||"—")}</td><td class="mono">${esc(b.expectedFarrowing||"—")}</td><td class="muted">${esc(b.notes||"")}</td></tr>`).join("")||`<tr><td colspan="4" class="muted">Sin registros.</td></tr>`}</tbody></table></div>
+        </div></div>
+        <div class="card"><div class="hd"><div><h2>Partos</h2><p>Últimos 10</p></div></div><div class="bd">
+          <div class="wrap"><table><thead><tr><th>Fecha</th><th>Total</th><th>Vivos</th><th>Muertos</th></tr></thead>
+          <tbody>${fa.map(x=>`<tr><td class="mono">${esc(x.date)}</td><td class="mono">${esc(x.bornTotal)}</td><td class="mono">${esc(x.bornAlive)}</td><td class="mono">${esc(num(x.stillborn)+num(x.mummified))}</td></tr>`).join("")||`<tr><td colspan="4" class="muted">Sin registros.</td></tr>`}</tbody></table></div>
+        </div></div>
+        <div class="card"><div class="hd"><div><h2>Camadas</h2><p>Últimos 10</p></div></div><div class="bd">
+          <div class="wrap"><table><thead><tr><th>Lote</th><th>Nac.</th><th>Dest.</th><th>Inicial</th><th>Actual</th></tr></thead>
+          <tbody>${ba.map(b=>`<tr><td class="mono">${esc(b.id.slice(-8))}</td><td class="mono">${esc(b.birthDate||"—")}</td><td class="mono">${esc(b.weaningDate||"—")}</td><td class="mono">${esc(b.countInitial)}</td><td class="mono">${esc(b.countCurrent)}</td></tr>`).join("")||`<tr><td colspan="5" class="muted">Sin registros.</td></tr>`}</tbody></table></div>
+        </div></div>
+      </div>`,
+      footer:`<button class="btn" id="mClose">Cerrar</button><button class="btn" id="goSvc">🧬 Servicio</button><button class="btn primary" id="goFar">👶 Parto</button>`,
+      onMount: ()=>{
+        $("#goSvc").onclick=()=>{ dlg.close(); openBreeding(null,{sowId:id}); };
+        $("#goFar").onclick=()=>{ dlg.close(); openFarrowing(null,{sowId:id}); };
+      }
+    });
+  }
+
+  function delSow(id){
+    const s=get.sow(id); if(!s) return;
+    openModal({
+      title:"Eliminar cerda",
+      sub:"Puedes mantener historial o purgar todo.",
+      body:`<div class="muted">Eliminar: <b>${esc(s.tag||s.name||"—")}</b></div>
+      <div style="margin-top:10px">
+        <label>Modo</label>
+        <select id="delMode">
+          <option value="keep">Mantener historial (recomendado)</option>
+          <option value="purge">Borrar TODO asociado</option>
+        </select>
+      </div>`,
+      footer:`<button class="btn" id="mClose">Cancelar</button><button class="btn danger" id="okDel">Eliminar</button>`,
+      onMount: ()=>{
+        $("#okDel").onclick=()=>{
+          const mode=$("#delMode").value;
+          state.sows=state.sows.filter(x=>x.id!==id);
+          if(mode==="purge"){
+            const brIds=new Set(state.breedings.filter(b=>b.sowId===id).map(b=>b.id));
+            state.breedings=state.breedings.filter(b=>b.sowId!==id);
+            state.farrowings=state.farrowings.filter(f=>f.sowId!==id);
+            const batchIds=new Set(state.batches.filter(b=>b.sowId===id).map(b=>b.id));
+            state.batches=state.batches.filter(b=>b.sowId!==id);
+            state.sales=state.sales.filter(s=>!batchIds.has(s.batchId));
+            const saleIds=new Set(state.sales.map(s=>s.id));
+            state.payments=state.payments.filter(p=>saleIds.has(p.saleId));
+            state.tasks=state.tasks.filter(t=>!(t.relatedType==="breeding"&&brIds.has(t.relatedId)));
+          } else {
+            state.breedings.forEach(b=>{ if(b.sowId===id) b.sowId=""; });
+            state.farrowings.forEach(f=>{ if(f.sowId===id) f.sowId=""; });
+            state.batches.forEach(b=>{ if(b.sowId===id) b.sowId=""; });
+          }
+          save(); dlg.close(); toast("ok","Eliminado","Cerda eliminada."); render();
+        };
+      }
+    });
+  }
+
+  // ------- Reproducción -------
+  function renderBreedings(){
+    const closed=new Set(state.farrowings.map(f=>f.breedingId).filter(Boolean));
+    const rows = state.breedings
+      .filter(b=>{
+        const s=get.sow(b.sowId);
+        return matchQ(b.date,b.method,b.expectedFarrowing,b.notes,s?.tag,s?.name);
+      })
+      .sort((a,b)=>(b.date||"").localeCompare(a.date||""))
+      .map(b=>{
+        const s=get.sow(b.sowId);
+        const open=!closed.has(b.id);
+        const inD=b.expectedFarrowing?daysBetween(today(),b.expectedFarrowing):null;
+        const tag=open?(inD!==null && inD>=0 && inD<=14?`<span class="tag warn">Próximo</span>`:`<span class="tag">Gestación</span>`):`<span class="tag ok">Cerrado</span>`;
+        return `<tr>
+          <td class="mono">${esc(b.date||"—")}</td>
+          <td>${esc(s?.tag||s?.name||"—")}<div class="muted">${esc(s?.breed||"")}</div></td>
+          <td>${esc(b.method||"—")}</td>
+          <td class="mono">${esc(b.expectedFarrowing||"—")}<div class="muted">${open&&inD!==null?`${inD} días`:""}</div></td>
+          <td>${tag}</td>
+          <td>
+            <button class="btn" data-act="edit" data-id="${b.id}">Editar</button>
+            <button class="btn primary" data-act="far" data-id="${b.id}">Registrar parto</button>
+            <button class="btn danger" data-act="del" data-id="${b.id}">Eliminar</button>
+          </td>
+        </tr>`;
+      }).join("");
+
+    view.innerHTML = shell(
+      "Reproducción",
+      `Servicios e inseminaciones. Gestación por defecto: ${state.settings.gestationDays} días.`,
+      `<button class="btn primary" id="add">🧬 Registrar servicio</button>`,
+      `<div class="wrap"><table>
+        <thead><tr><th>Servicio</th><th>Cerda</th><th>Método</th><th>Parto est.</th><th>Estado</th><th>Acciones</th></tr></thead>
+        <tbody>${rows||`<tr><td colspan="6" class="muted">Sin registros.</td></tr>`}</tbody>
+      </table></div>`
+    );
+    $("#add").onclick=()=>openBreeding();
+
+    view.onclick=(e)=>{
+      const b=e.target.closest("button[data-act]"); if(!b) return;
+      const id=b.dataset.id, act=b.dataset.act;
+      if(act==="edit") openBreeding(id);
+      if(act==="far") openFarrowing(null,{breedingId:id});
+      if(act==="del") delBreeding(id);
+    };
+  }
+
+  function breedingForm(b,preset={}){
+    if(!state.sows.length) return `<div class="muted">Primero crea una cerda.</div>`;
+    b=b||{sowId:preset.sowId||"",date:today(),method:"inseminación",expectedFarrowing:"",notes:""};
+    if(!b.expectedFarrowing && b.date) b.expectedFarrowing=addDays(b.date, num(state.settings.gestationDays)||114);
+    const sowOps = state.sows.slice().sort((a,b)=>(a.tag||"").localeCompare(b.tag||""))
+      .map(s=>`<option value="${s.id}" ${b.sowId===s.id?"selected":""}>${esc(s.tag||s.name||"—")}${s.name?` — ${esc(s.name)}`:""}</option>`).join("");
+    return `<form id="breedingForm" class="grid2">
+      <div class="f6"><label>Cerda *</label><select name="sowId" required><option value="">Selecciona</option>${sowOps}</select></div>
+      <div class="f3"><label>Fecha servicio *</label><input type="date" name="date" required value="${esc(b.date)}"/></div>
+      <div class="f3"><label>Método</label><select name="method">${["inseminación","monta","otro"].map(x=>`<option ${b.method===x?"selected":""} value="${x}">${x}</option>`).join("")}</select></div>
+      <div class="f4"><label>Parto estimado</label><input type="date" name="expectedFarrowing" value="${esc(b.expectedFarrowing)}"/></div>
+      <div class="f12"><label>Notas</label><textarea name="notes">${esc(b.notes)}</textarea></div>
+    </form>`;
+  }
+
+  function openBreeding(id,preset={}){
+    if(!state.sows.length){ toast("warn","Sin cerdas","Primero crea una cerda."); openSow(); return; }
+    const b=id?get.breeding(id):null;
+    openModal({
+      title: id?"Editar servicio":"Registrar servicio",
+      sub:"Crea una gestación y calcula fecha de parto estimada.",
+      body: breedingForm(b,preset),
+      footer:`<button class="btn" id="mClose">Cancelar</button><button class="btn primary" id="save">Guardar</button>`,
+      onMount: ()=>{
+        const f=$("#breedingForm");
+        const date=f.querySelector('input[name="date"]');
+        const due=f.querySelector('input[name="expectedFarrowing"]');
+        date.onchange=()=>{ if(date.value) due.value=addDays(date.value, num(state.settings.gestationDays)||114); };
+        $("#save").onclick=()=>saveBreeding(id);
+      }
+    });
+  }
+
+  function saveBreeding(id){
+    const f=$("#breedingForm"); const fd=new FormData(f);
+    const sowId=(fd.get("sowId")||"").toString();
+    const date=(fd.get("date")||"").toString();
+    if(!sowId||!date){ toast("bad","Faltan datos","Cerda y fecha son obligatorios."); return; }
+    const payload={
+      id:id||uid("brd"),
+      sowId, date,
+      method:(fd.get("method")||"inseminación").toString(),
+      expectedFarrowing:(fd.get("expectedFarrowing")||"").toString()||addDays(date,num(state.settings.gestationDays)||114),
+      notes:(fd.get("notes")||"").toString().trim()
+    };
+    if(id) state.breedings=state.breedings.map(x=>x.id===id?payload:x);
+    else {
+      state.breedings.push(payload);
+      // task sugerida chequeo preñez
+      state.tasks.push({id:uid("tsk"),title:`Chequeo preñez — ${get.sow(sowId)?.tag||"cerda"}`,dueDate:addDays(date,25),priority:"media",status:"pendiente",relatedType:"breeding",relatedId:payload.id,notes:"Sugerido 21–28 días."});
+    }
+    save(); dlg.close(); toast("ok","Guardado","Servicio guardado."); render();
+  }
+
+  function delBreeding(id){
+    const b=get.breeding(id); if(!b) return;
+    const has=state.farrowings.some(f=>f.breedingId===id);
+    if(has){ toast("bad","No permitido","Este servicio ya tiene parto."); return; }
+    state.breedings=state.breedings.filter(x=>x.id!==id);
+    state.tasks=state.tasks.filter(t=>!(t.relatedType==="breeding"&&t.relatedId===id));
+    save(); toast("ok","Eliminado","Servicio eliminado."); render();
+  }
+
+  // ------- Partos y Camadas -------
+  function renderLitters(){
+    const rows=state.batches
+      .filter(b=>{
+        const s=get.sow(b.sowId);
+        return matchQ(b.id,b.birthDate,b.weaningDate,b.status,b.notes,s?.tag,s?.name);
+      })
+      .sort((a,b)=>(b.birthDate||"").localeCompare(a.birthDate||""))
+      .map(b=>{
+        const s=get.sow(b.sowId);
+        const tag=(b.status||"disponible")==="cerrado"?`<span class="tag ok">Cerrado</span>`:`<span class="tag">Disponible</span>`;
+        return `<tr>
+          <td class="mono">${esc(b.id.slice(-8))}</td>
+          <td>${esc(s?.tag||s?.name||"—")}</td>
+          <td class="mono">${esc(b.birthDate||"—")}</td>
+          <td class="mono">${esc(b.weaningDate||"—")}</td>
+          <td class="mono">${esc(b.countInitial)}</td>
+          <td class="mono">${esc(b.countCurrent)}</td>
+          <td>${tag}</td>
+          <td>
+            <button class="btn" data-act="edit" data-id="${b.id}">Editar</button>
+            <button class="btn" data-act="mort" data-id="${b.id}">Mortalidad</button>
+            <button class="btn primary" data-act="sell" data-id="${b.id}">Vender</button>
+          </td>
+        </tr>`;
+      }).join("");
+
+    view.innerHTML = shell(
+      "Camadas",
+      "Cada parto crea un lote. Controla cantidad actual y disponibilidad.",
+      `<button class="btn primary" id="far">👶 Registrar parto</button><button class="btn" id="manual">➕ Camada manual</button>`,
+      `<div class="wrap"><table>
+        <thead><tr><th>Lote</th><th>Cerda</th><th>Nac.</th><th>Dest.</th><th>Inicial</th><th>Actual</th><th>Estado</th><th>Acciones</th></tr></thead>
+        <tbody>${rows||`<tr><td colspan="8" class="muted">Sin camadas.</td></tr>`}</tbody>
+      </table></div>`
+    );
+
+    $("#far").onclick=()=>openFarrowing();
+    $("#manual").onclick=()=>openBatch();
+
+    view.onclick=(e)=>{
+      const b=e.target.closest("button[data-act]"); if(!b) return;
+      const id=b.dataset.id, act=b.dataset.act;
+      if(act==="edit") openBatch(id);
+      if(act==="mort") adjustBatch(id);
+      if(act==="sell") openSale(null,{batchId:id});
+    };
+  }
+
+  function farrowingForm(f,preset={}){
+    if(!state.sows.length) return `<div class="muted">Primero crea una cerda.</div>`;
+    const closed=new Set(state.farrowings.map(x=>x.breedingId).filter(Boolean));
+    const openBr=state.breedings.filter(b=>!closed.has(b.id));
+    f=f||{breedingId:preset.breedingId||"",sowId:preset.sowId||"",date:today(),bornTotal:0,bornAlive:0,stillborn:0,mummified:0,notes:""};
+    const sowOps=state.sows.slice().sort((a,b)=>(a.tag||"").localeCompare(b.tag||"")).map(s=>`<option value="${s.id}" ${f.sowId===s.id?"selected":""}>${esc(s.tag||s.name||"—")}</option>`).join("");
+    const brOps=openBr.slice().sort((a,b)=>(b.date||"").localeCompare(a.date||""))
+      .map(b=>{ const s=get.sow(b.sowId); return `<option value="${b.id}" ${f.breedingId===b.id?"selected":""}>${esc(b.date)} • ${esc(s?.tag||"cerda")} • est ${esc(b.expectedFarrowing||"—")}</option>`; }).join("");
+    return `<form id="farForm" class="grid2">
+      <div class="f12"><label>Servicio asociado (opcional)</label><select name="breedingId" id="ffBr"><option value="">(Sin servicio)</option>${brOps}</select></div>
+      <div class="f6"><label>Cerda *</label><select name="sowId" id="ffSow" required><option value="">Selecciona</option>${sowOps}</select></div>
+      <div class="f6"><label>Fecha parto *</label><input type="date" name="date" value="${esc(f.date)}" required/></div>
+      <div class="f3"><label>Total</label><input type="number" name="bornTotal" value="${esc(f.bornTotal)}" min="0"/></div>
+      <div class="f3"><label>Vivos</label><input type="number" name="bornAlive" value="${esc(f.bornAlive)}" min="0"/></div>
+      <div class="f3"><label>Muertos</label><input type="number" name="stillborn" value="${esc(f.stillborn)}" min="0"/></div>
+      <div class="f3"><label>Momificados</label><input type="number" name="mummified" value="${esc(f.mummified)}" min="0"/></div>
+      <div class="f12"><label>Notas</label><textarea name="notes">${esc(f.notes)}</textarea></div>
+      <div class="f12"><span class="tag">Al guardar se crea una camada con nacidos vivos.</span></div>
+    </form>`;
+  }
+
+  function openFarrowing(id,preset={}){
+    if(!state.sows.length){ toast("warn","Sin cerdas","Primero crea una cerda."); openSow(); return; }
+    const f=id?state.farrowings.find(x=>x.id===id):null;
+    openModal({
+      title:id?"Editar parto":"Registrar parto",
+      sub:"Se crea o actualiza el lote/camada automáticamente.",
+      body:farrowingForm(f,preset),
+      footer:`<button class="btn" id="mClose">Cancelar</button><button class="btn primary" id="save">Guardar</button>`,
+      onMount: ()=>{
+        const sel=$("#ffBr"), sow=$("#ffSow");
+        sel.onchange=()=>{ const br=get.breeding(sel.value); if(br && br.sowId) sow.value=br.sowId; };
+        $("#save").onclick=()=>saveFarrowing(id);
+      }
+    });
+  }
+
+  function saveFarrowing(id){
+    const f=$("#farForm"); const fd=new FormData(f);
+    const sowId=(fd.get("sowId")||"").toString();
+    const date=(fd.get("date")||"").toString();
+    if(!sowId||!date){ toast("bad","Faltan datos","Cerda y fecha son obligatorios."); return; }
+    const breedingId=(fd.get("breedingId")||"").toString();
+    if(breedingId){
+      const dup=state.farrowings.find(x=>x.breedingId===breedingId && x.id!==id);
+      if(dup){ toast("bad","Duplicado","Ese servicio ya tiene parto."); return; }
+    }
+    const payload={
+      id:id||uid("far"),
+      breedingId:breedingId||"",
+      sowId, date,
+      bornTotal:num(fd.get("bornTotal")),
+      bornAlive:num(fd.get("bornAlive")),
+      stillborn:num(fd.get("stillborn")),
+      mummified:num(fd.get("mummified")),
+      notes:(fd.get("notes")||"").toString().trim()
+    };
+    if(id) state.farrowings=state.farrowings.map(x=>x.id===id?payload:x);
+    else {
+      state.farrowings.push(payload);
+      state.tasks.push({id:uid("tsk"),title:`Destete sugerido — ${get.sow(sowId)?.tag||"cerda"}`,dueDate:addDays(date,28),priority:"media",status:"pendiente",relatedType:"batch",relatedId:"",notes:"Ajusta 21–35 días según manejo."});
+    }
+
+    // batch linked
+    let batch=state.batches.find(b=>b.farrowingId===payload.id);
+    const init=Math.max(0, payload.bornAlive);
+    if(!batch){
+      batch={id:uid("bat"),sowId,farrowingId:payload.id,birthDate:date,weaningDate:addDays(date,28),countInitial:init,countCurrent:init,status:"disponible",notes:""};
+      state.batches.push(batch);
+    } else {
+      batch.sowId=sowId; batch.birthDate=date; batch.weaningDate=batch.weaningDate||addDays(date,28);
+      batch.countInitial=init; batch.countCurrent=Math.min(num(batch.countCurrent), init);
+    }
+    // link destete task
+    const t=state.tasks.find(x=>x.relatedType==="batch" && x.relatedId==="" && x.title.startsWith("Destete sugerido"));
+    if(t) t.relatedId=batch.id;
+
+    save(); dlg.close(); toast("ok","Guardado","Parto registrado."); render();
+  }
+
+  function batchForm(b){
+    if(!state.sows.length) return `<div class="muted">Primero crea una cerda.</div>`;
+    b=b||{sowId:"",birthDate:today(),weaningDate:addDays(today(),28),countInitial:0,countCurrent:0,status:"disponible",notes:""};
+    const sowOps=state.sows.slice().sort((a,b)=>(a.tag||"").localeCompare(b.tag||"")).map(s=>`<option value="${s.id}" ${b.sowId===s.id?"selected":""}>${esc(s.tag||s.name||"—")}</option>`).join("");
+    return `<form id="batchForm" class="grid2">
+      <div class="f6"><label>Cerda *</label><select name="sowId" required><option value="">Selecciona</option>${sowOps}</select></div>
+      <div class="f6"><label>Estado</label><select name="status">${["disponible","reservado","vendido","cerrado"].map(x=>`<option ${b.status===x?"selected":""} value="${x}">${x}</option>`).join("")}</select></div>
+      <div class="f4"><label>Nacimiento *</label><input type="date" name="birthDate" required value="${esc(b.birthDate)}"/></div>
+      <div class="f4"><label>Destete</label><input type="date" name="weaningDate" value="${esc(b.weaningDate)}"/></div>
+      <div class="f4"><label>Cantidad inicial</label><input type="number" name="countInitial" value="${esc(b.countInitial)}" min="0"/></div>
+      <div class="f4"><label>Cantidad actual</label><input type="number" name="countCurrent" value="${esc(b.countCurrent)}" min="0"/></div>
+      <div class="f12"><label>Notas</label><textarea name="notes">${esc(b.notes)}</textarea></div>
+    </form>`;
+  }
+
+  function openBatch(id){
+    if(!state.sows.length){ toast("warn","Sin cerdas","Primero crea una cerda."); openSow(); return; }
+    const b=id?get.batch(id):null;
+    openModal({
+      title:id?"Editar camada":"Camada manual",
+      sub:"Útil si registras lotes sin usar el módulo de parto.",
+      body:batchForm(b),
+      footer:`<button class="btn" id="mClose">Cancelar</button><button class="btn primary" id="save">Guardar</button>`,
+      onMount: ()=>{
+        const f=$("#batchForm");
+        const birth=f.querySelector('input[name="birthDate"]');
+        const wean=f.querySelector('input[name="weaningDate"]');
+        birth.onchange=()=>{ if(birth.value && !wean.value) wean.value=addDays(birth.value,28); };
+        $("#save").onclick=()=>{
+          const fd=new FormData(f);
+          const sowId=(fd.get("sowId")||"").toString();
+          const birthDate=(fd.get("birthDate")||"").toString();
+          if(!sowId||!birthDate){ toast("bad","Faltan datos","Cerda y nacimiento son obligatorios."); return; }
+          const payload={
+            id:id||uid("bat"),
+            sowId, farrowingId:b?.farrowingId||"",
+            birthDate,
+            weaningDate:(fd.get("weaningDate")||"").toString(),
+            countInitial:num(fd.get("countInitial")),
+            countCurrent:num(fd.get("countCurrent")),
+            status:(fd.get("status")||"disponible").toString(),
+            notes:(fd.get("notes")||"").toString().trim()
+          };
+          if(id) state.batches=state.batches.map(x=>x.id===id?payload:x);
+          else state.batches.push(payload);
+          save(); dlg.close(); toast("ok","Guardado","Camada guardada."); render();
+        };
+      }
+    });
+  }
+
+  function adjustBatch(id){
+    const b=get.batch(id); if(!b) return;
+    openModal({
+      title:"Ajuste de camada",
+      sub:`Lote ${b.id.slice(-8)} • Actual ${b.countCurrent}`,
+      body:`<form id="adjForm" class="grid2">
+        <div class="f4"><label>Fecha</label><input type="date" name="date" value="${today()}"/></div>
+        <div class="f4"><label>Tipo</label><select name="type"><option value="mortalidad">Mortalidad (resta)</option><option value="ajuste">Ajuste (definir)</option></select></div>
+        <div class="f4"><label>Cantidad</label><input type="number" name="qty" value="1" min="0"/></div>
+        <div class="f12"><label>Notas</label><textarea name="notes"></textarea></div>
+      </form>`,
+      footer:`<button class="btn" id="mClose">Cancelar</button><button class="btn primary" id="ok">Aplicar</button>`,
+      onMount: ()=>{
+        $("#ok").onclick=()=>{
+          const fd=new FormData($("#adjForm"));
+          const type=(fd.get("type")||"mortalidad").toString();
+          const qty=num(fd.get("qty"));
+          if(qty<=0){ toast("bad","Cantidad inválida","Debe ser > 0."); return; }
+          const before=num(b.countCurrent);
+          let after=before;
+          if(type==="mortalidad") after=Math.max(0, before-qty);
+          else after=Math.max(0, qty);
+          b.countCurrent=after;
+          if(after===0) b.status="cerrado";
+          state.stockMovements.push({id:uid("mov"),itemId:"",type:"ajuste",date:(fd.get("date")||today()).toString(),qty:(type==="mortalidad"?-qty:(after-before)),unitCost:0,linkedType:"batch",linkedId:b.id,notes:`Camada ${type}. ${(fd.get("notes")||"").toString().trim()}`.trim()});
+          save(); dlg.close(); toast("ok","Aplicado",`${before} → ${after}`); render();
+        };
+      }
+    });
+  }
+
+  // ------- Inventario -------
+  function renderInventory(){
+    const rows = state.inventory
+      .filter(i=>matchQ(i.name,i.category,i.supplier,i.notes,i.unit))
+      .sort((a,b)=>(a.category||"").localeCompare(b.category||"") || (a.name||"").localeCompare(b.name||""))
+      .map(i=>{
+        const low=num(i.qty)<=num(i.minQty||0);
+        return `<tr>
+          <td><b>${esc(i.name)}</b><div class="muted">${esc(i.category||"")}</div></td>
+          <td class="mono">${esc(i.qty)} ${esc(i.unit||"")}</td>
+          <td class="mono">${esc(i.minQty||0)} ${esc(i.unit||"")}</td>
+          <td>${low?`<span class="tag bad">Bajo</span>`:`<span class="tag ok">OK</span>`}</td>
+          <td class="mono">${esc(fmtCOP(i.unitCost||0))}</td>
+          <td>${esc(i.supplier||"—")}<div class="muted">Vence: ${esc(i.expiration||"—")}</div></td>
+          <td>
+            <button class="btn" data-act="in" data-id="${i.id}">Entrada</button>
+            <button class="btn" data-act="out" data-id="${i.id}">Salida</button>
+            <button class="btn" data-act="edit" data-id="${i.id}">Editar</button>
+            <button class="btn danger" data-act="del" data-id="${i.id}">Eliminar</button>
+          </td>
+        </tr>`;
+      }).join("");
+
+    const low = lowStock();
+    const lowMsg = low.length ? `<span class="tag bad">Bajo stock</span> <span class="muted">${low.map(x=>`${esc(x.name)} (${esc(x.qty)} ${esc(x.unit)})`).join(" • ")}</span>` : `<span class="muted">No hay stock crítico.</span>`;
+
+    view.innerHTML = shell(
+      "Inventario",
+      "Alimentos, medicamentos e insumos con movimientos y alertas por mínimo.",
+      `<button class="btn primary" id="add">➕ Nuevo insumo</button><button class="btn" id="movs">Ver movimientos</button>`,
+      `<div class="row" style="margin-bottom:10px">${lowMsg}</div>
+       <div class="wrap"><table>
+        <thead><tr><th>Insumo</th><th>Cant.</th><th>Mín.</th><th>Estado</th><th>Costo unit.</th><th>Proveedor</th><th>Acciones</th></tr></thead>
+        <tbody>${rows||`<tr><td colspan="7" class="muted">Sin inventario.</td></tr>`}</tbody>
+      </table></div>`
+    );
+
+    $("#add").onclick=()=>openInvItem();
+    $("#movs").onclick=()=>openMovs();
+    view.onclick=(e)=>{
+      const b=e.target.closest("button[data-act]"); if(!b) return;
+      const id=b.dataset.id, act=b.dataset.act;
+      if(act==="edit") openInvItem(id);
+      if(act==="del") delInv(id);
+      if(act==="in") openInvMove(id,"entrada");
+      if(act==="out") openInvMove(id,"salida");
+    };
+  }
+
+  function invForm(i){
+    i=i||{name:"",category:"alimento",unit:"kg",qty:0,minQty:0,unitCost:0,supplier:"",expiration:"",notes:""};
+    return `<form id="invForm" class="grid2">
+      <div class="f6"><label>Nombre *</label><input name="name" required value="${esc(i.name)}"/></div>
+      <div class="f3"><label>Categoría</label><select name="category">${["alimento","medicamento","insumo"].map(x=>`<option ${i.category===x?"selected":""} value="${x}">${x}</option>`).join("")}</select></div>
+      <div class="f3"><label>Unidad</label><input name="unit" value="${esc(i.unit)}" placeholder="kg, ml, und"/></div>
+      <div class="f3"><label>Cantidad</label><input type="number" step="0.01" name="qty" value="${esc(i.qty)}"/></div>
+      <div class="f3"><label>Mínimo</label><input type="number" step="0.01" name="minQty" value="${esc(i.minQty)}"/></div>
+      <div class="f3"><label>Costo unit.</label><input type="number" step="0.01" name="unitCost" value="${esc(i.unitCost)}"/></div>
+      <div class="f3"><label>Vencimiento</label><input type="date" name="expiration" value="${esc(i.expiration)}"/></div>
+      <div class="f6"><label>Proveedor</label><input name="supplier" value="${esc(i.supplier)}"/></div>
+      <div class="f12"><label>Notas</label><textarea name="notes">${esc(i.notes)}</textarea></div>
+    </form>`;
+  }
+
+  function openInvItem(id){
+    const i=id?get.inv(id):null;
+    openModal({
+      title:id?"Editar insumo":"Nuevo insumo",
+      sub:"Define mínimo para alertas.",
+      body:invForm(i),
+      footer:`<button class="btn" id="mClose">Cancelar</button><button class="btn primary" id="save">Guardar</button>`,
+      onMount: ()=>{
+        $("#save").onclick=()=>{
+          const fd=new FormData($("#invForm"));
+          const name=(fd.get("name")||"").toString().trim();
+          if(!name){ toast("bad","Falta nombre","Obligatorio."); return; }
+          const payload={
+            id:id||uid("inv"),
+            name,
+            category:(fd.get("category")||"alimento").toString(),
+            unit:(fd.get("unit")||"und").toString().trim()||"und",
+            qty:num(fd.get("qty")),
+            minQty:num(fd.get("minQty")),
+            unitCost:num(fd.get("unitCost")),
+            supplier:(fd.get("supplier")||"").toString().trim(),
+            expiration:(fd.get("expiration")||"").toString(),
+            notes:(fd.get("notes")||"").toString().trim()
+          };
+          if(id) state.inventory=state.inventory.map(x=>x.id===id?payload:x);
+          else state.inventory.push(payload);
+          save(); dlg.close(); toast("ok","Guardado","Insumo guardado."); render();
+        };
+      }
+    });
+  }
+
+  function delInv(id){
+    const i=get.inv(id); if(!i) return;
+    openModal({
+      title:"Eliminar insumo",
+      sub:"Se mantendrán movimientos históricos (sin el nombre del item).",
+      body:`<div class="muted">Eliminar: <b>${esc(i.name)}</b></div>`,
+      footer:`<button class="btn" id="mClose">Cancelar</button><button class="btn danger" id="ok">Eliminar</button>`,
+      onMount: ()=>{
+        $("#ok").onclick=()=>{
+          state.inventory=state.inventory.filter(x=>x.id!==id);
+          state.stockMovements.forEach(m=>{ if(m.itemId===id) m.itemId=""; });
+          save(); dlg.close(); toast("ok","Eliminado","Insumo eliminado."); render();
+        };
+      }
+    });
+  }
+
+  function openInvMove(itemId, mode){
+    const i=get.inv(itemId); if(!i) return;
+    openModal({
+      title: mode==="entrada"?"Entrada a inventario":"Salida de inventario",
+      sub: `${i.name} • ${i.category}`,
+      body:`<form id="movForm" class="grid2">
+        <div class="f4"><label>Fecha</label><input type="date" name="date" value="${today()}"/></div>
+        <div class="f4"><label>Cantidad (${esc(i.unit)})</label><input type="number" step="0.01" name="qty" value="1" min="0"/></div>
+        <div class="f4"><label>Costo unit. (opcional)</label><input type="number" step="0.01" name="unitCost" value="${esc(i.unitCost||0)}"/></div>
+        <div class="f6"><label>Relacionado con (opcional)</label>
+          <select name="linkedType" id="lt">
+            <option value="">—</option><option value="sow">Cerda</option><option value="batch">Camada</option>
+          </select>
+        </div>
+        <div class="f6"><label>Seleccionar</label><select name="linkedId" id="lid" disabled><option value="">—</option></select></div>
+        <div class="f12"><label>Notas</label><textarea name="notes"></textarea></div>
+        ${mode==="entrada"?`<div class="f12"><label style="display:flex;gap:10px;align-items:center;cursor:pointer">
+          <input id="asExp" type="checkbox" checked style="width:18px;height:18px"/> Registrar como gasto (cantidad×costo unit.)
+        </label></div>`:""}
+      </form>`,
+      footer:`<button class="btn" id="mClose">Cancelar</button><button class="btn primary" id="ok">Aplicar</button>`,
+      onMount: ()=>{
+        const lt=$("#lt"), lid=$("#lid");
+        lt.onchange=()=>{
+          lid.innerHTML=`<option value="">—</option>`;
+          if(!lt.value){ lid.disabled=true; return; }
+          lid.disabled=false;
+          if(lt.value==="sow"){
+            lid.innerHTML+=state.sows.slice().sort((a,b)=>(a.tag||"").localeCompare(b.tag||"")).map(s=>`<option value="${s.id}">${esc(s.tag||s.name||"—")}</option>`).join("");
+          } else {
+            lid.innerHTML+=state.batches.slice().sort((a,b)=>(b.birthDate||"").localeCompare(a.birthDate||"")).map(b=>`<option value="${b.id}">${esc(b.id.slice(-8))} • ${esc(get.sow(b.sowId)?.tag||"cerda")}</option>`).join("");
+          }
+        };
+
+        $("#ok").onclick=()=>{
+          const fd=new FormData($("#movForm"));
+          const date=(fd.get("date")||today()).toString();
+          const qty=num(fd.get("qty"));
+          if(qty<=0){ toast("bad","Cantidad inválida","Debe ser > 0."); return; }
+          const unitCost=num(fd.get("unitCost"));
+          const before=num(i.qty);
+          const delta = mode==="entrada" ? qty : -qty;
+          let after = before + delta;
+          if(mode==="salida" && after < 0){ after=0; toast("warn","Stock insuficiente",`Había ${before} ${i.unit}. Se ajustó a 0.`); }
+          i.qty=after; if(unitCost) i.unitCost=unitCost;
+
+          state.stockMovements.push({
+            id:uid("mov"), itemId:i.id, type:mode, date, qty:delta, unitCost,
+            linkedType:(fd.get("linkedType")||"").toString(),
+            linkedId:(fd.get("linkedId")||"").toString(),
+            notes:(fd.get("notes")||"").toString().trim()
+          });
+
+          if(mode==="entrada" && $("#asExp")?.checked){
+            const amount=Math.max(0, qty*unitCost);
+            if(amount>0){
+              state.transactions.push({id:uid("tx"),date,type:"gasto",category:"Inventario / compra",amount,method:"efectivo",refType:"inventory",refId:i.id,notes:`Compra: ${i.name}`});
+            }
+          }
+
+          save(); dlg.close(); toast("ok","Aplicado",`${i.name}: ${before} → ${after} ${i.unit}`); render();
+        };
+      }
+    });
+  }
+
+  function openMovs(){
+    const rows=state.stockMovements.slice().sort((a,b)=>(b.date||"").localeCompare(a.date||"")).slice(0,250).map(m=>{
+      const item=m.itemId?get.inv(m.itemId):null;
+      const q=num(m.qty);
+      return `<tr>
+        <td class="mono">${esc(m.date||"—")}</td>
+        <td>${esc(item?.name||"—")}<div class="muted">${esc(item?.category||"")}</div></td>
+        <td>${q>0?`<span class="tag ok">+${q}</span>`:q<0?`<span class="tag bad">${q}</span>`:`<span class="tag">${q}</span>`} <span class="muted">${esc(item?.unit||"")}</span></td>
+        <td class="mono">${esc(m.linkedType||"—")} ${m.linkedId?esc(m.linkedId.slice(-6)):""}</td>
+        <td class="muted">${esc(m.notes||"")}</td>
+      </tr>`;
+    }).join("");
+    openModal({
+      title:"Movimientos de inventario",
+      sub:"Últimos 250 registros.",
+      body:`<div class="wrap"><table><thead><tr><th>Fecha</th><th>Insumo</th><th>Cantidad</th><th>Relacionado</th><th>Notas</th></tr></thead>
+        <tbody>${rows||`<tr><td colspan="5" class="muted">Sin movimientos.</td></tr>`}</tbody></table></div>`,
+      footer:`<button class="btn" id="mClose">Cerrar</button>`
+    });
+  }
+
+  // ------- Clientes y Ventas -------
+  function renderSales(){
+    const rows=state.sales
+      .filter(s=>{
+        const c=get.client(s.clientId);
+        const b=get.batch(s.batchId);
+        const sow=b?get.sow(b.sowId):null;
+        return matchQ(s.date,s.status,s.notes,c?.name,c?.phone,b?.id,sow?.tag);
+      })
+      .sort((a,b)=>(b.date||"").localeCompare(a.date||""))
+      .map(s=>{
+        const c=get.client(s.clientId);
+        const b=get.batch(s.batchId);
+        const pending=Math.max(0,num(s.total)-num(s.paidAmount));
+        const tag=s.status==="pagado"?`<span class="tag ok">Pagado</span>`:s.status==="parcial"?`<span class="tag warn">Parcial</span>`:`<span class="tag bad">Pendiente</span>`;
+        return `<tr>
+          <td class="mono">${esc(s.date)}</td>
+          <td><b>${esc(c?.name||"—")}</b><div class="muted">${esc(c?.phone||"")}</div></td>
+          <td class="mono">${esc(b?b.id.slice(-8):"—")}</td>
+          <td class="mono">${esc(s.qty)}</td>
+          <td class="mono">${esc(fmtCOP(s.total))}</td>
+          <td>${tag}<div class="muted">Pend: ${esc(fmtCOP(pending))}</div></td>
+          <td>
+            <button class="btn" data-act="pay" data-id="${s.id}">Abonar</button>
+            <button class="btn" data-act="detail" data-id="${s.id}">Ver</button>
+            <button class="btn danger" data-act="del" data-id="${s.id}">Eliminar</button>
+          </td>
+        </tr>`;
+      }).join("");
+
+    view.innerHTML = shell(
+      "Ventas",
+      "Venta de lechones con control de abonos (COP) y saldo pendiente.",
+      `<button class="btn primary" id="sale">💳 Nueva venta</button><button class="btn" id="client">👤 Nuevo cliente</button>`,
+      `<div class="wrap"><table>
+        <thead><tr><th>Fecha</th><th>Cliente</th><th>Camada</th><th>Cant.</th><th>Total</th><th>Estado</th><th>Acciones</th></tr></thead>
+        <tbody>${rows||`<tr><td colspan="7" class="muted">Sin ventas.</td></tr>`}</tbody>
+      </table></div>`
+    );
+
+    $("#sale").onclick=()=>openSale();
+    $("#client").onclick=()=>openClient();
+
+    view.onclick=(e)=>{
+      const b=e.target.closest("button[data-act]"); if(!b) return;
+      const id=b.dataset.id, act=b.dataset.act;
+      if(act==="pay") openPayment(id);
+      if(act==="detail") saleDetail(id);
+      if(act==="del") delSale(id);
+    };
+  }
+
+  function clientForm(c){
+    c=c||{name:"",phone:"",email:"",address:"",notes:""};
+    return `<form id="clientForm" class="grid2">
+      <div class="f6"><label>Nombre *</label><input name="name" required value="${esc(c.name)}"/></div>
+      <div class="f3"><label>Teléfono</label><input name="phone" value="${esc(c.phone)}"/></div>
+      <div class="f3"><label>Correo</label><input type="email" name="email" value="${esc(c.email)}"/></div>
+      <div class="f12"><label>Dirección</label><input name="address" value="${esc(c.address)}"/></div>
+      <div class="f12"><label>Notas</label><textarea name="notes">${esc(c.notes)}</textarea></div>
+    </form>`;
+  }
+
+  function openClient(id){
+    const c=id?get.client(id):null;
+    openModal({
+      title:id?"Editar cliente":"Nuevo cliente",
+      sub:"Clientes para historial y cobros.",
+      body:clientForm(c),
+      footer:`<button class="btn" id="mClose">Cancelar</button><button class="btn primary" id="save">Guardar</button>`,
+      onMount: ()=>{
+        $("#save").onclick=()=>{
+          const fd=new FormData($("#clientForm"));
+          const name=(fd.get("name")||"").toString().trim();
+          if(!name){ toast("bad","Falta nombre","Obligatorio."); return; }
+          const payload={id:id||uid("cli"),name,phone:(fd.get("phone")||"").toString().trim(),email:(fd.get("email")||"").toString().trim(),address:(fd.get("address")||"").toString().trim(),notes:(fd.get("notes")||"").toString().trim()};
+          if(id) state.clients=state.clients.map(x=>x.id===id?payload:x);
+          else state.clients.push(payload);
+          save(); dlg.close(); toast("ok","Guardado","Cliente guardado."); render();
+        };
+      }
+    });
+  }
+
+  function saleForm(s,preset={}){
+    if(!state.clients.length) return `<div class="muted">Primero crea un cliente.</div>`;
+    const availableBatches = state.batches.filter(b=>(b.status||"disponible")!=="cerrado" && num(b.countCurrent)>0);
+    if(!availableBatches.length) return `<div class="muted">No hay camadas disponibles. Registra un parto primero.</div>`;
+
+    s=s||{date:today(),clientId:preset.clientId||"",batchId:preset.batchId||"",qty:1,unitPrice:0,total:0,status:"credito",paidAmount:0,dueDate:"",notes:""};
+    const clientOps=state.clients.slice().sort((a,b)=>(a.name||"").localeCompare(b.name||"")).map(c=>`<option value="${c.id}" ${s.clientId===c.id?"selected":""}>${esc(c.name)}</option>`).join("");
+    const batchOps=availableBatches.slice().sort((a,b)=>(b.birthDate||"").localeCompare(a.birthDate||"")).map(b=>{
+      const sow=get.sow(b.sowId);
+      return `<option value="${b.id}" ${s.batchId===b.id?"selected":""}>${esc(b.id.slice(-8))} • ${esc(sow?.tag||"cerda")} • Disp ${esc(b.countCurrent)}</option>`;
+    }).join("");
+
+    return `<form id="saleForm" class="grid2">
+      <div class="f4"><label>Fecha *</label><input type="date" name="date" required value="${esc(s.date)}"/></div>
+      <div class="f8"><label>Cliente *</label><select name="clientId" required><option value="">Selecciona</option>${clientOps}</select></div>
+      <div class="f8"><label>Camada *</label><select name="batchId" id="sb" required><option value="">Selecciona</option>${batchOps}</select></div>
+      <div class="f4"><label>Cantidad *</label><input type="number" name="qty" id="sq" required min="1" value="${esc(s.qty)}"/></div>
+      <div class="f4"><label>Precio unitario (COP) *</label><input type="number" name="unitPrice" id="su" required min="0" value="${esc(s.unitPrice)}"/></div>
+      <div class="f4"><label>Total (auto)</label><input type="number" name="total" id="st" readonly value="${esc(s.total)}"/></div>
+      <div class="f4"><label>Pago</label><select name="status" id="ss">
+        <option value="pagado" ${s.status==="pagado"?"selected":""}>Pagado</option>
+        <option value="parcial" ${s.status==="parcial"?"selected":""}>Parcial</option>
+        <option value="credito" ${s.status==="credito"?"selected":""}>Crédito</option>
+      </select></div>
+      <div class="f4"><label>Abono inicial (COP)</label><input type="number" name="paidAmount" id="sp" min="0" value="${esc(s.paidAmount)}"/></div>
+      <div class="f4"><label>Fecha límite</label><input type="date" name="dueDate" value="${esc(s.dueDate)}"/></div>
+      <div class="f12"><label>Notas</label><textarea name="notes">${esc(s.notes)}</textarea></div>
+    </form>`;
+  }
+
+  function openSale(id,preset={}){
+    if(!state.clients.length){ toast("warn","Sin clientes","Crea un cliente."); openClient(); return; }
+    if(!state.batches.some(b=>(b.status||"disponible")!=="cerrado" && num(b.countCurrent)>0)){ toast("warn","Sin camadas","Registra un parto/camada primero."); current="litters"; renderNav(); render(); return; }
+
+    const s=id?get.sale(id):null;
+    openModal({
+      title:id?"Editar venta":"Nueva venta",
+      sub:"Descuenta stock de lechones y gestiona abonos.",
+      body:saleForm(s,preset),
+      footer:`<button class="btn" id="mClose">Cancelar</button><button class="btn primary" id="save">Guardar</button>`,
+      onMount: ()=>{
+        const sq=$("#sq"), su=$("#su"), st=$("#st"), ss=$("#ss"), sp=$("#sp");
+        const recalc=()=>{ const t=Math.max(0,num(sq.value)*num(su.value)); st.value=t; if(ss.value==="pagado") sp.value=t; };
+        sq.oninput=recalc; su.oninput=recalc; ss.onchange=recalc; recalc();
+        $("#save").onclick=()=>saveSale(id);
+      }
+    });
+  }
+
+  function saveSale(id){
+    const fd=new FormData($("#saleForm"));
+    const date=(fd.get("date")||"").toString();
+    const clientId=(fd.get("clientId")||"").toString();
+    const batchId=(fd.get("batchId")||"").toString();
+    const qty=num(fd.get("qty"));
+    const unitPrice=num(fd.get("unitPrice"));
+    const total=Math.max(0, qty*unitPrice);
+    let paid=Math.max(0, num(fd.get("paidAmount")));
+    let status=(fd.get("status")||"credito").toString();
+    if(!date||!clientId||!batchId||qty<=0){ toast("bad","Faltan datos","Fecha, cliente, camada, cantidad."); return; }
+    const batch=get.batch(batchId); if(!batch){ toast("bad","Camada inválida",""); return; }
+
+    if(!id){
+      const available=num(batch.countCurrent);
+      if(qty>available){ toast("bad","Stock insuficiente",`Disponible ${available}.`); return; }
+    } else {
+      const old=get.sale(id);
+      if(old && (old.batchId!==batchId || old.qty!==qty)){ toast("warn","Restricción v1","Para cambiar camada/cantidad elimina y crea una nueva venta."); return; }
+    }
+
+    if(paid>=total){ paid=total; status="pagado"; }
+    else if(paid>0) status="parcial";
+    else status=(status==="pagado"?"credito":status);
+
+    const payload={id:id||uid("sale"),date,clientId,batchId,qty,unitPrice,total,status,paidAmount:paid,dueDate:(fd.get("dueDate")||"").toString(),notes:(fd.get("notes")||"").toString().trim()};
+
+    if(id){
+      state.sales=state.sales.map(x=>x.id===id?payload:x);
+      save(); dlg.close(); toast("ok","Actualizado","Venta actualizada."); render();
+      return;
+    }
+
+    state.sales.push(payload);
+    batch.countCurrent=Math.max(0, num(batch.countCurrent)-qty);
+    if(num(batch.countCurrent)===0) batch.status="cerrado";
+
+    if(paid>0){
+      state.payments.push({id:uid("pay"),saleId:payload.id,date,amount:paid,method:"efectivo",notes:"Abono inicial"});
+      state.transactions.push({id:uid("tx"),date,type:"ingreso",category:"Venta de lechones",amount:paid,method:"efectivo",refType:"sale",refId:payload.id,notes:`Venta ${payload.id.slice(-6)} • ${qty} und`});
+    }
+    const pending=Math.max(0,total-paid);
+    if(pending>0){
+      state.tasks.push({id:uid("tsk"),title:`Cobro pendiente — ${get.client(clientId)?.name||"cliente"}`,dueDate:payload.dueDate||addDays(date,7),priority:"alta",status:"pendiente",relatedType:"sale",relatedId:payload.id,notes:`Saldo: ${fmtCOP(pending)}`});
+    }
+
+    save(); dlg.close(); toast("ok","Guardado","Venta registrada."); render();
+  }
+
+  function openPayment(saleId){
+    const s=get.sale(saleId); if(!s) return;
+    const pending=Math.max(0,num(s.total)-num(s.paidAmount));
+    if(pending<=0){ toast("ok","Sin saldo","La venta ya está pagada."); return; }
+    openModal({
+      title:"Registrar abono",
+      sub:`Saldo pendiente: ${fmtCOP(pending)}`,
+      body:`<form id="payForm" class="grid2">
+        <div class="f4"><label>Fecha</label><input type="date" name="date" value="${today()}"/></div>
+        <div class="f4"><label>Método</label><select name="method">
+          <option value="efectivo">Efectivo</option><option value="transferencia">Transferencia</option><option value="nequi/daviplata">Nequi/Daviplata</option><option value="otro">Otro</option>
+        </select></div>
+        <div class="f4"><label>Valor (COP)</label><input type="number" name="amount" min="0" value="${Math.min(pending, num(s.total))}"/></div>
+        <div class="f12"><label>Notas</label><textarea name="notes"></textarea></div>
+      </form>`,
+      footer:`<button class="btn" id="mClose">Cancelar</button><button class="btn primary" id="ok">Registrar</button>`,
+      onMount: ()=>{
+        $("#ok").onclick=()=>{
+          const fd=new FormData($("#payForm"));
+          const date=(fd.get("date")||today()).toString();
+          const method=(fd.get("method")||"efectivo").toString();
+          let amount=num(fd.get("amount"));
+          if(amount<=0){ toast("bad","Valor inválido","Debe ser > 0."); return; }
+          amount=Math.min(amount,pending);
+          s.paidAmount=num(s.paidAmount)+amount;
+          const newPending=Math.max(0,num(s.total)-num(s.paidAmount));
+          s.status=newPending<=0?"pagado":"parcial";
+          state.payments.push({id:uid("pay"),saleId:s.id,date,amount,method,notes:(fd.get("notes")||"").toString().trim()});
+          state.transactions.push({id:uid("tx"),date,type:"ingreso",category:"Abono venta",amount,method,refType:"sale",refId:s.id,notes:`Abono a ${s.id.slice(-6)}`});
+          if(newPending<=0){
+            state.tasks.forEach(t=>{ if(t.relatedType==="sale" && t.relatedId===s.id && t.title.startsWith("Cobro pendiente")) t.status="hecha"; });
+          }
+          save(); dlg.close(); toast("ok","Abono registrado",`Nuevo saldo: ${fmtCOP(newPending)}`); render();
+        };
+      }
+    });
+  }
+
+  function saleDetail(id){
+    const s=get.sale(id); if(!s) return;
+    const c=get.client(s.clientId);
+    const b=get.batch(s.batchId);
+    const pays=state.payments.filter(p=>p.saleId===id).sort((a,b)=>(b.date||"").localeCompare(a.date||""));
+    const pending=Math.max(0,num(s.total)-num(s.paidAmount));
+    openModal({
+      title:`Venta ${s.id.slice(-6)}`,
+      sub:`${c?.name||"Cliente"} • ${s.date} • Pendiente ${fmtCOP(pending)}`,
+      body:`<div class="grid">
+        <div class="card"><div class="bd">
+          <div class="row">
+            <div><div class="muted">Cliente</div><b>${esc(c?.name||"—")}</b><div class="muted">${esc(c?.phone||"")}</div></div>
+            <div><div class="muted">Camada</div><b class="mono">${esc(b?b.id.slice(-8):"—")}</b><div class="muted">Cant: ${esc(s.qty)}</div></div>
+            <div><div class="muted">Total</div><b>${fmtCOP(s.total)}</b><div class="muted">Abonado: ${fmtCOP(s.paidAmount)} • Pend: ${fmtCOP(pending)}</div></div>
+          </div>
+        </div></div>
+        <div class="card"><div class="hd"><div><h2>Abonos</h2><p>Historial</p></div></div><div class="bd">
+          <div class="wrap"><table><thead><tr><th>Fecha</th><th>Método</th><th>Valor</th><th>Notas</th></tr></thead>
+            <tbody>${pays.map(p=>`<tr><td class="mono">${esc(p.date)}</td><td>${esc(p.method||"—")}</td><td class="mono">${esc(fmtCOP(p.amount))}</td><td class="muted">${esc(p.notes||"")}</td></tr>`).join("")||`<tr><td colspan="4" class="muted">Sin abonos.</td></tr>`}</tbody>
+          </table></div>
+        </div></div>
+      </div>`,
+      footer:`<button class="btn" id="mClose">Cerrar</button><button class="btn primary" id="pay">Abonar</button>`,
+      onMount: ()=>{ $("#pay").onclick=()=>{ dlg.close(); openPayment(id); }; }
+    });
+  }
+
+  function delSale(id){
+    const s=get.sale(id); if(!s) return;
+    openModal({
+      title:"Eliminar venta",
+      sub:"Opcional: devolver stock a la camada.",
+      body:`<div class="muted">Venta <b class="mono">${esc(s.id.slice(-6))}</b> • ${esc(s.date)}</div>
+        <div style="margin-top:10px">
+          <label>Devolver stock</label>
+          <select id="restock"><option value="no">No</option><option value="yes">Sí, devolver a la camada</option></select>
+        </div>`,
+      footer:`<button class="btn" id="mClose">Cancelar</button><button class="btn danger" id="ok">Eliminar</button>`,
+      onMount: ()=>{
+        $("#ok").onclick=()=>{
+          if($("#restock").value==="yes"){
+            const b=get.batch(s.batchId); if(b){ b.countCurrent=num(b.countCurrent)+num(s.qty); if(b.countCurrent>0 && b.status==="cerrado") b.status="disponible"; }
+          }
+          state.sales=state.sales.filter(x=>x.id!==id);
+          state.payments=state.payments.filter(p=>p.saleId!==id);
+          state.transactions=state.transactions.filter(t=>!(t.refType==="sale" && t.refId===id));
+          state.tasks=state.tasks.filter(t=>!(t.relatedType==="sale" && t.relatedId===id));
+          save(); dlg.close(); toast("ok","Eliminada","Venta eliminada."); render();
+        };
+      }
+    });
+  }
+
+  // ------- Finanzas -------
+  function renderFinance(){
+    const m=today().slice(0,7);
+    const income=sumMonth("ingreso"), expense=sumMonth("gasto");
+    const rows=state.transactions
+      .filter(t=>matchQ(t.date,t.type,t.category,t.method,t.notes))
+      .sort((a,b)=>(b.date||"").localeCompare(a.date||""))
+      .map(t=>`<tr>
+        <td class="mono">${esc(t.date||"—")}</td>
+        <td>${t.type==="ingreso"?`<span class="tag ok">Ingreso</span>`:`<span class="tag bad">Gasto</span>`}</td>
+        <td><b>${esc(t.category||"—")}</b><div class="muted">${esc(t.method||"")}</div></td>
+        <td class="mono">${esc(fmtCOP(t.amount))}</td>
+        <td class="muted">${esc(t.notes||"")}</td>
+        <td><button class="btn danger" data-act="del" data-id="${t.id}">Eliminar</button></td>
+      </tr>`).join("");
+
+    view.innerHTML = shell(
+      "Finanzas",
+      "Ingresos y gastos (ventas e inventario alimentan automáticamente).",
+      `<button class="btn primary" id="inc">➕ Ingreso</button>
+       <button class="btn" id="exp">➕ Gasto</button>
+       <button class="btn" id="csv">Exportar CSV</button>`,
+      `<div class="kpis" style="margin-bottom:12px">
+        <div class="kpi" style="grid-column:span 4"><small>Ingresos (${m})</small><b>${fmtCOP(income)}</b><div class="muted mono">Ventas + abonos</div></div>
+        <div class="kpi" style="grid-column:span 4"><small>Gastos (${m})</small><b>${fmtCOP(expense)}</b><div class="muted mono">Compras + manual</div></div>
+        <div class="kpi" style="grid-column:span 4"><small>Resultado</small><b>${fmtCOP(income-expense)}</b><div class="muted mono">Ingreso - gasto</div></div>
+      </div>
+      <div class="wrap"><table>
+        <thead><tr><th>Fecha</th><th>Tipo</th><th>Categoría</th><th>Valor</th><th>Notas</th><th>Acción</th></tr></thead>
+        <tbody>${rows||`<tr><td colspan="6" class="muted">Sin transacciones.</td></tr>`}</tbody>
+      </table></div>`
+    );
+
+    $("#inc").onclick=()=>openTx("ingreso");
+    $("#exp").onclick=()=>openTx("gasto");
+    $("#csv").onclick=()=>exportTxCSV();
+    view.onclick=(e)=>{
+      const b=e.target.closest("button[data-act]"); if(!b) return;
+      if(b.dataset.act==="del") { state.transactions=state.transactions.filter(t=>t.id!==b.dataset.id); save(); toast("ok","Eliminada","Transacción eliminada."); render(); }
+    };
+  }
+
+  function txForm(type){
+    const t={date:today(),type,category:type==="gasto"?"Operación":"Otros",amount:0,method:"efectivo",notes:""};
+    return `<form id="txForm" class="grid2">
+      <div class="f4"><label>Fecha</label><input type="date" name="date" value="${t.date}"/></div>
+      <div class="f4"><label>Tipo</label><select name="type"><option value="ingreso" ${type==="ingreso"?"selected":""}>Ingreso</option><option value="gasto" ${type==="gasto"?"selected":""}>Gasto</option></select></div>
+      <div class="f4"><label>Método</label><select name="method">${["efectivo","transferencia","nequi/daviplata","tarjeta","otro"].map(x=>`<option value="${x}">${x}</option>`).join("")}</select></div>
+      <div class="f8"><label>Categoría</label><input name="category" value="${t.category}"/></div>
+      <div class="f4"><label>Valor (COP)</label><input type="number" name="amount" min="0" value="0"/></div>
+      <div class="f12"><label>Notas</label><textarea name="notes"></textarea></div>
+    </form>`;
+  }
+
+  function openTx(type){
+    openModal({
+      title:type==="ingreso"?"Nuevo ingreso":"Nuevo gasto",
+      sub:"Registro manual (aparte de lo automático).",
+      body:txForm(type),
+      footer:`<button class="btn" id="mClose">Cancelar</button><button class="btn primary" id="save">Guardar</button>`,
+      onMount: ()=>{
+        $("#save").onclick=()=>{
+          const fd=new FormData($("#txForm"));
+          const date=(fd.get("date")||today()).toString();
+          const tp=(fd.get("type")||type).toString();
+          const amount=num(fd.get("amount"));
+          if(amount<=0){ toast("bad","Valor inválido","Debe ser > 0."); return; }
+          state.transactions.push({id:uid("tx"),date,type:tp,category:(fd.get("category")||"").toString().trim()||"—",amount,method:(fd.get("method")||"efectivo").toString(),refType:"manual",refId:"",notes:(fd.get("notes")||"").toString().trim()});
+          save(); dlg.close(); toast("ok","Guardado","Transacción registrada."); render();
+        };
+      }
+    });
+  }
+
+  // ------- Tareas -------
+  function renderTasks(){
+    const now=today();
+    const rows=state.tasks
+      .filter(t=>matchQ(t.title,t.dueDate,t.priority,t.status,t.notes))
+      .sort((a,b)=>(a.status||"").localeCompare(b.status||"") || (a.dueDate||"").localeCompare(b.dueDate||""))
+      .map(t=>{
+        const dueIn=t.dueDate?daysBetween(now,t.dueDate):null;
+        const st=t.status||"pendiente";
+        const tag=st==="hecha"?`<span class="tag ok">Hecha</span>`:(dueIn!==null&&dueIn<0?`<span class="tag bad">Vencida</span>`:`<span class="tag warn">Pendiente</span>`);
+        return `<tr>
+          <td>${tag} <span class="tag">${esc(t.priority||"media")}</span></td>
+          <td><b>${esc(t.title)}</b><div class="muted">${esc(t.notes||"")}</div></td>
+          <td class="mono">${esc(t.dueDate||"—")}<div class="muted">${dueIn!==null?(dueIn>=0?`${dueIn} días`:`${Math.abs(dueIn)} días tarde`):""}</div></td>
+          <td class="mono">${esc(t.relatedType||"—")} ${t.relatedId?esc(t.relatedId.slice(-6)):""}</td>
+          <td>
+            ${st!=="hecha"?`<button class="btn" data-act="done" data-id="${t.id}">Hecha</button>`:`<button class="btn" data-act="undo" data-id="${t.id}">Reabrir</button>`}
+            <button class="btn danger" data-act="del" data-id="${t.id}">Eliminar</button>
+          </td>
+        </tr>`;
+      }).join("");
+
+    view.innerHTML = shell(
+      "Tareas",
+      "Agenda destete, chequeos, vacunación y cobros (algunas se crean automáticamente).",
+      `<button class="btn primary" id="add">➕ Nueva tarea</button>`,
+      `<div class="wrap"><table>
+        <thead><tr><th>Estado</th><th>Tarea</th><th>Vence</th><th>Relacionado</th><th>Acciones</th></tr></thead>
+        <tbody>${rows||`<tr><td colspan="5" class="muted">Sin tareas.</td></tr>`}</tbody>
+      </table></div>`
+    );
+    $("#add").onclick=()=>openTask();
+    view.onclick=(e)=>{
+      const b=e.target.closest("button[data-act]"); if(!b) return;
+      const id=b.dataset.id, act=b.dataset.act;
+      if(act==="del"){ state.tasks=state.tasks.filter(t=>t.id!==id); save(); toast("ok","Eliminada","Tarea eliminada."); render(); }
+      if(act==="done"||act==="undo"){
+        const t=state.tasks.find(x=>x.id===id); if(!t) return;
+        t.status = act==="done" ? "hecha" : "pendiente";
+        save(); toast("ok","Listo", act==="done"?"Marcada como hecha.":"Reabierta."); render();
+      }
+    };
+  }
+
+  function taskForm(t){
+    t=t||{title:"",dueDate:addDays(today(),3),priority:"media",status:"pendiente",relatedType:"",relatedId:"",notes:""};
+    return `<form id="taskForm" class="grid2">
+      <div class="f12"><label>Título *</label><input name="title" required value="${esc(t.title)}" placeholder="Ej: Vacunar camada lote..." /></div>
+      <div class="f4"><label>Fecha</label><input type="date" name="dueDate" value="${esc(t.dueDate)}"/></div>
+      <div class="f4"><label>Prioridad</label><select name="priority">${["alta","media","baja"].map(x=>`<option ${t.priority===x?"selected":""} value="${x}">${x}</option>`).join("")}</select></div>
+      <div class="f4"><label>Estado</label><select name="status"><option value="pendiente" ${t.status!=="hecha"?"selected":""}>Pendiente</option><option value="hecha" ${t.status==="hecha"?"selected":""}>Hecha</option></select></div>
+      <div class="f6"><label>Relacionado</label><select name="relatedType" id="rt">
+        <option value="">—</option><option value="sow">Cerda</option><option value="batch">Camada</option><option value="sale">Venta</option><option value="inventory">Insumo</option>
+      </select></div>
+      <div class="f6"><label>Seleccionar</label><select name="relatedId" id="rid" disabled><option value="">—</option></select></div>
+      <div class="f12"><label>Notas</label><textarea name="notes">${esc(t.notes)}</textarea></div>
+    </form>`;
+  }
+
+  function openTask(){
+    openModal({
+      title:"Nueva tarea",
+      sub:"Puedes relacionarla con cerda/camada/venta/inventario.",
+      body:taskForm(),
+      footer:`<button class="btn" id="mClose">Cancelar</button><button class="btn primary" id="save">Guardar</button>`,
+      onMount: ()=>{
+        const rt=$("#rt"), rid=$("#rid");
+        rt.onchange=()=>{
+          rid.innerHTML=`<option value="">—</option>`;
+          if(!rt.value){ rid.disabled=true; return; }
+          rid.disabled=false;
+          if(rt.value==="sow") rid.innerHTML+=state.sows.map(s=>`<option value="${s.id}">${esc(s.tag||s.name||"—")}</option>`).join("");
+          if(rt.value==="batch") rid.innerHTML+=state.batches.map(b=>`<option value="${b.id}">${esc(b.id.slice(-8))} • ${esc(get.sow(b.sowId)?.tag||"cerda")}</option>`).join("");
+          if(rt.value==="sale") rid.innerHTML+=state.sales.map(s=>`<option value="${s.id}">${esc(s.id.slice(-6))} • ${esc(get.client(s.clientId)?.name||"cliente")}</option>`).join("");
+          if(rt.value==="inventory") rid.innerHTML+=state.inventory.map(i=>`<option value="${i.id}">${esc(i.name)}</option>`).join("");
+        };
+        $("#save").onclick=()=>{
+          const fd=new FormData($("#taskForm"));
+          const title=(fd.get("title")||"").toString().trim();
+          if(!title){ toast("bad","Falta título","Obligatorio."); return; }
+          state.tasks.push({id:uid("tsk"),title,dueDate:(fd.get("dueDate")||"").toString(),priority:(fd.get("priority")||"media").toString(),status:(fd.get("status")||"pendiente").toString(),relatedType:(fd.get("relatedType")||"").toString(),relatedId:(fd.get("relatedId")||"").toString(),notes:(fd.get("notes")||"").toString().trim()});
+          save(); dlg.close(); toast("ok","Guardado","Tarea creada."); render();
+        };
+      }
+    });
+  }
+
+  // ------- Ajustes / Backup / CSV -------
+  function renderSettings(){
+    view.innerHTML = shell(
+      "Ajustes",
+      "Nombre de granja, días de gestación, respaldo JSON y exportaciones CSV.",
+      `<button class="btn" id="reset">🧨 Reset</button>`,
+      `<form id="setForm" class="grid2">
+        <div class="f6"><label>Nombre granja</label><input name="farmName" value="${esc(state.settings.farmName||"")}"/></div>
+        <div class="f3"><label>Moneda</label><select name="currency"><option value="COP" ${state.settings.currency==="COP"?"selected":""}>COP</option><option value="USD" ${state.settings.currency==="USD"?"selected":""}>USD</option></select></div>
+        <div class="f3"><label>Días gestación</label><input type="number" name="gestationDays" min="90" max="130" value="${esc(state.settings.gestationDays||114)}"/></div>
+      </form>
+      <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
+        <button class="btn primary" id="save">Guardar</button>
+        <button class="btn" id="expJson">Exportar JSON</button>
+        <label class="btn" style="cursor:pointer">Importar JSON <input id="imp" type="file" accept="application/json" style="display:none"/></label>
+        <button class="btn" id="csvSales">CSV Ventas</button>
+        <button class="btn" id="csvInv">CSV Inventario</button>
+        <button class="btn" id="csvTx">CSV Finanzas</button>
+      </div>
+      <div class="muted" style="margin-top:10px;font-size:12px">Tip: exporta JSON semanal para respaldo.</div>`
+    );
+
+    $("#save").onclick=()=>{
+      const fd=new FormData($("#setForm"));
+      state.settings.farmName=(fd.get("farmName")||"Granja Porcina").toString().trim()||"Granja Porcina";
+      state.settings.currency=(fd.get("currency")||"COP").toString();
+      state.settings.gestationDays=num(fd.get("gestationDays"))||114;
+      save(); toast("ok","Guardado","Ajustes actualizados."); render();
+    };
+    $("#expJson").onclick=exportJSON;
+    $("#imp").onchange=importJSON;
+    $("#csvSales").onclick=exportSalesCSV;
+    $("#csvInv").onclick=exportInvCSV;
+    $("#csvTx").onclick=exportTxCSV;
+    $("#reset").onclick=resetAll;
+  }
+
+  function download(name, content, mime){
+    const blob=new Blob([content],{type:mime||"text/plain"});
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(blob);
+    a.download=name;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+  function exportJSON(){
+    download(`granja_respaldo_${today()}.json`, JSON.stringify(state,null,2), "application/json");
+    toast("ok","Exportado","Respaldo descargado.");
+  }
+  function importJSON(e){
+    const file=e.target.files && e.target.files[0]; if(!file) return;
+    const r=new FileReader();
+    r.onload=()=>{ try{ state=Object.assign(defaults(), JSON.parse(r.result)); save(); toast("ok","Importado","Base restaurada."); current="dashboard"; renderNav(); render(); } catch { toast("bad","Error","JSON inválido."); } };
+    r.readAsText(file);
+  }
+  function resetAll(){
+    openModal({
+      title:"Reset total",
+      sub:"Borra todo lo guardado en este navegador.",
+      body:`<div class="tag bad">Recomendado: Exporta JSON antes.</div>`,
+      footer:`<button class="btn" id="mClose">Cancelar</button><button class="btn danger" id="ok">Borrar todo</button>`,
+      onMount: ()=>{ $("#ok").onclick=()=>{ state=defaults(); save(); dlg.close(); toast("ok","Listo","Datos borrados."); current="dashboard"; renderNav(); render(); }; }
+    });
+  }
+
+  function toCSV(rows){ return rows.map(r=>r.map(v=>`"${String(v??"").replace(/"/g,'""')}"`).join(",")).join("\n"); }
+
+  function exportSalesCSV(){
+    const rows=[["date","client","batch","qty","unitPrice","total","status","paidAmount","pending","dueDate","notes"]];
+    state.sales.forEach(s=>{
+      const c=get.client(s.clientId);
+      const pending=Math.max(0,num(s.total)-num(s.paidAmount));
+      rows.push([s.date,c?.name||"",s.batchId?s.batchId.slice(-8):"",s.qty,s.unitPrice,s.total,s.status,s.paidAmount,pending,s.dueDate,s.notes]);
+    });
+    download(`ventas_${today()}.csv`, toCSV(rows), "text/csv");
+    toast("ok","Exportado","CSV de ventas descargado.");
+  }
+  function exportInvCSV(){
+    const rows=[["name","category","qty","unit","minQty","unitCost","supplier","expiration","notes"]];
+    state.inventory.forEach(i=>rows.push([i.name,i.category,i.qty,i.unit,i.minQty,i.unitCost,i.supplier,i.expiration,i.notes]));
+    download(`inventario_${today()}.csv`, toCSV(rows), "text/csv");
+    toast("ok","Exportado","CSV de inventario descargado.");
+  }
+  function exportTxCSV(){
+    const rows=[["date","type","category","amount","method","notes"]];
+    state.transactions.forEach(t=>rows.push([t.date,t.type,t.category,t.amount,t.method,t.notes]));
+    download(`finanzas_${today()}.csv`, toCSV(rows), "text/csv");
+    toast("ok","Exportado","CSV de finanzas descargado.");
+  }
+
+  // ------- Quick add + top buttons -------
+  $("#quick").onclick=()=>{
+    openModal({
+      title:"Registro rápido",
+      sub:"Crea un registro sin cambiar de módulo.",
+      body:`<div class="grid2">
+        <div class="f12">
+          <label>Tipo</label>
+          <select id="qa">
+            <option value="sow">Nueva cerda</option>
+            <option value="breeding">Servicio / inseminación</option>
+            <option value="farrowing">Parto</option>
+            <option value="inv">Nuevo insumo</option>
+            <option value="expense">Gasto</option>
+            <option value="task">Tarea</option>
+          </select>
+        </div>
+      </div>
+      <div id="qaBody" style="margin-top:10px"></div>`,
+      footer:`<button class="btn" id="mClose">Cancelar</button><button class="btn primary" id="go">Continuar</button>`,
+      onMount: ()=>{
+        const qa=$("#qa"), qaBody=$("#qaBody");
+        const renderQA=()=>{
+          if(qa.value==="sow") qaBody.innerHTML=sowForm();
+          if(qa.value==="breeding") qaBody.innerHTML=breedingForm();
+          if(qa.value==="farrowing") qaBody.innerHTML=farrowingForm();
+          if(qa.value==="inv") qaBody.innerHTML=invForm();
+          if(qa.value==="expense") qaBody.innerHTML=txForm("gasto");
+          if(qa.value==="task") qaBody.innerHTML=taskForm();
+        };
+        qa.onchange=renderQA; renderQA();
+        $("#go").onclick=()=>{
+          if(qa.value==="sow") saveSow();
+          else if(qa.value==="breeding") saveBreeding();
+          else if(qa.value==="farrowing") saveFarrowing();
+          else if(qa.value==="inv") { openInvItem(); toast("warn","Tip","Guarda el insumo desde el formulario para evitar duplicados."); }
+          else if(qa.value==="expense") { 
+            const fd=new FormData($("#txForm"));
+            const amount=num(fd.get("amount"));
+            if(amount<=0){ toast("bad","Valor inválido","Debe ser >0."); return; }
+            state.transactions.push({id:uid("tx"),date:(fd.get("date")||today()).toString(),type:"gasto",category:(fd.get("category")||"Operación").toString(),amount,method:(fd.get("method")||"efectivo").toString(),refType:"manual",refId:"",notes:(fd.get("notes")||"").toString()});
+            save(); dlg.close(); toast("ok","Guardado","Gasto registrado."); render();
+          }
+          else if(qa.value==="task"){
+            const fd=new FormData($("#taskForm"));
+            const title=(fd.get("title")||"").toString().trim();
+            if(!title){ toast("bad","Falta título","Obligatorio."); return; }
+            state.tasks.push({id:uid("tsk"),title,dueDate:(fd.get("dueDate")||"").toString(),priority:(fd.get("priority")||"media").toString(),status:(fd.get("status")||"pendiente").toString(),relatedType:(fd.get("relatedType")||"").toString(),relatedId:(fd.get("relatedId")||"").toString(),notes:(fd.get("notes")||"").toString().trim()});
+            save(); dlg.close(); toast("ok","Guardado","Tarea creada."); render();
+          }
+        };
+      }
+    });
+  };
+
+  $("#newSale").onclick=()=>openSale();
+
+  // ------- Init -------
+  renderNav();
+  render();
+  save(); // ensures pills update
+})();
+</script>
+</body>
+</html>

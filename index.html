@@ -552,6 +552,80 @@ header .brand .title span{
   }
 }
 
+
+
+/* =========================================================
+   UX: tarjetas de ayuda, pasos y estados vacíos
+   ========================================================= */
+.helpCard{
+  border:1px solid rgba(15,23,42,.12);
+  background: linear-gradient(135deg, rgba(34,197,94,.10), rgba(255,255,255,.88));
+  border-radius: 18px;
+  padding: 14px;
+  box-shadow: 0 12px 30px rgba(2,6,23,.08);
+  margin: 10px 0 14px;
+}
+.helpHd{
+  display:flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.helpHd b{ font-size: 14px; }
+.helpHd .muted{ margin-top:4px; }
+.steps{
+  display:grid;
+  gap:10px;
+}
+.step{
+  display:flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  padding: 10px;
+  border-radius: 14px;
+  background: rgba(255,255,255,.72);
+  border: 1px solid rgba(15,23,42,.10);
+}
+.step .left{ display:flex; gap:10px; align-items:flex-start; }
+.step .ico{
+  width: 26px; height: 26px;
+  border-radius: 10px;
+  display:grid; place-items:center;
+  background: rgba(34,197,94,.14);
+  border:1px solid rgba(34,197,94,.28);
+  flex: 0 0 auto;
+  font-size: 14px;
+}
+.step.done .ico{
+  background: rgba(34,197,94,.20);
+  border-color: rgba(34,197,94,.40);
+}
+.step .txt b{ display:block; font-size: 13px; }
+.step .txt .muted{ font-size: 12px; }
+.step .right{ display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
+
+.emptyBig{
+  padding: 16px;
+  border-radius: 18px;
+  border: 1px dashed rgba(15,23,42,.18);
+  background: rgba(255,255,255,.78);
+  margin-top: 10px;
+}
+.emptyBig b{ font-size: 14px; display:block; margin-bottom:4px; }
+.emptyBig .muted{ font-size: 12.5px; }
+.emptyBig .actions{ display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+kbd{
+  font-family: var(--mono);
+  font-size: 12px;
+  padding: 2px 7px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,.22);
+  background: rgba(255,255,255,.12);
+  color: #fff;
+}
+
 </style>
 </head>
 <body>
@@ -567,8 +641,9 @@ header .brand .title span{
     <nav id="nav"></nav>
     <div class="right">
       <input id="q" class="search" placeholder="Buscar: cerda, camada, cliente, insumo, venta…" />
-      <button class="btn" id="quick">➕ Rápido</button>
-      <button class="btn primary" id="newSale">Nueva venta</button>
+      <button class="btn" id="quick" title="Crear rápido: cerda, servicio, parto, insumo, gasto, tarea">➕ Rápido</button>
+      <button class="btn" id="helpBtn" title="Abrir guía rápida y primeros pasos">❓ Ayuda</button>
+      <button class="btn primary" id="newSale" title="Registrar una venta de lechones">Nueva venta</button>
     </div>
   </div>
 </header>
@@ -640,6 +715,153 @@ header .brand .title span{
     if(typeof onMount==="function") onMount();
   }
 
+  // ------- Ayuda + Onboarding -------
+  const ONBOARD_KEY = KEY + "_onboard_seen";
+
+  function gettingStartedCardHTML(){
+    const steps = [
+      {k:"sows",  ico:"🐷", title:"Registra tu primera cerda",  desc:"Crea el registro maestro (Arete/Tag).", done: state.sows.length>0, act:"Crear cerda", on:"sow"},
+      {k:"breed", ico:"🧬", title:"Registra un servicio/inseminación", desc:"Así el sistema calcula parto estimado y crea tareas.", done: state.breedings.length>0, act:"Registrar servicio", on:"breeding"},
+      {k:"litt",  ico:"👶", title:"Registra un parto (camada)", desc:"Crea camadas y lechones disponibles para vender.", done: (state.farrowings.length>0 || state.batches.length>0), act:"Registrar parto", on:"farrowing"},
+      {k:"inv",   ico:"📦", title:"Crea inventario (insumos)", desc:"Alimento/medicamento con mínimos y vencimiento.", done: state.inventory.length>0, act:"Nuevo insumo", on:"inv"},
+      {k:"sales", ico:"💳", title:"Registra una venta", desc:"Vende lechones por camada y controla abonos/saldo.", done: state.sales.length>0, act:"Nueva venta", on:"sale"},
+    ];
+    const doneCount = steps.filter(s=>s.done).length;
+    if(doneCount===steps.length) return "";
+    return `
+      <div class="helpCard" id="gsCard">
+        <div class="helpHd">
+          <div>
+            <b>Primeros pasos (para que el sistema “arranque”)</b>
+            <div class="muted">Completa estos pasos y el Dashboard empezará a mostrar alertas, lechones disponibles y cartera.</div>
+          </div>
+          <span class="tag info">${doneCount}/${steps.length} completados</span>
+        </div>
+        <div class="steps">
+          ${steps.map(s=>`
+            <div class="step ${s.done?"done":""}">
+              <div class="left">
+                <div class="ico">${s.done?"✅":s.ico}</div>
+                <div class="txt">
+                  <b>${esc(s.title)}</b>
+                  <div class="muted">${esc(s.desc)}</div>
+                </div>
+              </div>
+              <div class="right">
+                ${s.done?`<span class="tag ok">Listo</span>`:`
+                  <button class="btn primary" data-gs="${s.on}">${esc(s.act)}</button>
+                  <button class="btn" data-goto="${s.k}">Ir al módulo</button>
+                `}
+              </div>
+            </div>
+          `).join("")}
+        </div>
+      </div>
+    `;
+  }
+
+  function bindGettingStartedActions(root=document){
+    root.querySelectorAll("button[data-goto]").forEach(b=>{
+      b.onclick=()=>goTab(b.dataset.goto);
+    });
+    root.querySelectorAll("button[data-gs]").forEach(b=>{
+      const t=b.dataset.gs;
+      b.onclick=()=>{
+        dlg.close();
+        if(t==="sow") openSow();
+        if(t==="breeding") openBreeding();
+        if(t==="farrowing") openFarrowing();
+        if(t==="inv") openInvItem();
+        if(t==="sale") openSale();
+      };
+    });
+  }
+
+  function openHelp(){
+    openModal({
+      title:"Ayuda rápida",
+      sub:"Guía dentro del sistema (sin internet).",
+      body:`
+        <div class="helpCard" style="margin-top:0">
+          <div class="helpHd">
+            <div>
+              <b>¿Por dónde empezar?</b>
+              <div class="muted">Si es tu primera vez, abre “Primeros pasos” y sigue el checklist.</div>
+            </div>
+            <span class="tag info">Tip</span>
+          </div>
+          <div class="actions" style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn primary" id="openOnb">📘 Primeros pasos</button>
+            <button class="btn" id="goSettings">⚙️ Ajustes</button>
+            <button class="btn" id="goBackup">🧾 Exportar respaldo</button>
+          </div>
+        </div>
+
+        <div class="wrap">
+          <table>
+            <thead><tr><th>Acción</th><th>Qué hace</th><th>Atajo</th></tr></thead>
+            <tbody>
+              <tr><td><b>➕ Rápido</b></td><td class="muted">Crea cerda/servicio/parto/insumo/gasto/tarea sin cambiar de módulo.</td><td class="mono">Header</td></tr>
+              <tr><td><b>Buscar</b></td><td class="muted">Busca por tag, cliente, insumo, venta… y filtra la vista actual.</td><td class="mono">Caja de búsqueda</td></tr>
+              <tr><td><b>Abonos</b></td><td class="muted">Registra pagos parciales y mira historial de cobros.</td><td class="mono">Ventas → Ver</td></tr>
+              <tr><td><b>Respaldos</b></td><td class="muted">Exporta/Importa JSON para no perder datos (recomendado semanal).</td><td class="mono">Ajustes</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="emptyBig">
+          <b>Flujo recomendado</b>
+          <div class="muted">Cerda → Servicio → Parto (Camada) → Venta → Abonos → Finanzas</div>
+        </div>
+      `,
+      footer:`<button class="btn" id="hClose">Cerrar</button>`,
+      onMount:()=>{
+        $("#hClose",dlgFt).onclick=()=>dlg.close();
+        $("#openOnb").onclick=()=>{ dlg.close(); openOnboarding(true); };
+        $("#goSettings").onclick=()=>{ dlg.close(); goTab("settings"); };
+        $("#goBackup").onclick=()=>{ dlg.close(); goTab("settings"); setTimeout(()=>$("#expAll")?.click(), 180); };
+      }
+    });
+  }
+
+  function openOnboarding(force=false){
+    if(!force && localStorage.getItem(ONBOARD_KEY)==="1") return;
+    const body = `
+      <div class="helpCard" style="margin-top:0">
+        <div class="helpHd">
+          <div>
+            <b>Primeros pasos</b>
+            <div class="muted">Completa el checklist y empieza a registrar tu operación.</div>
+          </div>
+          <span class="tag info">Checklist</span>
+        </div>
+        ${gettingStartedCardHTML() || `<div class="emptyBig"><b>¡Listo!</b><div class="muted">Ya completaste lo básico. Ahora usa Inventario, Ventas y Finanzas día a día.</div></div>`}
+      </div>
+
+      <div class="emptyBig">
+        <b>Consejo importante</b>
+        <div class="muted">Este sistema guarda datos en tu navegador. Haz <b>Exportar JSON</b> cada semana (Ajustes).</div>
+      </div>
+    `;
+    openModal({
+      title:"📘 Primeros pasos",
+      sub:"Checklist dentro del sistema.",
+      body,
+      footer:`<button class="btn" id="obClose">Cerrar</button>
+              <button class="btn" id="obNo">No mostrar de nuevo</button>`,
+      onMount:()=>{
+        $("#obClose",dlgFt).onclick=()=>dlg.close();
+        $("#obNo",dlgFt).onclick=()=>{ localStorage.setItem(ONBOARD_KEY,"1"); dlg.close(); toast("ok","Listo","No volverá a mostrarse automáticamente."); };
+        bindGettingStartedActions(dlgBody);
+      }
+    });
+  }
+
+  function maybeOnboard(){
+    const isEmpty = state.sows.length===0 && state.inventory.length===0 && state.sales.length===0 && state.breedings.length===0 && state.farrowings.length===0;
+    if(isEmpty) openOnboarding(false);
+  }
+
   // ------- Data helpers -------
   const get = {
     sow:(id)=>state.sows.find(x=>x.id===id)||null,
@@ -677,6 +899,7 @@ header .brand .title span{
     ["settings","⚙️ Ajustes"]
   ];
   let current="dashboard", q="";
+  function goTab(tab){ current=tab; renderNav(); render(); }
   function renderNav(){
     $("#nav").innerHTML = tabs.map(([id,label])=>`<button data-tab="${id}" class="${id===current?"active":""}">${label}</button>`).join("");
     $("#nav").onclick = (e)=>{
@@ -753,20 +976,25 @@ header .brand .title span{
         </td>
       </tr>`).join("")}</tbody></table></div>` : `<div class="muted" style="margin-top:10px">Sin alertas por ahora.</div>`;
 
+    const gs = gettingStartedCardHTML();
+
     view.innerHTML = shell(
       "Dashboard",
       "Vista rápida con métricas y alertas automáticas.",
       `<button class="btn primary" id="addSow">➕ Nueva cerda</button>
        <button class="btn" id="addInv">📦 Nuevo insumo</button>
        <button class="btn" id="addBreeding">🧬 Servicio</button>
-       <button class="btn" id="addFarrowing">👶 Parto</button>`,
-      kpis + alertsHTML
+       <button class="btn" id="addFarrowing">👶 Parto</button>
+       <button class="btn" id="startGuide">📘 Primeros pasos</button>`,
+      gs + kpis + alertsHTML
     );
 
     $("#addSow").onclick=()=>openSow();
     $("#addInv").onclick=()=>openInvItem();
     $("#addBreeding").onclick=()=>openBreeding();
     $("#addFarrowing").onclick=()=>openFarrowing();
+    const sg=$("#startGuide"); if(sg) sg.onclick=()=>openOnboarding(true);
+    bindGettingStartedActions(view);
 
     view.onclick = (e)=>{
       const b=e.target.closest("button[data-go]"); if(!b) return;
@@ -2040,11 +2268,13 @@ header .brand .title span{
   };
 
   $("#newSale").onclick=()=>openSale();
+  const hb=$("#helpBtn"); if(hb) hb.onclick=()=>openHelp();
 
   // ------- Init -------
   renderNav();
   render();
   save(); // ensures pills update
+  setTimeout(()=>maybeOnboard(), 80);
 })();
 </script>
 </body>

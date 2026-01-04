@@ -680,12 +680,207 @@ kbd{
   const esc = (s) => String(s??"").replace(/[<>&]/g, ch => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[ch]));
   const fmtCOP = (n) => { n=num(n); try { return n.toLocaleString("es-CO",{style:"currency",currency:"COP",maximumFractionDigits:0}); } catch { return "COP "+Math.round(n).toString(); } };
 
-  const defaults = () => ({
+  // ------- Costeo / inversión por cerda y por camada -------
+  const moveCost = (m) => {
+    const it = get.inv(m.itemId);
+    const uc = num(m.unitCost) || num(it?.unitCost) || 0;
+    const q = Math.abs(num(m.qty));
+    return q * uc;
+  };
+  const invested = {
+    sow: (sowId) => (state.stockMovements||[])
+      .filter(m=>m.type==="salida" && m.linkedType==="sow" && m.linkedId===sowId)
+      .reduce((s,m)=>s+moveCost(m),0),
+    batch: (batchId) => (state.stockMovements||[])
+      .filter(m=>m.type==="salida" && m.linkedType==="batch" && m.linkedId===batchId)
+      .reduce((s,m)=>s+moveCost(m),0),
+    list: (type, id, limit=8) => (state.stockMovements||[])
+      .filter(m=>m.type==="salida" && m.linkedType===type && m.linkedId===id)
+      .sort((a,b)=>(b.date||"").localeCompare(a.date||""))
+      .slice(0, limit)
+  };
+
+
+    function supplyHistoryHTML(type, id, limit=60){
+    const title = type==="sow" ? "Historial de suministros (cerda)" : "Historial de suministros (camada)";
+    const total = type==="sow" ? invested.sow(id) : invested.batch(id);
+    const all = (state.stockMovements||[])
+      .filter(m=>m.type==="salida" && m.linkedType===type && m.linkedId===id)
+      .sort((a,b)=>(b.date||"").localeCompare(a.date||""));
+    const rows = all.slice(0, limit).map(m=>{
+      const it = get.inv(m.itemId);
+      const uc = num(m.unitCost)||num(it?.unitCost)||0;
+      const q = Math.abs(num(m.qty));
+      const cost = q*uc;
+      return `<tr>
+        <td class="mono">${esc(m.date||"—")}</td>
+        <td><b>${esc(it?.name||"Insumo")}</b><div class="muted">${esc(it?.category||"")}</div></td>
+        <td class="mono">${esc(q)} ${esc(it?.unit||"")}</td>
+        <td class="mono">${esc(fmtCOP(cost))}</td>
+      </tr>`;
+    }).join("");
+    const note = all.length>limit ? `<div class="muted" style="margin-top:8px">Mostrando ${limit} de ${all.length} registros.</div>` : "";
+    return `
+      <div class="card">
+        <div class="hd">
+          <div><h2>${title}</h2><p>Fecha • Cantidad • Costo</p></div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <span class="tag info">Total: <span class="mono">${fmtCOP(total)}</span></span>
+            <button class="btn primary" type="button" data-supply="${type}" data-supplyid="${id}">➖ Registrar suministro</button>
+          </div>
+        </div>
+        <div class="bd">
+          <div class="wrap"><table>
+            <thead><tr><th>Fecha</th><th>Insumo</th><th>Cantidad</th><th>Costo</th></tr></thead>
+            <tbody>${rows || `<tr><td colspan="4" class="muted">Aún no hay suministros registrados.</td></tr>`}</tbody>
+          </table></div>
+          ${note}
+        </div>
+      </div>
+    `;
+  }
+
+  // ------- Ganancias / utilidad por camada y por cerda -------
+  function salesStatsForBatch(batchId){
+    const sales = (state.sales||[]).filter(s=>s.batchId===batchId);
+    const sold = sales.reduce((sum,s)=>sum+num(s.total),0);
+    const collected = sales.reduce((sum,s)=>sum+num(s.paidAmount),0);
+    const pending = Math.max(0, sold - collected);
+    const qtySold = sales.reduce((sum,s)=>sum+num(s.qty),0);
+    return {sales, sold, collected, pending, qtySold};
+  }
+  function profitStatsForBatch(batchId){
+    const rev = salesStatsForBatch(batchId);
+    const cost = invested.batch(batchId);
+    const profitEst = rev.sold - cost;
+    const profitCash = rev.collected - cost;
+    return {...rev, cost, profitEst, profitCash};
+  }
+  function profitStatsForSow(sowId){
+    const batches = (state.batches||[]).filter(b=>b.sowId===sowId);
+    const per = batches.map(b=>({batch:b, ...profitStatsForBatch(b.id)}))
+      .sort((a,b)=>(b.batch.birthDate||"").localeCompare(a.batch.birthDate||""));
+    const sold = per.reduce((s,x)=>s+x.sold,0);
+    const collected = per.reduce((s,x)=>s+x.collected,0);
+    const pending = Math.max(0, sold-collected);
+    const costB = per.reduce((s,x)=>s+x.cost,0);
+    const costS = invested.sow(sowId);
+    const costAll = costB + costS;
+    const profitEst = sold - costAll;
+    const profitCash = collected - costAll;
+    const qtySold = per.reduce((s,x)=>s+x.qtySold,0);
+    return {per, sold, collected, pending, costB, costS, costAll, profitEst, profitCash, qtySold};
+  }
+
+  function profitHistoryHTML(type, id){
+    if(type==="batch"){
+      const b = get.batch(id); if(!b) return "";
+      const st = profitStatsForBatch(id);
+      const profitTag = st.profitEst>=0 ? `<span class="tag ok">Utilidad: <span class="mono">${fmtCOP(st.profitEst)}</span></span>`
+                                        : `<span class="tag bad">Pérdida: <span class="mono">${fmtCOP(st.profitEst)}</span></span>`;
+      const rows = st.sales.slice().sort((a,b)=>(b.date||"").localeCompare(a.date||"")).map(s=>{
+        const c=get.client(s.clientId);
+        const p = Math.max(0, num(s.total)-num(s.paidAmount));
+        return `<tr>
+          <td class="mono">${esc(s.date||"—")}</td>
+          <td><b>${esc(c?.name||"Cliente")}</b><div class="muted">Venta ${esc(s.id.slice(-6))}</div></td>
+          <td class="mono">${esc(s.qty||0)}</td>
+          <td class="mono">${esc(fmtCOP(num(s.total)))}</td>
+          <td class="mono">${esc(fmtCOP(num(s.paidAmount)))}</td>
+          <td class="mono">${esc(fmtCOP(p))}</td>
+        </tr>`;
+      }).join("");
+
+      return `
+        <div class="card">
+          <div class="hd">
+            <div><h2>Ganancias de esta camada</h2><p>Ventas • Cobros • Utilidad</p></div>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+              ${profitTag}
+              <span class="tag info">Inversión: <span class="mono">${fmtCOP(st.cost)}</span></span>
+            </div>
+          </div>
+          <div class="bd">
+            <div class="kpis">
+              <div class="kpi"><small>Lechones vendidos</small><b class="mono">${esc(st.qtySold||0)}</b></div>
+              <div class="kpi"><small>Total vendido</small><b class="mono">${fmtCOP(st.sold)}</b></div>
+              <div class="kpi"><small>Cobrado</small><b class="mono">${fmtCOP(st.collected)}</b></div>
+              <div class="kpi"><small>Pendiente</small><b class="mono">${fmtCOP(st.pending)}</b></div>
+            </div>
+            <div class="wrap"><table>
+              <thead><tr><th>Fecha</th><th>Cliente</th><th>Cant.</th><th>Total</th><th>Cobrado</th><th>Pendiente</th></tr></thead>
+              <tbody>${rows || `<tr><td colspan="6" class="muted">Aún no hay ventas registradas para esta camada.</td></tr>`}</tbody>
+            </table></div>
+            <div class="emptyBig">
+              <b>Utilidad estimada</b>
+              <div class="muted">Total vendido − inversión de insumos (salidas relacionadas a la camada).</div>
+              <div style="margin-top:6px"><b class="mono">${fmtCOP(st.profitEst)}</b></div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // type==="sow"
+    const s = get.sow(id); if(!s) return "";
+    const st = profitStatsForSow(id);
+    const profitTag = st.profitEst>=0 ? `<span class="tag ok">Utilidad: <span class="mono">${fmtCOP(st.profitEst)}</span></span>`
+                                      : `<span class="tag bad">Pérdida: <span class="mono">${fmtCOP(st.profitEst)}</span></span>`;
+    const rows = st.per.slice(0,30).map(x=>{
+      const b=x.batch;
+      const tag = (x.profitEst>=0) ? `<span class="tag ok">+${fmtCOP(x.profitEst)}</span>` : `<span class="tag bad">${fmtCOP(x.profitEst)}</span>`;
+      return `<tr>
+        <td class="mono">${esc(b.birthDate||"—")}</td>
+        <td><b>${esc(b.code||("Lote "+b.id.slice(-6)))}</b><div class="muted">Disponibles: ${esc(b.countCurrent||0)}</div></td>
+        <td class="mono">${esc(x.qtySold||0)}</td>
+        <td class="mono">${esc(fmtCOP(x.sold))}</td>
+        <td class="mono">${esc(fmtCOP(x.collected))}</td>
+        <td class="mono">${esc(fmtCOP(x.pending))}</td>
+        <td class="mono">${esc(fmtCOP(x.cost))}</td>
+        <td>${tag}</td>
+        <td><button class="btn" data-act="viewBatch" data-id="${b.id}">Ver</button></td>
+      </tr>`;
+    }).join("");
+
+    return `
+      <div class="card">
+        <div class="hd">
+          <div><h2>Ganancias por camadas</h2><p>Lo que produce esta cerda</p></div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            ${profitTag}
+            <span class="tag info">Inv. cerda: <span class="mono">${fmtCOP(st.costS)}</span></span>
+            <span class="tag info">Inv. camadas: <span class="mono">${fmtCOP(st.costB)}</span></span>
+          </div>
+        </div>
+        <div class="bd">
+          <div class="kpis">
+            <div class="kpi"><small>Lechones vendidos</small><b class="mono">${esc(st.qtySold||0)}</b></div>
+            <div class="kpi"><small>Total vendido</small><b class="mono">${fmtCOP(st.sold)}</b></div>
+            <div class="kpi"><small>Cobrado</small><b class="mono">${fmtCOP(st.collected)}</b></div>
+            <div class="kpi"><small>Pendiente</small><b class="mono">${fmtCOP(st.pending)}</b></div>
+          </div>
+
+          <div class="wrap"><table>
+            <thead><tr><th>Nacimiento</th><th>Camada</th><th>Vend.</th><th>Total</th><th>Cobrado</th><th>Pend.</th><th>Inv.</th><th>Utilidad</th><th></th></tr></thead>
+            <tbody>${rows || `<tr><td colspan="9" class="muted">Aún no hay camadas o ventas para esta cerda.</td></tr>`}</tbody>
+          </table></div>
+
+          <div class="emptyBig">
+            <b>Cómo se calcula</b>
+            <div class="muted">Utilidad estimada = Total vendido − (inversión cerda + inversión de sus camadas).</div>
+            <div class="muted" style="margin-top:6px">Si quieres, luego podemos agregar costos adicionales (mano de obra, servicios, etc.).</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+const defaults = () => ({
     settings:{farmName:"Granja Porcina",currency:"COP",gestationDays:114},
     sows:[], breedings:[], farrowings:[], batches:[],
     inventory:[], stockMovements:[],
     clients:[], sales:[], payments:[],
-    transactions:[], tasks:[]
+    transactions:[], payables:[], tasks:[]
   });
 
   let state = load();
@@ -869,7 +1064,8 @@ kbd{
     batch:(id)=>state.batches.find(x=>x.id===id)||null,
     inv:(id)=>state.inventory.find(x=>x.id===id)||null,
     client:(id)=>state.clients.find(x=>x.id===id)||null,
-    sale:(id)=>state.sales.find(x=>x.id===id)||null
+    sale:(id)=>state.sales.find(x=>x.id===id)||null,
+    payable:(id)=> (state.payables||[]).find(x=>x.id===id)||null
   };
 
   function pregnantBreedings(){
@@ -983,6 +1179,8 @@ kbd{
       "Vista rápida con métricas y alertas automáticas.",
       `<button class="btn primary" id="addSow">➕ Nueva cerda</button>
        <button class="btn" id="addInv">📦 Nuevo insumo</button>
+       ${state.inventory.length?`<button class="btn" id="dashIn">➕ Entrada</button>
+       <button class="btn" id="dashOut">➖ Salida</button>`:""}
        <button class="btn" id="addBreeding">🧬 Servicio</button>
        <button class="btn" id="addFarrowing">👶 Parto</button>
        <button class="btn" id="startGuide">📘 Primeros pasos</button>`,
@@ -991,6 +1189,8 @@ kbd{
 
     $("#addSow").onclick=()=>openSow();
     $("#addInv").onclick=()=>openInvItem();
+    const di=$("#dashIn"); if(di) di.onclick=()=>openInvMovePicker("entrada");
+    const doo=$("#dashOut"); if(doo) doo.onclick=()=>openInvMovePicker("salida");
     $("#addBreeding").onclick=()=>openBreeding();
     $("#addFarrowing").onclick=()=>openFarrowing();
     const sg=$("#startGuide"); if(sg) sg.onclick=()=>openOnboarding(true);
@@ -1013,11 +1213,13 @@ kbd{
         const preg = last && !closed.has(last.id);
         const due = preg ? last.expectedFarrowing : "";
         const inD = due ? daysBetween(today(), due) : null;
+        const inv = invested.sow(s.id);
         return `<tr>
           <td class="mono">${esc(s.tag||"—")}<div class="muted">${esc(s.name||"")}</div></td>
           <td>${esc(s.breed||"—")}<div class="muted">${esc(s.status||"activa")}</div></td>
           <td>${preg?`<span class="tag warn">Preñada</span>`:`<span class="tag">—</span>`}</td>
           <td class="mono">${preg?`${esc(due)} (${inD} días)`:"—"}</td>
+          <td class="mono">${inv?fmtCOP(inv):"—"}</td>
           <td>
             <button class="btn" data-act="detail" data-id="${s.id}">Ver</button>
             <button class="btn" data-act="edit" data-id="${s.id}">Editar</button>
@@ -1032,8 +1234,8 @@ kbd{
       `<button class="btn primary" id="add">➕ Nueva cerda</button>
        <button class="btn" id="svc">🧬 Registrar servicio</button>`,
       `<div class="wrap"><table>
-        <thead><tr><th>Identificación</th><th>Raza/Estado</th><th>Gestación</th><th>Parto estimado</th><th>Acciones</th></tr></thead>
-        <tbody>${rows || `<tr><td colspan="5" class="muted">Sin cerdas todavía.</td></tr>`}</tbody>
+        <thead><tr><th>Identificación</th><th>Raza/Estado</th><th>Gestación</th><th>Parto estimado</th><th>Inversión</th><th>Acciones</th></tr></thead>
+        <tbody>${rows || `<tr><td colspan="6" class="muted">Sin cerdas todavía.</td></tr>`}</tbody>
       </table></div>`
     );
 
@@ -1058,7 +1260,8 @@ kbd{
       <div class="f3"><label>Nacimiento</label><input type="date" name="dob" value="${esc(s.dob)}"/></div>
       <div class="f4"><label>Estado</label><select name="status">${["activa","seca","lactante","vendida","descartada","muerta"].map(x=>`<option ${s.status===x?"selected":""} value="${x}">${x}</option>`).join("")}</select></div>
       <div class="f12"><label>Notas</label><textarea name="notes">${esc(s.notes)}</textarea></div>
-    </form>`;
+    </form>
+`;
   }
 
   function openSow(id){
@@ -1105,6 +1308,8 @@ kbd{
           <div><div class="muted">Raza/Estado</div><b>${esc(s.breed||"—")}</b><div class="muted">${esc(s.status||"activa")}</div></div>
           <div><div class="muted">Notas</div><div class="muted">${esc(s.notes||"—")}</div></div></div>
         </div></div>
+        ${supplyHistoryHTML("sow", id)}
+        ${profitHistoryHTML("sow", id)}
         <div class="card"><div class="hd"><div><h2>Reproducción</h2><p>Últimos 10</p></div></div><div class="bd">
           <div class="wrap"><table><thead><tr><th>Servicio</th><th>Método</th><th>Parto est.</th><th>Notas</th></tr></thead>
           <tbody>${br.map(b=>`<tr><td class="mono">${esc(b.date)}</td><td>${esc(b.method||"—")}</td><td class="mono">${esc(b.expectedFarrowing||"—")}</td><td class="muted">${esc(b.notes||"")}</td></tr>`).join("")||`<tr><td colspan="4" class="muted">Sin registros.</td></tr>`}</tbody></table></div>
@@ -1118,10 +1323,19 @@ kbd{
           <tbody>${ba.map(b=>`<tr><td class="mono">${esc(b.id.slice(-8))}</td><td class="mono">${esc(b.birthDate||"—")}</td><td class="mono">${esc(b.weaningDate||"—")}</td><td class="mono">${esc(b.countInitial)}</td><td class="mono">${esc(b.countCurrent)}</td></tr>`).join("")||`<tr><td colspan="5" class="muted">Sin registros.</td></tr>`}</tbody></table></div>
         </div></div>
       </div>`,
-      footer:`<button class="btn" id="mClose">Cerrar</button><button class="btn" id="goSvc">🧬 Servicio</button><button class="btn primary" id="goFar">👶 Parto</button>`,
+      footer:`<button class="btn" id="mClose">Cerrar</button><button class="btn" id="goSvc">🧬 Servicio</button><button class="btn" id="supSow">➖ Suministrar</button><button class="btn primary" id="goFar">👶 Parto</button>`,
       onMount: ()=>{
         $("#goSvc").onclick=()=>{ dlg.close(); openBreeding(null,{sowId:id}); };
         $("#goFar").onclick=()=>{ dlg.close(); openFarrowing(null,{sowId:id}); };
+        const ss=$("#supSow"); if(ss) ss.onclick=()=>{ dlg.close(); openSupplyFor("sow", id); };
+        // Botón dentro del historial
+        dlgBody.querySelectorAll("button[data-supply]").forEach(b=>{
+          b.onclick=()=>{ const t=b.dataset.supply; const did=b.dataset.supplyid; dlg.close(); openSupplyFor(t, did); };
+        });
+        // Ver camada desde ganancias
+        dlgBody.querySelectorAll("button[data-act=\"viewBatch\"]").forEach(b=>{
+          b.onclick=()=>{ const bid=b.dataset.id; dlg.close(); openBatch(bid); };
+        });
       }
     });
   }
@@ -1185,6 +1399,7 @@ kbd{
           <td>${esc(b.method||"—")}</td>
           <td class="mono">${esc(b.expectedFarrowing||"—")}<div class="muted">${open&&inD!==null?`${inD} días`:""}</div></td>
           <td>${tag}</td>
+          <td class="mono">${(()=>{const inv=invested.batch(b.id); return inv?fmtCOP(inv):"—";})()}</td>
           <td>
             <button class="btn" data-act="edit" data-id="${b.id}">Editar</button>
             <button class="btn primary" data-act="far" data-id="${b.id}">Registrar parto</button>
@@ -1198,7 +1413,7 @@ kbd{
       `Servicios e inseminaciones. Gestación por defecto: ${state.settings.gestationDays} días.`,
       `<button class="btn primary" id="add">🧬 Registrar servicio</button>`,
       `<div class="wrap"><table>
-        <thead><tr><th>Servicio</th><th>Cerda</th><th>Método</th><th>Parto est.</th><th>Estado</th><th>Acciones</th></tr></thead>
+        <thead><tr><th>Servicio</th><th>Cerda</th><th>Método</th><th>Parto est.</th><th>Estado</th><th>Inversión</th><th>Acciones</th></tr></thead>
         <tbody>${rows||`<tr><td colspan="6" class="muted">Sin registros.</td></tr>`}</tbody>
       </table></div>`
     );
@@ -1225,7 +1440,8 @@ kbd{
       <div class="f3"><label>Método</label><select name="method">${["inseminación","monta","otro"].map(x=>`<option ${b.method===x?"selected":""} value="${x}">${x}</option>`).join("")}</select></div>
       <div class="f4"><label>Parto estimado</label><input type="date" name="expectedFarrowing" value="${esc(b.expectedFarrowing)}"/></div>
       <div class="f12"><label>Notas</label><textarea name="notes">${esc(b.notes)}</textarea></div>
-    </form>`;
+    </form>
+`;
   }
 
   function openBreeding(id,preset={}){
@@ -1295,6 +1511,7 @@ kbd{
           <td class="mono">${esc(b.countInitial)}</td>
           <td class="mono">${esc(b.countCurrent)}</td>
           <td>${tag}</td>
+          <td class="mono">${(()=>{const inv=invested.batch(b.id); return inv?fmtCOP(inv):"—";})()}</td>
           <td>
             <button class="btn" data-act="edit" data-id="${b.id}">Editar</button>
             <button class="btn" data-act="mort" data-id="${b.id}">Mortalidad</button>
@@ -1308,8 +1525,8 @@ kbd{
       "Cada parto crea un lote. Controla cantidad actual y disponibilidad.",
       `<button class="btn primary" id="far">👶 Registrar parto</button><button class="btn" id="manual">➕ Camada manual</button>`,
       `<div class="wrap"><table>
-        <thead><tr><th>Lote</th><th>Cerda</th><th>Nac.</th><th>Dest.</th><th>Inicial</th><th>Actual</th><th>Estado</th><th>Acciones</th></tr></thead>
-        <tbody>${rows||`<tr><td colspan="8" class="muted">Sin camadas.</td></tr>`}</tbody>
+        <thead><tr><th>Lote</th><th>Cerda</th><th>Nac.</th><th>Dest.</th><th>Inicial</th><th>Actual</th><th>Estado</th><th>Inversión</th><th>Acciones</th></tr></thead>
+        <tbody>${rows||`<tr><td colspan="9" class="muted">Sin camadas.</td></tr>`}</tbody>
       </table></div>`
     );
 
@@ -1343,7 +1560,8 @@ kbd{
       <div class="f3"><label>Momificados</label><input type="number" name="mummified" value="${esc(f.mummified)}" min="0"/></div>
       <div class="f12"><label>Notas</label><textarea name="notes">${esc(f.notes)}</textarea></div>
       <div class="f12"><span class="tag">Al guardar se crea una camada con nacidos vivos.</span></div>
-    </form>`;
+    </form>
+`;
   }
 
   function openFarrowing(id,preset={}){
@@ -1417,7 +1635,8 @@ kbd{
       <div class="f4"><label>Cantidad inicial</label><input type="number" name="countInitial" value="${esc(b.countInitial)}" min="0"/></div>
       <div class="f4"><label>Cantidad actual</label><input type="number" name="countCurrent" value="${esc(b.countCurrent)}" min="0"/></div>
       <div class="f12"><label>Notas</label><textarea name="notes">${esc(b.notes)}</textarea></div>
-    </form>`;
+    </form>
+`;
   }
 
   function openBatch(id){
@@ -1426,13 +1645,17 @@ kbd{
     openModal({
       title:id?"Editar camada":"Camada manual",
       sub:"Útil si registras lotes sin usar el módulo de parto.",
-      body:batchForm(b),
+      body: batchForm(b) + (id ? profitHistoryHTML("batch", id) + supplyHistoryHTML("batch", id) : ""),
       footer:`<button class="btn" id="mClose">Cancelar</button><button class="btn primary" id="save">Guardar</button>`,
       onMount: ()=>{
         const f=$("#batchForm");
         const birth=f.querySelector('input[name="birthDate"]');
         const wean=f.querySelector('input[name="weaningDate"]');
         birth.onchange=()=>{ if(birth.value && !wean.value) wean.value=addDays(birth.value,28); };
+        // Botón dentro del historial de suministros
+        dlgBody.querySelectorAll("button[data-supply]").forEach(b=>{
+          b.onclick=()=>{ const t=b.dataset.supply; const did=b.dataset.supplyid; dlg.close(); openSupplyFor(t, did); };
+        });
         $("#save").onclick=()=>{
           const fd=new FormData(f);
           const sowId=(fd.get("sowId")||"").toString();
@@ -1536,19 +1759,63 @@ kbd{
     };
   }
 
-  function invForm(i){
+  function invForm(i,isNew){
+    isNew=!!isNew;
     i=i||{name:"",category:"alimento",unit:"kg",qty:0,minQty:0,unitCost:0,supplier:"",expiration:"",notes:""};
     return `<form id="invForm" class="grid2">
       <div class="f6"><label>Nombre *</label><input name="name" required value="${esc(i.name)}"/></div>
-      <div class="f3"><label>Categoría</label><select name="category">${["alimento","medicamento","insumo"].map(x=>`<option ${i.category===x?"selected":""} value="${x}">${x}</option>`).join("")}</select></div>
+      <div class="f3"><label>Categoría</label><select name="category">
+        ${["alimento","medicamento","insumo"].map(x=>`<option ${i.category===x?"selected":""} value="${x}">${x}</option>`).join("")}
+      </select></div>
       <div class="f3"><label>Unidad</label><input name="unit" value="${esc(i.unit)}" placeholder="kg, ml, und"/></div>
-      <div class="f3"><label>Cantidad</label><input type="number" step="0.01" name="qty" value="${esc(i.qty)}"/></div>
+
+      <div class="f3"><label>Cantidad</label><input id="invQty" type="number" step="0.01" name="qty" value="${esc(i.qty)}" placeholder="0"/></div>
       <div class="f3"><label>Mínimo</label><input type="number" step="0.01" name="minQty" value="${esc(i.minQty)}"/></div>
-      <div class="f3"><label>Costo unit.</label><input type="number" step="0.01" name="unitCost" value="${esc(i.unitCost)}"/></div>
-      <div class="f3"><label>Vencimiento</label><input type="date" name="expiration" value="${esc(i.expiration)}"/></div>
-      <div class="f6"><label>Proveedor</label><input name="supplier" value="${esc(i.supplier)}"/></div>
+
+      <div class="f3"><label>Costo unitario</label>
+        <input id="invUnitCost" type="number" step="0.01" name="unitCost" value="${esc(i.unitCost)}" placeholder="0"/>
+        <div class="muted" style="margin-top:6px;font-size:12px">Si ingresas <b>Total compra</b>, se calcula automático.</div>
+      </div>
+
+      <div class="f12" style="margin-top:2px">
+        <div class="tag info" style="display:inline-flex;gap:8px;align-items:center">
+          <span style="font-weight:900">Compra</span><span class="muted">Opcional (recomendado si este insumo llega con factura)</span>
+        </div>
+      </div>
+
+      <div class="f6">
+        <label style="display:flex;gap:10px;align-items:center;cursor:pointer">
+          <input id="invRegPurchase" type="checkbox" ${isNew?"checked":""} style="width:18px;height:18px"/>
+          Registrar compra/entrada inicial y enviarla a Finanzas
+        </label>
+      </div>
+      <div class="f6"><label>Fecha compra</label><input type="date" name="pDate" value="${today()}"/></div>
+
+      <div class="f4"><label>Total compra (COP)</label><input id="invTotal" type="number" step="0.01" name="totalCost" value="0" placeholder="0"/></div>
+      <div class="f4"><label>Estado de pago</label>
+        <select id="invPayStatus" name="payStatus">
+          <option value="pagado">Pagado completo</option>
+          <option value="credito">Crédito (pendiente)</option>
+          <option value="parcial">Parcial (abonos)</option>
+        </select>
+      </div>
+      <div class="f4"><label>Pagado hoy (COP)</label><input id="invPaidNow" type="number" step="0.01" name="paidNow" value="0" placeholder="0"/></div>
+
+      <div class="f4"><label>Método</label>
+        <select id="invMethod" name="method">
+          <option value="efectivo">Efectivo</option>
+          <option value="transferencia">Transferencia</option>
+          <option value="tarjeta">Tarjeta</option>
+          <option value="otro">Otro</option>
+        </select>
+      </div>
+      <div class="f4"><label>Vence (si hay crédito)</label><input id="invDue" type="date" name="dueDate" value=""/></div>
+      <div class="f4"><label>Proveedor</label><input name="supplier" value="${esc(i.supplier)}"/></div>
+
+      <div class="f3"><label>Vencimiento (insumo/medicamento)</label><input type="date" name="expiration" value="${esc(i.expiration)}"/></div>
       <div class="f12"><label>Notas</label><textarea name="notes">${esc(i.notes)}</textarea></div>
-    </form>`;
+    </form>
+`;
   }
 
   function openInvItem(id){
@@ -1556,9 +1823,55 @@ kbd{
     openModal({
       title:id?"Editar insumo":"Nuevo insumo",
       sub:"Define mínimo para alertas.",
-      body:invForm(i),
+      body:invForm(i, !id),
       footer:`<button class="btn" id="mClose">Cancelar</button><button class="btn primary" id="save">Guardar</button>`,
       onMount: ()=>{
+        const f = $("#invForm");
+        const reg = $("#invRegPurchase");
+        const qtyI = $("#invQty");
+        const totalI = $("#invTotal");
+        const ucI = $("#invUnitCost");
+        const stI = $("#invPayStatus");
+        const paidI = $("#invPaidNow");
+        const dueI = $("#invDue");
+        const methodI = $("#invMethod");
+
+        function clampPaid(){
+          const total=num(totalI?.value);
+          if(stI?.value==="pagado"){
+            paidI.value = String(Math.max(0,total));
+            paidI.disabled = true;
+            dueI.value = "";
+            dueI.disabled = true;
+          } else if(stI?.value==="credito"){
+            paidI.value = "0";
+            paidI.disabled = true;
+            dueI.disabled = false;
+          } else {
+            paidI.disabled = false;
+            dueI.disabled = false;
+            const p=num(paidI.value);
+            if(p>total) paidI.value = String(Math.max(0,total));
+          }
+        }
+
+        function recalcUnit(){
+          if(!reg || !reg.checked) return;
+          const q=num(qtyI?.value);
+          const total=num(totalI?.value);
+          if(q>0 && total>0){
+            const uc = total / q;
+            ucI.value = String(Math.round(uc*100)/100);
+          }
+          clampPaid();
+        }
+        if(reg){ reg.onchange=()=>{ clampPaid(); }; }
+        if(totalI){ totalI.oninput=recalcUnit; }
+        if(qtyI){ qtyI.oninput=recalcUnit; }
+        if(stI){ stI.onchange=clampPaid; }
+        if(paidI){ paidI.oninput=clampPaid; }
+        clampPaid();
+
         $("#save").onclick=()=>{
           const fd=new FormData($("#invForm"));
           const name=(fd.get("name")||"").toString().trim();
@@ -1570,13 +1883,89 @@ kbd{
             unit:(fd.get("unit")||"und").toString().trim()||"und",
             qty:num(fd.get("qty")),
             minQty:num(fd.get("minQty")),
-            unitCost:num(fd.get("unitCost")),
+            unitCost:num($("#invUnitCost")?.value),
             supplier:(fd.get("supplier")||"").toString().trim(),
             expiration:(fd.get("expiration")||"").toString(),
             notes:(fd.get("notes")||"").toString().trim()
           };
           if(id) state.inventory=state.inventory.map(x=>x.id===id?payload:x);
           else state.inventory.push(payload);
+
+          // Compra inicial opcional → movimiento + finanzas + cuentas por pagar
+          if(!id){
+            const reg=$("#invRegPurchase");
+            const q=num($("#invQty")?.value);
+            const total=num($("#invTotal")?.value);
+            const date=(fd.get("pDate")||today()).toString();
+            const status=($("#invPayStatus")?.value||"pagado").toString();
+            const method=($("#invMethod")?.value||"efectivo").toString();
+            const due=($("#invDue")?.value||"").toString();
+            let paidNow=num($("#invPaidNow")?.value);
+
+            if(reg?.checked && q>0){
+              // Movimiento de entrada inicial (historial)
+              state.stockMovements.push({
+                id:uid("mov"),
+                itemId:payload.id,
+                type:"entrada",
+                date,
+                qty:q,
+                unitCost:payload.unitCost||0,
+                linkedType:"",
+                linkedId:"",
+                totalCost: total,
+                payStatus: status,
+                paidNow: Math.max(0, Math.min(total, paidNow)),
+                method,
+                supplier: payload.supplier||"",
+                dueDate: due,
+                notes: ("Compra inicial" + (payload.notes?(" • "+payload.notes):"")).trim()
+              });
+            }
+
+            if(reg?.checked && total>0){
+              // Ajusta pagado según estado
+              if(status==="pagado") paidNow = total;
+              if(status==="credito") paidNow = 0;
+              paidNow = Math.max(0, Math.min(total, paidNow));
+
+              // Gasto en finanzas SOLO por lo pagado hoy (caja)
+              if(paidNow>0){
+                state.transactions.push({
+                  id:uid("tx"),
+                  date,
+                  type:"gasto",
+                  category:"Inventario / compra",
+                  amount: paidNow,
+                  method,
+                  refType:"inventory",
+                  refId: payload.id,
+                  notes:`Compra: ${payload.name}`
+                });
+              }
+
+              // Si queda pendiente, crear cuenta por pagar
+              const remain = Math.max(0, total - paidNow);
+              if(remain>0){
+                state.payables.push({
+                  id:uid("pay"),
+                  date,
+                  category:"Inventario / compra",
+                  supplier: payload.supplier||"",
+                  refType:"inventory",
+                  refId: payload.id,
+                  itemName: payload.name,
+                  total,
+                  paid: paidNow,
+                  dueDate: due,
+                  method,
+                  status:"abierto",
+                  notes:`Compra: ${payload.name}`
+                });
+              }
+            }
+          }
+
           save(); dlg.close(); toast("ok","Guardado","Insumo guardado."); render();
         };
       }
@@ -1600,7 +1989,71 @@ kbd{
     });
   }
 
-  function openInvMove(itemId, mode){
+  
+  function openInvMovePicker(mode){
+    if(!state.inventory.length){
+      toast("warn","Sin inventario","Primero crea un insumo.");
+      openInvItem();
+      return;
+    }
+    const ops = state.inventory
+      .slice()
+      .sort((a,b)=>(a.name||"").localeCompare(b.name||""))
+      .map(i=>`<option value="${i.id}">${esc(i.name)} • ${esc(i.category||"insumo")} • ${esc(i.qty||0)} ${esc(i.unit||"")}</option>`)
+      .join("");
+    openModal({
+      title: mode==="entrada" ? "➕ Entrada rápida" : "➖ Salida rápida",
+      sub: mode==="entrada"
+        ? "Aumenta stock por compra/recepción."
+        : "Descuenta stock por consumo. Si la relacionas con una cerda/camada, se suma a su inversión.",
+      body:`<form id="pickMove" class="grid2">
+        <div class="f12"><label>Insumo</label><select id="pickItem" name="itemId">${ops}</select></div>
+      </form>
+      ${mode==="salida"?`
+        <div class="emptyBig">
+          <b>Tip</b>
+          <div class="muted">En la salida puedes elegir “Relacionado con: Cerda / Camada” para que el sistema acumule la <b>inversión</b> en esa cerda o camada.</div>
+        </div>`:""}`,
+      footer:`<button class="btn" id="mClose">Cancelar</button><button class="btn primary" id="go">Continuar</button>`,
+      onMount: ()=>{
+        $("#go").onclick=()=>{
+          const id=$("#pickItem").value;
+          dlg.close();
+          openInvMove(id, mode);
+        };
+      }
+    });
+  }
+
+  function openSupplyFor(type, linkedId){
+    if(!state.inventory.length){
+      toast("warn","Sin inventario","Primero crea un insumo.");
+      openInvItem();
+      return;
+    }
+    const title = type==="sow" ? "Suministrar a cerda" : "Suministrar a camada";
+    const ops = state.inventory.slice().sort((a,b)=>(a.name||"").localeCompare(b.name||""))
+      .map(i=>`<option value="${i.id}">${esc(i.name)} • ${esc(i.category||"insumo")} • ${esc(i.qty||0)} ${esc(i.unit||"")}</option>`)
+      .join("");
+    openModal({
+      title,
+      sub:"Selecciona el insumo a suministrar (se registrará como salida y sumará a la inversión).",
+      body:`<form id="supPick" class="grid2">
+        <div class="f12"><label>Insumo</label><select id="supItem" name="itemId">${ops}</select></div>
+      </form>`,
+      footer:`<button class="btn" id="mClose">Cancelar</button><button class="btn primary" id="go">Continuar</button>`,
+      onMount: ()=>{
+        $("#go").onclick=()=>{
+          const itemId=$("#supItem").value;
+          dlg.close();
+          openInvMove(itemId, "salida", {type, id: linkedId});
+        };
+      }
+    });
+  }
+
+
+function openInvMove(itemId, mode, forcedLink){
     const i=get.inv(itemId); if(!i) return;
     openModal({
       title: mode==="entrada"?"Entrada a inventario":"Salida de inventario",
@@ -1609,6 +2062,26 @@ kbd{
         <div class="f4"><label>Fecha</label><input type="date" name="date" value="${today()}"/></div>
         <div class="f4"><label>Cantidad (${esc(i.unit)})</label><input type="number" step="0.01" name="qty" value="1" min="0"/></div>
         <div class="f4"><label>Costo unit. (opcional)</label><input type="number" step="0.01" name="unitCost" value="${esc(i.unitCost||0)}"/></div>
+        ${mode==="entrada"?`
+        <div class="f4"><label>Costo total (opcional)</label><input type="number" step="0.01" name="totalCost" value="0" placeholder="Si lo llenas, calcula costo unit."/></div>
+        <div class="f4"><label>Estado de pago</label>
+          <select name="payStatus" id="payStatus">
+            <option value="pagado">Pagado completo</option>
+            <option value="credito">Crédito (pendiente)</option>
+            <option value="parcial">Parcial (abonos)</option>
+          </select>
+        </div>
+        <div class="f4"><label>Pagado hoy (COP)</label><input type="number" step="0.01" name="paidNow" id="paidNow" value="0"/></div>
+        <div class="f4"><label>Método</label>
+          <select name="method" id="method">
+            <option value="efectivo">Efectivo</option>
+            <option value="transferencia">Transferencia</option>
+            <option value="tarjeta">Tarjeta</option>
+            <option value="otro">Otro</option>
+          </select>
+        </div>
+        <div class="f4"><label>Vence (si hay crédito)</label><input type="date" name="dueDate" id="dueDate" value=""/></div>
+        `:""}
         <div class="f6"><label>Relacionado con (opcional)</label>
           <select name="linkedType" id="lt">
             <option value="">—</option><option value="sow">Cerda</option><option value="batch">Camada</option>
@@ -1623,6 +2096,39 @@ kbd{
       footer:`<button class="btn" id="mClose">Cancelar</button><button class="btn primary" id="ok">Aplicar</button>`,
       onMount: ()=>{
         const lt=$("#lt"), lid=$("#lid");
+        // Auto cálculo costo unitario cuando se ingresa costo total
+        const totalI=$("#movForm input[name=totalCost]");
+        const qtyI=$("#movForm input[name=qty]");
+        const ucI=$("#movForm input[name=unitCost]");
+        const stI=$("#payStatus");
+        const paidI=$("#paidNow");
+        const dueI=$("#dueDate");
+        function clampPaid(){
+          const total=num(totalI?.value);
+          if(!stI) return;
+          if(stI.value==="pagado"){
+            if(paidI){ paidI.value=String(Math.max(0,total)); paidI.disabled=true; }
+            if(dueI){ dueI.value=""; dueI.disabled=true; }
+          } else if(stI.value==="credito"){
+            if(paidI){ paidI.value="0"; paidI.disabled=true; }
+            if(dueI){ dueI.disabled=false; }
+          } else {
+            if(paidI){ paidI.disabled=false; const p=num(paidI.value); if(p>total) paidI.value=String(Math.max(0,total)); }
+            if(dueI){ dueI.disabled=false; }
+          }
+        }
+        function recalcUC(){
+          const q=num(qtyI?.value);
+          const total=num(totalI?.value);
+          if(total>0 && q>0 && ucI){ ucI.value=String(Math.round((total/q)*100)/100); }
+          clampPaid();
+        }
+        if(totalI) totalI.oninput=recalcUC;
+        if(qtyI) qtyI.oninput=recalcUC;
+        if(stI) stI.onchange=clampPaid;
+        if(paidI) paidI.oninput=clampPaid;
+        clampPaid();
+
         lt.onchange=()=>{
           lid.innerHTML=`<option value="">—</option>`;
           if(!lt.value){ lid.disabled=true; return; }
@@ -1634,29 +2140,89 @@ kbd{
           }
         };
 
+        // Si viene forzado (desde cerda/camada), fija y bloquea la selección sin deshabilitar (para que FormData lo capture)
+        if(forcedLink && forcedLink.type && forcedLink.id){
+          lt.value = forcedLink.type;
+          lt.onchange();
+          lid.value = forcedLink.id;
+          lt.style.pointerEvents = "none";
+          lid.style.pointerEvents = "none";
+          lt.style.opacity = ".75";
+          lid.style.opacity = ".75";
+        }
+
         $("#ok").onclick=()=>{
           const fd=new FormData($("#movForm"));
           const date=(fd.get("date")||today()).toString();
           const qty=num(fd.get("qty"));
           if(qty<=0){ toast("bad","Cantidad inválida","Debe ser > 0."); return; }
-          const unitCost=num(fd.get("unitCost"));
+          const unitCostIn=num(fd.get("unitCost"));
+          let unitCost = unitCostIn || num(i.unitCost) || 0;
           const before=num(i.qty);
           const delta = mode==="entrada" ? qty : -qty;
           let after = before + delta;
           if(mode==="salida" && after < 0){ after=0; toast("warn","Stock insuficiente",`Había ${before} ${i.unit}. Se ajustó a 0.`); }
-          i.qty=after; if(unitCost) i.unitCost=unitCost;
+          i.qty=after; if(mode==="entrada" && unitCostIn) i.unitCost=unitCostIn;
 
           state.stockMovements.push({
             id:uid("mov"), itemId:i.id, type:mode, date, qty:delta, unitCost,
             linkedType:(fd.get("linkedType")||"").toString(),
             linkedId:(fd.get("linkedId")||"").toString(),
-            notes:(fd.get("notes")||"").toString().trim()
+            notes:(fd.get("notes")||"").toString().trim(),
+            totalCost:num(fd.get("totalCost")),
+            payStatus:(fd.get("payStatus")||"").toString(),
+            paidNow:num(fd.get("paidNow")),
+            method:(fd.get("method")||"").toString(),
+            dueDate:(fd.get("dueDate")||"").toString()
           });
 
           if(mode==="entrada" && $("#asExp")?.checked){
-            const amount=Math.max(0, qty*unitCost);
-            if(amount>0){
-              state.transactions.push({id:uid("tx"),date,type:"gasto",category:"Inventario / compra",amount,method:"efectivo",refType:"inventory",refId:i.id,notes:`Compra: ${i.name}`});
+            const totalCost=num(fd.get("totalCost"));
+            const status=(fd.get("payStatus")||"pagado").toString();
+            const method=(fd.get("method")||"efectivo").toString();
+            const due=(fd.get("dueDate")||"").toString();
+
+            // total de la compra: si hay totalCost úsalo; si no, qty×unitCost
+            const total = totalCost>0 ? totalCost : Math.max(0, qty*unitCost);
+            if(total>0){
+              let paidNow=num(fd.get("paidNow"));
+              if(status==="pagado") paidNow = total;
+              if(status==="credito") paidNow = 0;
+              paidNow = Math.max(0, Math.min(total, paidNow));
+
+              // gasto por lo pagado hoy
+              if(paidNow>0){
+                state.transactions.push({
+                  id:uid("tx"),
+                  date,
+                  type:"gasto",
+                  category:"Inventario / compra",
+                  amount: paidNow,
+                  method,
+                  refType:"inventory",
+                  refId:i.id,
+                  notes:`Compra: ${i.name}`
+                });
+              }
+
+              const remain = Math.max(0, total - paidNow);
+              if(remain>0){
+                state.payables.push({
+                  id:uid("pay"),
+                  date,
+                  category:"Inventario / compra",
+                  supplier:i.supplier||"",
+                  refType:"inventory",
+                  refId:i.id,
+                  itemName:i.name,
+                  total,
+                  paid: paidNow,
+                  dueDate: due,
+                  method,
+                  status:"abierto",
+                  notes:`Compra: ${i.name}`
+                });
+              }
             }
           }
 
@@ -1722,7 +2288,7 @@ kbd{
       "Venta de lechones con control de abonos (COP) y saldo pendiente.",
       `<button class="btn primary" id="sale">💳 Nueva venta</button><button class="btn" id="client">👤 Nuevo cliente</button>`,
       `<div class="wrap"><table>
-        <thead><tr><th>Fecha</th><th>Cliente</th><th>Camada</th><th>Cant.</th><th>Total</th><th>Estado</th><th>Acciones</th></tr></thead>
+        <thead><tr><th>Fecha</th><th>Cliente</th><th>Camada</th><th>Cant.</th><th>Total</th><th>Estado</th><th>Inversión</th><th>Acciones</th></tr></thead>
         <tbody>${rows||`<tr><td colspan="7" class="muted">Sin ventas.</td></tr>`}</tbody>
       </table></div>`
     );
@@ -1747,7 +2313,8 @@ kbd{
       <div class="f3"><label>Correo</label><input type="email" name="email" value="${esc(c.email)}"/></div>
       <div class="f12"><label>Dirección</label><input name="address" value="${esc(c.address)}"/></div>
       <div class="f12"><label>Notas</label><textarea name="notes">${esc(c.notes)}</textarea></div>
-    </form>`;
+    </form>
+`;
   }
 
   function openClient(id){
@@ -1798,7 +2365,8 @@ kbd{
       <div class="f4"><label>Abono inicial (COP)</label><input type="number" name="paidAmount" id="sp" min="0" value="${esc(s.paidAmount)}"/></div>
       <div class="f4"><label>Fecha límite</label><input type="date" name="dueDate" value="${esc(s.dueDate)}"/></div>
       <div class="f12"><label>Notas</label><textarea name="notes">${esc(s.notes)}</textarea></div>
-    </form>`;
+    </form>
+`;
   }
 
   function openSale(id,preset={}){
@@ -1965,6 +2533,9 @@ kbd{
   function renderFinance(){
     const m=today().slice(0,7);
     const income=sumMonth("ingreso"), expense=sumMonth("gasto");
+    const payOpen=(state.payables||[]).filter(p=>(p.status||"abierto")!=="cerrado");
+    const payPending=payOpen.reduce((s,p)=>s+Math.max(0,num(p.total)-num(p.paid)),0);
+
     const rows=state.transactions
       .filter(t=>matchQ(t.date,t.type,t.category,t.method,t.notes))
       .sort((a,b)=>(b.date||"").localeCompare(a.date||""))
@@ -1977,6 +2548,25 @@ kbd{
         <td><button class="btn danger" data-act="del" data-id="${t.id}">Eliminar</button></td>
       </tr>`).join("");
 
+    const payRows = (state.payables||[])
+      .filter(p=>matchQ(p.date,p.supplier,p.itemName,p.notes,p.status,p.dueDate))
+      .sort((a,b)=>(b.date||"").localeCompare(a.date||""))
+      .map(p=>{
+        const total=num(p.total), paid=num(p.paid);
+        const rem=Math.max(0,total-paid);
+        const st=(p.status||"abierto");
+        return `<tr>
+          <td class="mono">${esc(p.date||"—")}</td>
+          <td><b>${esc(p.itemName||"Compra")}</b><div class="muted">${esc(p.supplier||"")}</div></td>
+          <td class="mono">${esc(fmtCOP(total))}</td>
+          <td class="mono">${esc(fmtCOP(paid))}</td>
+          <td class="mono">${esc(fmtCOP(rem))}</td>
+          <td class="mono">${esc(p.dueDate||"—")}</td>
+          <td>${st==="cerrado"?`<span class="tag ok">Cerrado</span>`:`<span class="tag warn">Pendiente</span>`}</td>
+          <td>${rem>0?`<button class="btn primary" data-act="pay" data-id="${p.id}">Pagar</button>`:`<span class="muted">—</span>`}</td>
+        </tr>`;
+      }).join("");
+
     view.innerHTML = shell(
       "Finanzas",
       "Ingresos y gastos (ventas e inventario alimentan automáticamente).",
@@ -1987,11 +2577,16 @@ kbd{
         <div class="kpi" style="grid-column:span 4"><small>Ingresos (${m})</small><b>${fmtCOP(income)}</b><div class="muted mono">Ventas + abonos</div></div>
         <div class="kpi" style="grid-column:span 4"><small>Gastos (${m})</small><b>${fmtCOP(expense)}</b><div class="muted mono">Compras + manual</div></div>
         <div class="kpi" style="grid-column:span 4"><small>Resultado</small><b>${fmtCOP(income-expense)}</b><div class="muted mono">Ingreso - gasto</div></div>
+      <div class="kpi" style="grid-column:span 4"><small>CxP pendientes</small><b class="mono">${esc(fmtCOP(payPending))}</b><div class="muted mono">Compras a crédito/parcial</div></div>
       </div>
       <div class="wrap"><table>
         <thead><tr><th>Fecha</th><th>Tipo</th><th>Categoría</th><th>Valor</th><th>Notas</th><th>Acción</th></tr></thead>
         <tbody>${rows||`<tr><td colspan="6" class="muted">Sin transacciones.</td></tr>`}</tbody>
-      </table></div>`
+      </table></div>
+<div class="wrap" style="margin-top:12px"><table>
+  <thead><tr><th>Fecha</th><th>Compra</th><th>Total</th><th>Pagado</th><th>Pendiente</th><th>Vence</th><th>Estado</th><th>Acción</th></tr></thead>
+  <tbody>${payRows||`<tr><td colspan="8" class="muted">Sin cuentas por pagar.</td></tr>`}</tbody>
+</table></div>`
     );
 
     $("#inc").onclick=()=>openTx("ingreso");
@@ -1999,6 +2594,7 @@ kbd{
     $("#csv").onclick=()=>exportTxCSV();
     view.onclick=(e)=>{
       const b=e.target.closest("button[data-act]"); if(!b) return;
+      if(b.dataset.act==="pay"){ openPayablePay(b.dataset.id); return; }
       if(b.dataset.act==="del") { state.transactions=state.transactions.filter(t=>t.id!==b.dataset.id); save(); toast("ok","Eliminada","Transacción eliminada."); render(); }
     };
   }
@@ -2012,7 +2608,8 @@ kbd{
       <div class="f8"><label>Categoría</label><input name="category" value="${t.category}"/></div>
       <div class="f4"><label>Valor (COP)</label><input type="number" name="amount" min="0" value="0"/></div>
       <div class="f12"><label>Notas</label><textarea name="notes"></textarea></div>
-    </form>`;
+    </form>
+`;
   }
 
   function openTx(type){
@@ -2030,6 +2627,62 @@ kbd{
           if(amount<=0){ toast("bad","Valor inválido","Debe ser > 0."); return; }
           state.transactions.push({id:uid("tx"),date,type:tp,category:(fd.get("category")||"").toString().trim()||"—",amount,method:(fd.get("method")||"efectivo").toString(),refType:"manual",refId:"",notes:(fd.get("notes")||"").toString().trim()});
           save(); dlg.close(); toast("ok","Guardado","Transacción registrada."); render();
+        };
+      }
+    });
+  }
+
+  // ------- Cuentas por pagar (compras a crédito/parcial) -------
+  function openPayablePay(pid){
+    const p=get.payable(pid); if(!p) return;
+    const remain=Math.max(0, num(p.total)-num(p.paid));
+    openModal({
+      title:"Registrar pago",
+      sub:`${p.itemName||"Compra"} • Pendiente: ${fmtCOP(remain)}`,
+      body:`<form id="payF" class="grid2">
+        <div class="f4"><label>Fecha</label><input type="date" name="date" value="${today()}"/></div>
+        <div class="f4"><label>Método</label>
+          <select name="method">
+            <option value="efectivo">Efectivo</option>
+            <option value="transferencia">Transferencia</option>
+            <option value="tarjeta">Tarjeta</option>
+            <option value="otro">Otro</option>
+          </select>
+        </div>
+        <div class="f4"><label>Valor (COP)</label><input type="number" step="0.01" name="amount" value="${esc(remain)}" min="0"/></div>
+        <div class="f12"><label>Notas</label><textarea name="notes" placeholder="Ej: abono proveedor, factura #..."></textarea></div>
+      </form>`,
+      footer:`<button class="btn" id="mClose">Cancelar</button><button class="btn primary" id="ok">Guardar</button>`,
+      onMount:()=>{
+        $("#ok").onclick=()=>{
+          const fd=new FormData($("#payF"));
+          const date=(fd.get("date")||today()).toString();
+          const amount=num(fd.get("amount"));
+          const method=(fd.get("method")||"efectivo").toString();
+          if(amount<=0){ toast("bad","Valor inválido","Debe ser > 0."); return; }
+          const remainNow=Math.max(0, num(p.total)-num(p.paid));
+          if(amount>remainNow){ toast("bad","Excede el pendiente",`Máximo: ${fmtCOP(remainNow)}`); return; }
+
+          // Gasto (salida de caja)
+          state.transactions.push({
+            id:uid("tx"),
+            date,
+            type:"gasto",
+            category:p.category||"Inventario / compra",
+            amount,
+            method,
+            refType:"inventory",
+            refId:p.refId||"",
+            notes:`Pago compra: ${p.itemName||"insumo"}${p.supplier?(" • "+p.supplier):""}`.trim()
+          });
+
+          // Actualiza la cuenta por pagar
+          p.paid = num(p.paid) + amount;
+          if(num(p.paid) >= num(p.total) - 0.0001){
+            p.paid = num(p.total);
+            p.status = "cerrado";
+          }
+          save(); dlg.close(); toast("ok","Pago registrado",`Pendiente: ${fmtCOP(Math.max(0,num(p.total)-num(p.paid)))}`); render();
         };
       }
     });
@@ -2091,7 +2744,8 @@ kbd{
       </select></div>
       <div class="f6"><label>Seleccionar</label><select name="relatedId" id="rid" disabled><option value="">—</option></select></div>
       <div class="f12"><label>Notas</label><textarea name="notes">${esc(t.notes)}</textarea></div>
-    </form>`;
+    </form>
+`;
   }
 
   function openTask(){

@@ -21,7 +21,7 @@
   .btn{border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--text);padding:8px 10px;border-radius:12px;cursor:pointer;font-weight:650;font-size:12.5px}
   .btn.primary{border-color:rgba(125,211,252,.6);background:rgba(125,211,252,.14)}
   .btn.danger{border-color:rgba(255,107,107,.7);background:rgba(255,107,107,.12)}
-  main{padding:14px}
+  main{padding:0}
   .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:12px}
   .card{grid-column:span 12;border:1px solid var(--line);background:rgba(255,255,255,.03);border-radius:16px;overflow:hidden}
   .hd{padding:12px 12px 10px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
@@ -348,16 +348,16 @@ header{
 }
 
 /* Navegación superior (nav sin clase) */
-nav button{
+header nav button{
   background: rgba(255,255,255,.92) !important;
   border: 1px solid var(--line) !important;
   color: var(--text) !important;
 }
-nav button:hover{
+header nav button:hover{
   background: rgba(34,197,94,.10) !important;
   border-color: rgba(34,197,94,.40) !important;
 }
-nav button.active{
+header nav button.active{
   background: rgba(34,197,94,.14) !important;
   border-color: rgba(34,197,94,.55) !important;
 }
@@ -432,16 +432,16 @@ header .logo{
 }
 
 /* Navegación superior */
-nav button{
+header nav button{
   background: rgba(255,255,255,.14) !important;
   border: 1px solid rgba(255,255,255,.22) !important;
   color: #ffffff !important;
 }
-nav button:hover{
+header nav button:hover{
   background: rgba(255,255,255,.22) !important;
   border-color: rgba(255,255,255,.30) !important;
 }
-nav button.active{
+header nav button.active{
   background: rgba(255,255,255,.26) !important;
   border-color: rgba(255,255,255,.36) !important;
   box-shadow: 0 10px 24px rgba(2,6,23,.14) !important;
@@ -626,6 +626,206 @@ kbd{
   color: #fff;
 }
 
+
+
+/* =========================================================
+   PATCH v14 — Centrar modales (dialog) y mejorar scroll
+   ========================================================= */
+dialog, dialog#dlg{
+  position: fixed !important;
+  inset: 0 !important;
+  margin: auto !important;                 /* <- centra (antes quedaba arriba/izq) */
+  max-height: calc(100vh - 24px) !important;
+  overflow: auto !important;
+}
+
+/* Asegura look consistente (por si algún rule quedó corrupto) */
+dialog, dialog#dlg{
+  background: rgba(255,255,255,.98) !important;
+  border: 1px solid rgba(15,23,42,.14) !important;
+  border-radius: 18px !important;
+  box-shadow: 0 18px 45px rgba(2,6,23,.18) !important;
+  color: var(--text) !important;
+}
+
+/* Backdrop más suave */
+dialog::backdrop{
+  background: rgba(6,95,70,.34) !important;
+}
+
+/* En móvil: usa casi toda la pantalla pero sigue centrado */
+@media (max-width: 520px){
+  dialog, dialog#dlg{
+    width: calc(100vw - 18px) !important;
+    max-height: calc(100vh - 18px) !important;
+    border-radius: 16px !important;
+  }
+}
+
+
+
+/* =========================================================
+   PATCH v15 — Menú lateral (izquierda)
+   ========================================================= */
+.layout{
+  display:flex;
+  gap:14px;
+  padding:14px;
+  align-items:flex-start;
+}
+.sidebar{
+  width:260px;
+  flex:0 0 260px;
+  position: sticky;
+  top: 86px; /* debajo del header */
+  height: calc(100vh - 100px);
+  overflow:auto;
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,.85);
+  box-shadow: 0 12px 30px rgba(2,6,23,.08);
+}
+.sideHead{
+  padding: 12px 12px 8px;
+  border-bottom: 1px solid rgba(15,23,42,.10);
+}
+.sideTitle{
+  font-weight: 900;
+  color: var(--text);
+  letter-spacing: .2px;
+  margin-bottom: 2px;
+}
+.sideNav{
+  padding: 10px;
+  display:flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.sidebar nav button{
+  width: 100%;
+  text-align: left;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(15,23,42,.10);
+  background: rgba(255,255,255,.92);
+  color: var(--text);
+  cursor:pointer;
+  font-weight: 750;
+}
+.sidebar nav button:hover{
+  border-color: rgba(34,197,94,.30);
+  box-shadow: 0 10px 22px rgba(2,6,23,.08);
+}
+.sidebar nav button.active{
+  border-color: rgba(34,197,94,.45);
+  background: rgba(34,197,94,.12);
+}
+main.content{ padding: 0; min-width: 0; }
+
+/* En pantallas pequeñas, el menú se vuelve una barra debajo del header */
+@media (max-width: 900px){
+  .layout{ flex-direction: column; }
+  .sidebar{
+    width: 100%;
+    flex: 0 0 auto;
+    position: static;
+    height: auto;
+  }
+  .sideNav{
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  .sidebar nav button{
+    width: auto;
+  }
+}
+
+
+
+/* =========================================================
+   PATCH v19 — Diálogo pequeño para alertas encima de otros modales
+   ========================================================= */
+dialog.dlgMini{
+  width: min(520px, calc(100vw - 24px)) !important;
+}
+dialog.dlgMini .dlgBd{
+  padding-top: 12px !important;
+}
+dialog.dlgMini .dlgFt{
+  display:flex; justify-content:flex-end; gap:10px; flex-wrap:wrap;
+}
+dialog.dlgMini .alertBox{
+  border:1px solid rgba(239,68,68,.25);
+  background: rgba(239,68,68,.08);
+  padding: 12px;
+  border-radius: 14px;
+}
+dialog.dlgMini .alertBox.ok{
+  border-color: rgba(34,197,94,.25);
+  background: rgba(34,197,94,.10);
+}
+
+
+/* filas críticas (tareas vencidas) */
+.rowBad{background: rgba(239,68,68,.06) !important;}
+
+
+/* =========================================================
+   PATCH v25 — Modal de abonos/pagos más interactivo
+   ========================================================= */
+.payTop{margin-top:2px}
+.paySummary{
+  display:grid;
+  grid-template-columns: repeat(3, minmax(0,1fr));
+  gap:10px;
+}
+.payKpi{
+  border:1px solid rgba(15,23,42,.10);
+  background: rgba(255,255,255,.85);
+  border-radius: 16px;
+  padding: 10px 12px;
+}
+.prog{
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(15,23,42,.08);
+  overflow:hidden;
+  margin-top: 10px;
+}
+.prog .bar{
+  height: 100%;
+  width: 0%;
+  background: rgba(34,197,94,.9);
+  border-radius: 999px;
+  transition: width .2s ease;
+}
+.chips{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+.btn.chip{
+  padding: 7px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+.helpLine{
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px dashed rgba(34,197,94,.35);
+  background: rgba(34,197,94,.07);
+}
+input[type="range"]{
+  width: 100%;
+  margin-top: 10px;
+}
+@media (max-width: 520px){
+  .paySummary{grid-template-columns: 1fr; }
+}
+
 </style>
 </head>
 <body>
@@ -638,7 +838,6 @@ kbd{
         <span>Cerdas • Camadas • Ventas • Finanzas</span>
       </div>
     </div>
-    <nav id="nav"></nav>
     <div class="right">
       <input id="q" class="search" placeholder="Buscar: cerda, camada, cliente, insumo, venta…" />
       <button class="btn" id="quick" title="Crear rápido: cerda, servicio, parto, insumo, gasto, tarea">➕ Rápido</button>
@@ -648,9 +847,19 @@ kbd{
   </div>
 </header>
 
-<main>
-  <div id="view"></div>
-</main>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="sideHead">
+      <div class="sideTitle">Secciones <span class="tag warn" id="warnBadge" style="display:none;margin-left:8px">0</span></div>
+      <div class="muted" style="font-size:12px">Dashboard → Ajustes</div>
+    </div>
+    <nav id="nav" class="sideNav"></nav>
+  </aside>
+
+  <main class="content">
+    <div id="view"></div>
+  </main>
+</div>
 
 <dialog id="dlg">
   <div class="dlgHd">
@@ -662,6 +871,19 @@ kbd{
   </div>
   <div class="dlgBd" id="dlgBody"></div>
   <div class="dlgFt" id="dlgFt"></div>
+
+<dialog id="dlg2" class="dlgMini">
+  <div class="dlgHd">
+    <div>
+      <b id="dlg2Title">Mensaje</b>
+      <div class="muted" id="dlg2Sub"></div>
+    </div>
+    <button class="btn" id="dlg2Close">✕</button>
+  </div>
+  <div class="dlgBd" id="dlg2Body"></div>
+  <div class="dlgFt" id="dlg2Ft"></div>
+</dialog>
+
 </dialog>
 
 <div class="toast" id="toast"></div>
@@ -674,11 +896,169 @@ kbd{
   const KEY = "granja_porcina_v1_compact";
   const uid = (p="id") => p + "_" + Math.random().toString(16).slice(2) + "_" + Date.now().toString(16);
   const today = () => new Date().toISOString().slice(0,10);
-  const num = (v) => { const n = Number(String(v??"").replace(/[^\d.-]/g,"")); return Number.isFinite(n)?n:0; };
+  const num = (v) => {
+    let s = String(v??"").trim();
+    if(!s) return 0;
+    s = s.replace(/[^0-9.,-]/g,"");
+    s = s.replace(/(?!^)-/g,""); // solo un "-"
+    // Patrones de miles: 1.234 o 1.234.567 / 1,234,567
+    if(/^-?\d{1,3}(\.\d{3})+$/.test(s)){
+      s = s.replace(/\./g,"");
+    } else if(/^-?\d{1,3}(,\d{3})+$/.test(s)){
+      s = s.replace(/,/g,"");
+    } else if(s.includes(".") && s.includes(",")){
+      // "." miles y "," decimal
+      s = s.replace(/\./g,"").replace(",",".");
+    } else {
+      const dots = (s.match(/\./g)||[]).length;
+      const commas = (s.match(/,/g)||[]).length;
+      if(dots>1 && commas===0) s = s.replace(/\./g,"");
+      else if(commas>1 && dots===0) s = s.replace(/,/g,"");
+      else if(commas===1 && dots===0) s = s.replace(",",".");
+    }
+    const n = Number(s);
+    return Number.isFinite(n) ? n : 0;
+  };
   const addDays = (iso, d) => { const x = new Date(iso+"T00:00:00"); x.setDate(x.getDate()+d); return x.toISOString().slice(0,10); };
   const daysBetween = (a,b) => Math.round((new Date(b+"T00:00:00") - new Date(a+"T00:00:00"))/(1000*60*60*24));
   const esc = (s) => String(s??"").replace(/[<>&]/g, ch => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[ch]));
   const fmtCOP = (n) => { n=num(n); try { return n.toLocaleString("es-CO",{style:"currency",currency:"COP",maximumFractionDigits:0}); } catch { return "COP "+Math.round(n).toString(); } };
+
+  const fmtNum = (n, dec=0) => {
+    n = num(n);
+    if(!Number.isFinite(n)) n = 0;
+    const sign = n<0 ? "-" : "";
+    n = Math.abs(n);
+    const p = Math.pow(10, Math.max(0, dec|0));
+    const r = Math.round(n*p)/p;
+    const i = Math.trunc(r);
+    const frac = Math.round((r - i) * p);
+    const intStr = i.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    if(dec<=0) return sign + intStr;
+    if(frac<=0) return sign + intStr;
+    const fracStr = frac.toString().padStart(dec, "0");
+    return sign + intStr + "," + fracStr;
+  };
+
+  // Helper para KPIs reutilizables
+  const kpi = (label, value, kindOrSub="", sub="") => {
+    const kinds = ["ok","warn","bad","info"];
+    const kind = kinds.includes(kindOrSub) ? kindOrSub : "";
+    const subtitle = kind ? (sub||"") : (kindOrSub||sub||"");
+    return `<div class="kpi${kind?(" "+kind):""}">
+      <small>${esc(label)}</small>
+      <b>${value}</b>
+      <div class="muted mono">${esc(subtitle||"")}</div>
+    </div>`;
+  };
+
+
+
+  // ------- Máscara de números (dinero y cantidades) con puntuación mientras escribes -------
+  const numberFormatStr = (v, decimals=0) => {
+    let s = String(v??"");
+    if(!s) return "";
+    s = s.replace(/[^\d.,]/g,"");
+    if(!s) return "";
+    let dec = "";
+    if(decimals>0){
+      const lastComma = s.lastIndexOf(",");
+      const lastDot   = s.lastIndexOf(".");
+      const lastSep   = Math.max(lastComma, lastDot);
+      if(lastSep>-1){
+        const after = s.slice(lastSep+1).replace(/[^\d]/g,"");
+        const before = s.slice(0,lastSep);
+        // Heurística: si después hay 1-2 dígitos => decimal; si hay 3 => miles
+        if(after.length>0 && after.length<=decimals && after.length!==3){
+          dec = after.slice(0, decimals);
+          s = before;
+        } else if(after.length>0 && after.length<3){
+          dec = after.slice(0, decimals);
+          s = before;
+        } // else: tratar como miles
+      }
+    }
+    const intDigits = s.replace(/[^\d]/g,"");
+    const intFormatted = intDigits ? intDigits.replace(/\B(?=(\d{3})+(?!\d))/g, ".") : "";
+    if(dec) return (intFormatted || "0") + "," + dec;
+    return intFormatted;
+  };
+
+  // Compatibilidad: dinero = entero COP
+  const moneyFormatStr = (v) => numberFormatStr(v, 0);
+
+  const moneyKeys = new Set([
+    "unitprice","unitcost","totalcost","paidamount","amount","total",
+    "invtotal","payamount","cxpamount","invunit","invpaidnow","price","cost","valor","monto"
+  ]);
+  const qtyHints = ["qty","cantidad","count","stock","units","unidades","born","deaths","alive","current","peso","weight","litters"];
+
+  const getMaskInfo = (el) => {
+    if(!el || el.tagName!=="INPUT") return null;
+    const t = (el.getAttribute("type")||"").toLowerCase();
+    if(t==="range" || t==="date" || t==="checkbox" || t==="radio" || t==="color") return null;
+
+    const name = (el.name||"").toLowerCase();
+    const id = (el.id||"").toLowerCase();
+
+    // Prioridad: dinero
+    const isMoney = moneyKeys.has(name) || moneyKeys.has(id) || el.dataset.money==="1";
+    // Cantidades: inputs numéricos o que contengan pistas
+    const isQty = (!isMoney) && (el.dataset.qty==="1" || t==="number" || qtyHints.some(h=>name.includes(h)||id.includes(h)));
+
+    if(!isMoney && !isQty) return null;
+
+    // Decimales para cantidades solo si el step lo sugiere (ej: 0.1, 0.01)
+    let decimals = 0;
+    if(isQty){
+      const step = (el.getAttribute("step")||"").toString();
+      if(step.includes(".") && step !== "1"){
+        decimals = Math.min(4, (step.split(".")[1]||"").length);
+      } else if(step.includes(",") && step !== "1"){
+        decimals = Math.min(4, (step.split(",")[1]||"").length);
+      }
+    }
+    return {kind: isMoney ? "money" : "qty", decimals};
+  };
+
+  const setMoney = (el, n) => { if(el) el.value = moneyFormatStr(Math.max(0, Math.round(num(n)))); };
+  const setQty   = (el, n) => { if(el) el.value = numberFormatStr(num(n), 0); };
+
+  function bindMoneyInputs(root=document){
+    const scope = root?.querySelectorAll ? root : document;
+    scope.querySelectorAll("input").forEach(el=>{
+      const info = getMaskInfo(el);
+      if(!info) return;
+
+      // Evita duplicar listeners
+      if(el.dataset.moneyBound==="1"){
+        el.value = info.kind==="money" ? moneyFormatStr(el.value) : numberFormatStr(el.value, info.decimals);
+        return;
+      }
+      el.dataset.moneyBound="1";
+
+      // Cambia a texto para permitir puntos
+      try { el.type = "text"; } catch {}
+      el.inputMode = "numeric";
+      el.autocomplete = "off";
+      el.spellcheck = false;
+
+      // Formatea inicial
+      el.value = info.kind==="money" ? moneyFormatStr(el.value) : numberFormatStr(el.value, info.decimals);
+
+      el.addEventListener("input", ()=>{
+        el.value = info.kind==="money" ? moneyFormatStr(el.value) : numberFormatStr(el.value, info.decimals);
+        // caret al final (simple y estable)
+        try { el.setSelectionRange(el.value.length, el.value.length); } catch {}
+      });
+
+      el.addEventListener("blur", ()=>{
+        el.value = info.kind==="money" ? moneyFormatStr(el.value) : numberFormatStr(el.value, info.decimals);
+      });
+    });
+  }
+
+
 
   // ------- Costeo / inversión por cerda y por camada -------
   const moveCost = (m) => {
@@ -748,28 +1128,9 @@ kbd{
     const pending = Math.max(0, sold - collected);
     const qtySold = sales.reduce((sum,s)=>sum+num(s.qty),0);
     return {sales, sold, collected, pending, qtySold};
-  }
-  function profitStatsForBatch(batchId){
-    const rev = salesStatsForBatch(batchId);
-    const cost = invested.batch(batchId);
-    const profitEst = rev.sold - cost;
-    const profitCash = rev.collected - cost;
-    return {...rev, cost, profitEst, profitCash};
-  }
-  function profitStatsForSow(sowId){
-    const batches = (state.batches||[]).filter(b=>b.sowId===sowId);
-    const per = batches.map(b=>({batch:b, ...profitStatsForBatch(b.id)}))
-      .sort((a,b)=>(b.batch.birthDate||"").localeCompare(a.batch.birthDate||""));
-    const sold = per.reduce((s,x)=>s+x.sold,0);
-    const collected = per.reduce((s,x)=>s+x.collected,0);
-    const pending = Math.max(0, sold-collected);
-    const costB = per.reduce((s,x)=>s+x.cost,0);
-    const costS = invested.sow(sowId);
-    const costAll = costB + costS;
-    const profitEst = sold - costAll;
-    const profitCash = collected - costAll;
-    const qtySold = per.reduce((s,x)=>s+x.qtySold,0);
-    return {per, sold, collected, pending, costB, costS, costAll, profitEst, profitCash, qtySold};
+
+
+
   }
 
   function profitHistoryHTML(type, id){
@@ -880,12 +1241,18 @@ const defaults = () => ({
     sows:[], breedings:[], farrowings:[], batches:[],
     inventory:[], stockMovements:[],
     clients:[], sales:[], payments:[],
+    meat:{stockKg:0,headsForSale:0,movements:[]}, meatSales:[], meatPayments:[],
     transactions:[], payables:[], tasks:[]
   });
 
   let state = load();
+  // auditState() se ejecuta luego de inicializar 'get'
   function load(){ try{ const r=localStorage.getItem(KEY); return r?Object.assign(defaults(),JSON.parse(r)):defaults(); } catch { return defaults(); } }
-  function save(){ localStorage.setItem(KEY, JSON.stringify(state)); renderNavBadges(); }
+  function save(){
+    auditState();
+    localStorage.setItem(KEY, JSON.stringify(state));
+    if(typeof renderNavBadges==="function") renderNavBadges();
+  }
 
   function toast(type, title, msg){
     const el=document.createElement("div");
@@ -898,6 +1265,8 @@ const defaults = () => ({
 
   // ------- Modal (dialog) -------
   const dlg=$("#dlg"), dlgTitle=$("#dlgTitle"), dlgSub=$("#dlgSub"), dlgBody=$("#dlgBody"), dlgFt=$("#dlgFt");
+  const dlg2=$("#dlg2"), dlg2Title=$("#dlg2Title"), dlg2Sub=$("#dlg2Sub"), dlg2Body=$("#dlg2Body"), dlg2Ft=$("#dlg2Ft");
+
   $("#dlgClose").onclick = () => dlg.close();
   dlg.addEventListener("click",(e)=>{ if(e.target===dlg) dlg.close(); });
   function openModal({title,sub,body,footer,onMount}){
@@ -906,8 +1275,23 @@ const defaults = () => ({
     dlgBody.innerHTML=body||"";
     dlgFt.innerHTML=footer||`<button class="btn" id="mClose">Cerrar</button>`;
     dlg.showModal();
+    bindMoneyInputs(dlg);
     const c=$("#mClose",dlgFt); if(c) c.onclick=()=>dlg.close();
     if(typeof onMount==="function") onMount();
+    bindMoneyInputs(dlg);
+  }
+
+  function openAlert({title="Atención", sub="", message="", kind="bad"}){
+    if(!dlg2) return toast(kind, title, message);
+    dlg2Title.textContent=title;
+    dlg2Sub.textContent=sub||"";
+    const boxClass = kind==="ok" ? "alertBox ok" : "alertBox";
+    dlg2Body.innerHTML = `<div class="${boxClass}"><b>${esc(title)}</b><div class="muted" style="margin-top:6px">${esc(message||sub||"")}</div></div>`;
+    dlg2Ft.innerHTML = `<button class="btn primary" id="aOk">Entendido</button>`;
+    dlg2.showModal();
+    const close=()=>dlg2.close();
+    $("#dlg2Close").onclick=close;
+    $("#aOk",dlg2Ft).onclick=close;
   }
 
   // ------- Ayuda + Onboarding -------
@@ -1065,8 +1449,184 @@ const defaults = () => ({
     inv:(id)=>state.inventory.find(x=>x.id===id)||null,
     client:(id)=>state.clients.find(x=>x.id===id)||null,
     sale:(id)=>state.sales.find(x=>x.id===id)||null,
+    meatSale:(id)=> (state.meatSales||[]).find(x=>x.id===id)||null,
     payable:(id)=> (state.payables||[]).find(x=>x.id===id)||null
   };
+
+  // ------- Auditoría / normalización del estado (evita errores) -------
+  function normalizeState(){
+    state.sows = state.sows || [];
+    state.breedings = state.breedings || [];
+    state.farrowings = state.farrowings || [];
+    state.batches = state.batches || [];
+    state.inventory = state.inventory || [];
+    state.stockMovements = state.stockMovements || [];
+    state.clients = state.clients || [];
+    state.sales = state.sales || [];
+    state.payments = state.payments || [];
+    state.meat = state.meat || {stockKg:0,headsForSale:0,movements:[]};
+    state.meatSales = state.meatSales || [];
+    state.meatPayments = state.meatPayments || [];
+    state.transactions = state.transactions || [];
+    state.payables = state.payables || [];
+    state.tasks = state.tasks || [];
+  }
+
+  function auditState(){
+    normalizeState();
+    const hasGet = (typeof get !== "undefined");
+
+    state.inventory.forEach(i=>{
+      i.qty = Math.max(0, num(i.qty));
+      i.minQty = Math.max(0, num(i.minQty));
+      i.unitCost = Math.max(0, num(i.unitCost));
+    });
+
+    state.batches.forEach(b=>{
+      b.countBornAlive = Math.max(0, num(b.countBornAlive));
+      b.countCurrent = Math.max(0, num(b.countCurrent));
+      if(b.countCurrent > b.countBornAlive) b.countCurrent = b.countBornAlive;
+      if(!b.status) b.status = "disponible";
+      if(b.countCurrent<=0) b.status = "cerrado";
+    });
+
+    state.sales.forEach(s=>{
+      s.qty = Math.max(0, num(s.qty));
+      s.unitPrice = Math.max(0, num(s.unitPrice));
+      s.total = Math.max(0, num(s.total) || (s.qty*s.unitPrice));
+      s.paidAmount = Math.max(0, Math.min(s.total, num(s.paidAmount)));
+      if(!s.status) s.status = (s.paidAmount>=s.total ? "pagado" : (s.paidAmount>0 ? "parcial" : "credito"));
+      if(!s.sowId && s.batchId && hasGet){
+        const b=get.batch(s.batchId);
+        if(b?.sowId) s.sowId = b.sowId;
+      }
+    });
+
+    (state.payables||[]).forEach(p=>{
+      p.total = Math.max(0, num(p.total));
+      p.paid = Math.max(0, Math.min(p.total, num(p.paid)));
+      if(p.paid >= p.total - 0.0001) p.status = "cerrado";
+      if(!p.status) p.status = (p.paid >= p.total - 0.0001) ? "cerrado" : "abierto";
+    });
+
+    state.tasks.forEach(t=>{
+      if(t.done===undefined) t.done = false;
+      if(!t.priority) t.priority = "media";
+    });
+
+    state.stockMovements.forEach(m=>{
+      m.qty = Math.max(0, num(m.qty));
+      if((m.unitCost===undefined || m.unitCost===null) && hasGet){
+        const it=get.inv(m.itemId);
+        m.unitCost = num(it?.unitCost) || 0;
+      }else{
+        m.unitCost = Math.max(0, num(m.unitCost));
+      }
+    });
+
+    // Carne / ventas por kilos
+    state.meat = state.meat || {stockKg:0,headsForSale:0,movements:[]};
+    state.meat.stockKg = Math.max(0, num(state.meat.stockKg));
+    state.meat.headsForSale = Math.max(0, num(state.meat.headsForSale));
+    state.meat.movements = state.meat.movements || [];
+
+    state.meatSales = state.meatSales || [];
+    state.meatPayments = state.meatPayments || [];
+
+    state.meatSales.forEach(s=>{
+      s.qty = Math.max(0, num(s.qty)); // kg
+      s.unitPrice = Math.max(0, num(s.unitPrice)); // COP/kg
+      s.total = Math.max(0, num(s.total) || (s.qty*s.unitPrice));
+      s.paidAmount = Math.max(0, Math.min(s.total, num(s.paidAmount)));
+      if(!s.status) s.status = (s.paidAmount>=s.total ? "pagado" : (s.paidAmount>0 ? "parcial" : "credito"));
+    });
+
+  }
+
+  function getWarnings(){
+    normalizeState();
+    const list=[];
+    const todayS=today();
+
+    const tags=state.sows.map(s=>(s.tag||"").trim()).filter(Boolean);
+    const dup=[...new Set(tags.filter((t,i)=>tags.indexOf(t)!==i))];
+    if(dup.length){
+      list.push({level:"bad", title:"Tags duplicados", detail:`Corrige: ${dup.slice(0,6).join(", ")}${dup.length>6?"…":""}`, tab:"sows"});
+    }
+
+    const low = state.inventory.filter(i=>num(i.qty) <= num(i.minQty) && (i.name||"").trim());
+    if(low.length){
+      list.push({level:"warn", title:"Stock bajo", detail:`${low.length} insumo(s) por debajo del mínimo.`, tab:"inv"});
+    }
+
+    const expSoon = state.inventory
+      .filter(i=>i.expiration)
+      .map(i=>({i, d: daysBetween(todayS, i.expiration)}))
+      .filter(x=>x.d!==null && x.d>=0 && x.d<=30);
+    if(expSoon.length){
+      list.push({level:"warn", title:"Vencimientos próximos", detail:`${expSoon.length} insumo(s) vencen en ≤ 30 días.`, tab:"inv"});
+    }
+
+    const pending = state.tasks.filter(t=>!t.done && t.dueDate);
+    const overdue = pending.filter(t=>daysBetween(t.dueDate, todayS)>0);
+    const dueSoon = pending.filter(t=>{ const d=daysBetween(todayS, t.dueDate); return d!==null && d>=0 && d<=7; });
+    if(overdue.length) list.push({level:"bad", title:"Tareas vencidas", detail:`${overdue.length} tarea(s) atrasadas.`, tab:"tasks"});
+    if(dueSoon.length) list.push({level:"warn", title:"Tareas por vencer", detail:`${dueSoon.length} tarea(s) en los próximos 7 días.`, tab:"tasks"});
+
+    const openP = (state.payables||[]).filter(p=>(p.status||"abierto")!=="cerrado");
+    const payOver = openP.filter(p=>p.dueDate && daysBetween(p.dueDate, todayS)>0);
+    if(payOver.length) list.push({level:"warn", title:"Cuentas por pagar vencidas", detail:`${payOver.length} compra(s) con vencimiento pasado.`, tab:"finance"});
+
+    const badB = state.batches.filter(b=>num(b.countCurrent)<=0 && (b.status||"")!=="cerrado");
+    if(badB.length) list.push({level:"info", title:"Camadas por cerrar", detail:`${badB.length} camada(s) sin stock pero abiertas.`, tab:"batches"});
+
+    return list;
+  }
+
+  function renderWarningsPanel(){
+    const ws=getWarnings();
+    if(!ws.length) return "";
+    return `<div class="helpCard" style="margin-top:10px">
+      <div class="helpHd">
+        <div>
+          <b>Alertas y pendientes</b>
+          <div class="muted">Revisa estos avisos para evitar errores de operación.</div>
+        </div>
+        <span class="tag info">${ws.length} aviso(s)</span>
+      </div>
+      <div class="steps">
+        ${ws.map(w=>`
+          <div class="step ${w.level==="bad"?"":"done"}">
+            <div class="left">
+              <div class="ico">${w.level==="bad"?"⛔":(w.level==="warn"?"⚠️":"ℹ️")}</div>
+              <div class="txt">
+                <b>${esc(w.title)}</b>
+                <div class="muted">${esc(w.detail||"")}</div>
+              </div>
+            </div>
+            <div class="right">
+              <button class="btn primary" data-wtab="${esc(w.tab||"dashboard")}">Ver</button>
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    </div>`;
+  }
+
+  function renderNavBadges(){
+    const ws = getWarnings();
+    const wb = $("#warnBadge");
+    if(wb){
+      wb.style.display = ws.length ? "inline-flex" : "none";
+      wb.textContent = ws.length;
+    }
+  }
+
+  // Auditoría inicial (ya existe 'get')
+  auditState();
+  renderNavBadges();
+
+
 
   function pregnantBreedings(){
     const closed=new Set(state.farrowings.map(f=>f.breedingId).filter(Boolean));
@@ -1086,6 +1646,7 @@ const defaults = () => ({
   const tabs = [
     ["dashboard","📊 Dashboard"],
     ["sows","🐷 Cerdas"],
+    ["meat","🥩 Carne (Kg)"],
     ["breed","🧬 Reproducción"],
     ["litters","👶 Camadas"],
     ["inv","📦 Inventario"],
@@ -1136,9 +1697,11 @@ const defaults = () => ({
     else if(current==="litters") renderLitters();
     else if(current==="inv") renderInventory();
     else if(current==="sales") renderSales();
+    else if(current==="meat") renderMeat();
     else if(current==="finance") renderFinance();
     else if(current==="tasks") renderTasks();
     else if(current==="settings") renderSettings();
+    bindMoneyInputs(view);
   }
 
   // ------- Dashboard -------
@@ -1173,6 +1736,7 @@ const defaults = () => ({
       </tr>`).join("")}</tbody></table></div>` : `<div class="muted" style="margin-top:10px">Sin alertas por ahora.</div>`;
 
     const gs = gettingStartedCardHTML();
+    const wp = renderWarningsPanel();
 
     view.innerHTML = shell(
       "Dashboard",
@@ -1184,7 +1748,7 @@ const defaults = () => ({
        <button class="btn" id="addBreeding">🧬 Servicio</button>
        <button class="btn" id="addFarrowing">👶 Parto</button>
        <button class="btn" id="startGuide">📘 Primeros pasos</button>`,
-      gs + kpis + alertsHTML
+      gs + wp + kpis + alertsHTML
     );
 
     $("#addSow").onclick=()=>openSow();
@@ -1195,6 +1759,7 @@ const defaults = () => ({
     $("#addFarrowing").onclick=()=>openFarrowing();
     const sg=$("#startGuide"); if(sg) sg.onclick=()=>openOnboarding(true);
     bindGettingStartedActions(view);
+    view.querySelectorAll('button[data-wtab]').forEach(b=>b.onclick=()=>goTab(b.dataset.wtab));
 
     view.onclick = (e)=>{
       const b=e.target.closest("button[data-go]"); if(!b) return;
@@ -1232,6 +1797,7 @@ const defaults = () => ({
       "Cerdas",
       "Registro maestro de animales.",
       `<button class="btn primary" id="add">➕ Nueva cerda</button>
+        <button class="btn" id="sowSupply">Suministrar producto</button>
        <button class="btn" id="svc">🧬 Registrar servicio</button>`,
       `<div class="wrap"><table>
         <thead><tr><th>Identificación</th><th>Raza/Estado</th><th>Gestación</th><th>Parto estimado</th><th>Inversión</th><th>Acciones</th></tr></thead>
@@ -1240,6 +1806,7 @@ const defaults = () => ({
     );
 
     $("#add").onclick=()=>openSow();
+    const sp=$("#sowSupply"); if(sp) sp.onclick=()=>openSupplySowPicker();
     $("#svc").onclick=()=>openBreeding();
 
     view.onclick = (e)=>{
@@ -1839,19 +2406,19 @@ const defaults = () => ({
         function clampPaid(){
           const total=num(totalI?.value);
           if(stI?.value==="pagado"){
-            paidI.value = String(Math.max(0,total));
+            setMoney(paidI, Math.max(0,total));
             paidI.disabled = true;
             dueI.value = "";
             dueI.disabled = true;
           } else if(stI?.value==="credito"){
-            paidI.value = "0";
+            setMoney(paidI, 0);
             paidI.disabled = true;
             dueI.disabled = false;
           } else {
             paidI.disabled = false;
             dueI.disabled = false;
             const p=num(paidI.value);
-            if(p>total) paidI.value = String(Math.max(0,total));
+            if(p>total) setMoney(paidI, Math.max(0,total));
           }
         }
 
@@ -1861,7 +2428,7 @@ const defaults = () => ({
           const total=num(totalI?.value);
           if(q>0 && total>0){
             const uc = total / q;
-            ucI.value = String(Math.round(uc*100)/100);
+            setMoney(ucI, Math.round(uc));
           }
           clampPaid();
         }
@@ -1896,6 +2463,7 @@ const defaults = () => ({
             const reg=$("#invRegPurchase");
             const q=num($("#invQty")?.value);
             const total=num($("#invTotal")?.value);
+            if(reg?.checked && total<=0){ openAlert({title:"Falta el total", message:"Si vas a registrar la compra en Finanzas, ingresa el Total compra (COP).", kind:"bad"}); return; }
             const date=(fd.get("pDate")||today()).toString();
             const status=($("#invPayStatus")?.value||"pagado").toString();
             const method=($("#invMethod")?.value||"efectivo").toString();
@@ -2047,6 +2615,34 @@ const defaults = () => ({
           const itemId=$("#supItem").value;
           dlg.close();
           openInvMove(itemId, "salida", {type, id: linkedId});
+        };
+      }
+    });
+  }
+
+  function openSupplySowPicker(){
+    if(!state.sows.length){
+      toast("warn","Sin cerdas","Primero registra una cerda.");
+      openSow();
+      return;
+    }
+    const ops = state.sows
+      .slice()
+      .sort((a,b)=>(a.tag||"").localeCompare(b.tag||""))
+      .map(s=>`<option value="${s.id}">${esc(s.tag||"—")} • ${esc(s.breed||"")}</option>`)
+      .join("");
+    openModal({
+      title:"Suministrar producto",
+      sub:"Selecciona la cerda y luego el insumo (se registrará como salida y sumará a la inversión).",
+      body:`<form id="supSowPick" class="grid2">
+        <div class="f12"><label>Cerda</label><select id="supSowId">${ops}</select></div>
+      </form>`,
+      footer:`<button class="btn" id="mClose">Cancelar</button><button class="btn primary" id="go">Continuar</button>`,
+      onMount: ()=>{
+        $("#go").onclick=()=>{
+          const sowId=$("#supSowId").value;
+          dlg.close();
+          openSupplyFor("sow", sowId);
         };
       }
     });
@@ -2343,31 +2939,83 @@ function openInvMove(itemId, mode, forcedLink){
     const availableBatches = state.batches.filter(b=>(b.status||"disponible")!=="cerrado" && num(b.countCurrent)>0);
     if(!availableBatches.length) return `<div class="muted">No hay camadas disponibles. Registra un parto primero.</div>`;
 
-    s=s||{date:today(),clientId:preset.clientId||"",batchId:preset.batchId||"",qty:1,unitPrice:0,total:0,status:"credito",paidAmount:0,dueDate:"",notes:""};
-    const clientOps=state.clients.slice().sort((a,b)=>(a.name||"").localeCompare(b.name||"")).map(c=>`<option value="${c.id}" ${s.clientId===c.id?"selected":""}>${esc(c.name)}</option>`).join("");
-    const batchOps=availableBatches.slice().sort((a,b)=>(b.birthDate||"").localeCompare(a.birthDate||"")).map(b=>{
-      const sow=get.sow(b.sowId);
-      return `<option value="${b.id}" ${s.batchId===b.id?"selected":""}>${esc(b.id.slice(-8))} • ${esc(sow?.tag||"cerda")} • Disp ${esc(b.countCurrent)}</option>`;
-    }).join("");
+    s=s||{
+      date:today(),
+      clientId:preset.clientId||"",
+      sowId:preset.sowId||"",
+      batchId:preset.batchId||"",
+      qty:0,
+      unitPrice:0,
+      total:0,
+      status:"credito",
+      paidAmount:0,
+      dueDate:"",
+      notes:""
+    };
+
+    // Si no hay sowId pero hay batchId, precarga la cerda desde la camada
+    if(!s.sowId && s.batchId){
+      const bb=get.batch(s.batchId); if(bb?.sowId) s.sowId=bb.sowId;
+    }
+
+    const clientOps=state.clients
+      .slice()
+      .sort((a,b)=>(a.name||"").localeCompare(b.name||""))
+      .map(c=>`<option value="${c.id}" ${s.clientId===c.id?"selected":""}>${esc(c.name)}</option>`)
+      .join("");
+
+    const sowIds=[...new Set(availableBatches.map(b=>b.sowId).filter(Boolean))];
+    const sowOps=sowIds
+      .map(id=>get.sow(id))
+      .filter(Boolean)
+      .sort((a,b)=>(a.tag||"").localeCompare(b.tag||""))
+      .map(sw=>`<option value="${sw.id}" ${s.sowId===sw.id?"selected":""}>${esc(sw.tag)} • ${esc(sw.breed||"")}</option>`)
+      .join("");
+
+    const filteredBatches = s.sowId ? availableBatches.filter(b=>b.sowId===s.sowId) : availableBatches;
+    const batchOps=filteredBatches
+      .slice()
+      .sort((a,b)=>(b.birthDate||"").localeCompare(a.birthDate||""))
+      .map(b=>{
+        const sow=get.sow(b.sowId);
+        return `<option value="${b.id}" ${s.batchId===b.id?"selected":""}>${esc(b.birthDate||"—")} • ${esc(sow?.tag||"cerda")} • Disp ${esc(b.countCurrent)}</option>`;
+      }).join("");
 
     return `<form id="saleForm" class="grid2">
       <div class="f4"><label>Fecha *</label><input type="date" name="date" required value="${esc(s.date)}"/></div>
-      <div class="f8"><label>Cliente *</label><select name="clientId" required><option value="">Selecciona</option>${clientOps}</select></div>
-      <div class="f8"><label>Camada *</label><select name="batchId" id="sb" required><option value="">Selecciona</option>${batchOps}</select></div>
+
+      <div class="f8"><label>Cliente *</label>
+        <select name="clientId" required><option value="">Selecciona</option>${clientOps}</select>
+      </div>
+
+      <div class="f8"><label>Cerda *</label>
+        <select name="sowId" id="saleSow" required><option value="">Selecciona</option>${sowOps}</select>
+        <div class="muted" style="margin-top:6px;font-size:12px">Se llena para asociar la ganancia a la cerda.</div>
+      </div>
+
+      <div class="f8"><label>Camada *</label>
+        <select name="batchId" id="saleBatch" required><option value="">Selecciona</option>${batchOps}</select>
+        <div class="muted" style="margin-top:6px;font-size:12px">Solo camadas con stock disponible.</div>
+      </div>
+
       <div class="f4"><label>Cantidad *</label><input type="number" name="qty" id="sq" required min="1" value="${esc(s.qty)}"/></div>
       <div class="f4"><label>Precio unitario (COP) *</label><input type="number" name="unitPrice" id="su" required min="0" value="${esc(s.unitPrice)}"/></div>
       <div class="f4"><label>Total (auto)</label><input type="number" name="total" id="st" readonly value="${esc(s.total)}"/></div>
-      <div class="f4"><label>Pago</label><select name="status" id="ss">
-        <option value="pagado" ${s.status==="pagado"?"selected":""}>Pagado</option>
-        <option value="parcial" ${s.status==="parcial"?"selected":""}>Parcial</option>
-        <option value="credito" ${s.status==="credito"?"selected":""}>Crédito</option>
-      </select></div>
-      <div class="f4"><label>Abono inicial (COP)</label><input type="number" name="paidAmount" id="sp" min="0" value="${esc(s.paidAmount)}"/></div>
-      <div class="f4"><label>Fecha límite</label><input type="date" name="dueDate" value="${esc(s.dueDate)}"/></div>
-      <div class="f12"><label>Notas</label><textarea name="notes">${esc(s.notes)}</textarea></div>
-    </form>
-`;
+
+      <div class="f4"><label>Estado</label>
+        <select name="status" id="ss">
+          ${["pagado","parcial","credito"].map(x=>`<option value="${x}" ${s.status===x?"selected":""}>${x}</option>`).join("")}
+        </select>
+      </div>
+
+      <div class="f4"><label>Pagado hoy (COP)</label><input type="number" name="paidAmount" id="sp" min="0" value="${esc(s.paidAmount)}"/></div>
+      <div class="f4"><label>Vence</label><input type="date" name="dueDate" value="${esc(s.dueDate)}"/></div>
+
+      <div class="f12"><label>Notas</label><textarea name="notes">${esc(s.notes||"")}</textarea></div>
+    </form>`;
   }
+
+
 
   function openSale(id,preset={}){
     if(!state.clients.length){ toast("warn","Sin clientes","Crea un cliente."); openClient(); return; }
@@ -2381,8 +3029,60 @@ function openInvMove(itemId, mode, forcedLink){
       footer:`<button class="btn" id="mClose">Cancelar</button><button class="btn primary" id="save">Guardar</button>`,
       onMount: ()=>{
         const sq=$("#sq"), su=$("#su"), st=$("#st"), ss=$("#ss"), sp=$("#sp");
-        const recalc=()=>{ const t=Math.max(0,num(sq.value)*num(su.value)); st.value=t; if(ss.value==="pagado") sp.value=t; };
-        sq.oninput=recalc; su.oninput=recalc; ss.onchange=recalc; recalc();
+        const sowSel=$("#saleSow");
+        const batchSel=$("#saleBatch");
+        const allBatches = state.batches.filter(b=>(b.status||"disponible")!=="cerrado" && num(b.countCurrent)>0);
+
+        const rebuildBatches=(keep="")=>{
+          if(!batchSel) return;
+          const sowId=(sowSel?.value||"");
+          const list = sowId ? allBatches.filter(b=>b.sowId===sowId) : allBatches;
+          const ops = list
+            .slice()
+            .sort((a,b)=>(b.birthDate||"").localeCompare(a.birthDate||""))
+            .map(b=>{
+              const sow=get.sow(b.sowId);
+              return `<option value="${b.id}">${esc(b.birthDate||"—")} • ${esc(sow?.tag||"cerda")} • Disp ${esc(b.countCurrent)}</option>`;
+            }).join("");
+          batchSel.innerHTML = `<option value="">Selecciona</option>` + ops;
+          if(keep && list.some(x=>x.id===keep)) batchSel.value = keep;
+        };
+
+        const syncFromBatch=()=>{
+          const bb=get.batch(batchSel?.value||"");
+          if(bb && sowSel) sowSel.value = bb.sowId||"";
+        };
+
+        if(sowSel){
+          sowSel.onchange=()=>{
+            // al cambiar cerda, resetear camada
+            rebuildBatches("");
+          };
+        }
+        if(batchSel){
+          batchSel.onchange=()=>{
+            syncFromBatch();
+            // reconstruir manteniendo la misma camada (por si lista estaba sin filtrar)
+            rebuildBatches(batchSel.value);
+          };
+        }
+
+        // Inicial (si viene con batchId)
+        if(batchSel?.value){
+          syncFromBatch();
+        }
+        rebuildBatches(batchSel?.value||"");
+
+        const recalc=()=>{
+          const t=Math.max(0,num(sq.value)*num(su.value));
+          setMoney(st, t);
+          if(ss.value==="pagado") setMoney(sp, t);
+          if(ss.value==="credito") setMoney(sp, 0);
+          const p=num(sp.value);
+          if(p>t) setMoney(sp, t);
+        };
+        sq.oninput=recalc; su.oninput=recalc; ss.onchange=recalc; sp.oninput=recalc; recalc();
+
         $("#save").onclick=()=>saveSale(id);
       }
     });
@@ -2392,14 +3092,18 @@ function openInvMove(itemId, mode, forcedLink){
     const fd=new FormData($("#saleForm"));
     const date=(fd.get("date")||"").toString();
     const clientId=(fd.get("clientId")||"").toString();
+    const sowId=(fd.get("sowId")||"").toString();
     const batchId=(fd.get("batchId")||"").toString();
     const qty=num(fd.get("qty"));
     const unitPrice=num(fd.get("unitPrice"));
     const total=Math.max(0, qty*unitPrice);
     let paid=Math.max(0, num(fd.get("paidAmount")));
     let status=(fd.get("status")||"credito").toString();
-    if(!date||!clientId||!batchId||qty<=0){ toast("bad","Faltan datos","Fecha, cliente, camada, cantidad."); return; }
-    const batch=get.batch(batchId); if(!batch){ toast("bad","Camada inválida",""); return; }
+    if(!date||!clientId||!batchId||qty<=0){ openAlert({title:"Faltan datos", message:"Debes seleccionar fecha, cliente, cerda, camada y cantidad.", kind:"bad"}); return; }
+    const batch=get.batch(batchId); if(!batch){ openAlert({title:"Camada inválida", message:"Selecciona una camada válida.", kind:"bad"}); return; }
+    const sowIdFinal = sowId || (batch?.sowId||"");
+    if(!sowIdFinal){ openAlert({title:"Faltan datos", message:"Debes seleccionar la cerda.", kind:"bad"}); return; }
+    if(batch.sowId && sowIdFinal && batch.sowId!==sowIdFinal){ openAlert({title:"Cerda/Camada no coinciden", message:"Selecciona la camada correcta para esa cerda.", kind:"bad"}); return; }
 
     if(!id){
       const available=num(batch.countCurrent);
@@ -2413,7 +3117,7 @@ function openInvMove(itemId, mode, forcedLink){
     else if(paid>0) status="parcial";
     else status=(status==="pagado"?"credito":status);
 
-    const payload={id:id||uid("sale"),date,clientId,batchId,qty,unitPrice,total,status,paidAmount:paid,dueDate:(fd.get("dueDate")||"").toString(),notes:(fd.get("notes")||"").toString().trim()};
+    const payload={id:id||uid("sale"),date,clientId,sowId:sowIdFinal,batchId,qty,unitPrice,total,status,paidAmount:paid,dueDate:(fd.get("dueDate")||"").toString(),notes:(fd.get("notes")||"").toString().trim()};
 
     if(id){
       state.sales=state.sales.map(x=>x.id===id?payload:x);
@@ -2439,41 +3143,164 @@ function openInvMove(itemId, mode, forcedLink){
 
   function openPayment(saleId){
     const s=get.sale(saleId); if(!s) return;
-    const pending=Math.max(0,num(s.total)-num(s.paidAmount));
+    const total = num(s.total);
+    const paid0 = num(s.paidAmount);
+    let pending = Math.max(0, total - paid0);
     if(pending<=0){ toast("ok","Sin saldo","La venta ya está pagada."); return; }
+
+    const pays = (state.payments||[]).filter(p=>p.saleId===saleId).sort((a,b)=>(b.date||"").localeCompare(a.date||""));
+    const pct0 = total>0 ? Math.min(100, Math.round((paid0/total)*100)) : 0;
+
     openModal({
       title:"Registrar abono",
-      sub:`Saldo pendiente: ${fmtCOP(pending)}`,
-      body:`<form id="payForm" class="grid2">
-        <div class="f4"><label>Fecha</label><input type="date" name="date" value="${today()}"/></div>
-        <div class="f4"><label>Método</label><select name="method">
-          <option value="efectivo">Efectivo</option><option value="transferencia">Transferencia</option><option value="nequi/daviplata">Nequi/Daviplata</option><option value="otro">Otro</option>
-        </select></div>
-        <div class="f4"><label>Valor (COP)</label><input type="number" name="amount" min="0" value="${Math.min(pending, num(s.total))}"/></div>
-        <div class="f12"><label>Notas</label><textarea name="notes"></textarea></div>
-      </form>`,
-      footer:`<button class="btn" id="mClose">Cancelar</button><button class="btn primary" id="ok">Registrar</button>`,
+      sub:`Venta ${saleId.slice(-6)} • Pendiente: ${fmtCOP(pending)}`,
+      body:`
+        <div class="payTop">
+          <div class="paySummary">
+            <div class="payKpi"><div class="muted">Total</div><b>${fmtCOP(total)}</b></div>
+            <div class="payKpi"><div class="muted">Abonado</div><b class="mono" id="payNowPaid">${fmtCOP(paid0)}</b></div>
+            <div class="payKpi"><div class="muted">Pendiente</div><b class="mono" id="payNowPend">${fmtCOP(pending)}</b></div>
+          </div>
+          <div class="prog" title="Progreso de cobro"><div class="bar" id="payProgBar" style="width:${pct0}%"></div></div>
+          <div class="muted" style="margin-top:8px">Progreso: <b id="payPct">${pct0}%</b></div>
+        </div>
+
+        <form id="payForm" class="grid2" style="margin-top:12px">
+          <div class="f4"><label>Fecha</label><input type="date" name="date" value="${today()}"/></div>
+          <div class="f4"><label>Método</label>
+            <select name="method">
+              <option value="efectivo">Efectivo</option>
+              <option value="transferencia">Transferencia</option>
+              <option value="tarjeta">Tarjeta</option>
+              <option value="nequi">Nequi/Daviplata</option>
+              <option value="otro">Otro</option>
+            </select>
+          </div>
+
+          <div class="f12">
+            <label>Valor a abonar (COP) *</label>
+            <input type="number" id="payAmount" name="amount" min="0" step="1" value="${Math.min(pending, Math.max(0,total))}"/>
+            <input type="range" id="payRange" min="0" max="${Math.max(1, Math.floor(pending))}" step="1" value="${Math.min(pending, Math.max(0,total))}"/>
+            <div class="chips">
+              <button class="btn chip" type="button" data-set="25">25%</button>
+              <button class="btn chip" type="button" data-set="50">50%</button>
+              <button class="btn chip" type="button" data-set="all">Todo</button>
+              <span class="muted" id="payClamp" style="display:none;margin-left:auto">Se ajustó al pendiente.</span>
+            </div>
+            <div class="helpLine">
+              Después de este abono: <b class="mono" id="payAfterPaid">${fmtCOP(Math.min(total, paid0 + Math.min(pending, Math.max(0,total))))}</b>
+              • Pendiente: <b class="mono" id="payAfterPend">${fmtCOP(Math.max(0, total - (paid0 + Math.min(pending, Math.max(0,total)))))}</b>
+            </div>
+          </div>
+
+          <div class="f12"><label>Notas</label><textarea name="notes" placeholder="Referencia, observación…"></textarea></div>
+        </form>
+
+        <div class="helpCard" style="margin-top:12px">
+          <div class="helpHd">
+            <div><b>Últimos abonos</b><div class="muted">Historial (reciente)</div></div>
+            <span class="tag info">${pays.length}</span>
+          </div>
+          <div class="wrap"><table>
+            <thead><tr><th>Fecha</th><th>Método</th><th>Valor</th><th>Notas</th></tr></thead>
+            <tbody>
+              ${pays.slice(0,6).map(p=>`<tr><td class="mono">${esc(p.date||"—")}</td><td>${esc(p.method||"—")}</td><td class="mono">${fmtCOP(p.amount)}</td><td>${esc(p.notes||"")}</td></tr>`).join("") || `<tr><td colspan="4" class="muted">Sin abonos aún.</td></tr>`}
+            </tbody>
+          </table></div>
+        </div>
+      `,
+      footer:`<button class="btn" id="mClose">Cancelar</button><button class="btn primary" id="ok">Registrar abono</button>`,
       onMount: ()=>{
+        const amount=$("#payAmount");
+        const range=$("#payRange");
+        const pct=$("#payPct");
+        const bar=$("#payProgBar");
+        const clamp=$("#payClamp");
+        const nowPaid=$("#payNowPaid");
+        const nowPend=$("#payNowPend");
+        const afterPaid=$("#payAfterPaid");
+        const afterPend=$("#payAfterPend");
+
+        const round100 = (x)=>x;
+
+        const sync = (src)=>{
+          pending = Math.max(0, num(s.total) - num(s.paidAmount));
+          const maxv = Math.max(0, Math.floor(pending));
+          range.max = String(Math.max(1, maxv||1));
+
+          let v = num(amount.value);
+          if(src==="range") v = num(range.value);
+
+          const wasOver = v>pending;
+          v = Math.max(0, Math.min(v, pending));
+          v = round100(v);
+          if(v>pending) v = pending; // por redondeo
+
+          amount.value = moneyFormatStr(v);
+          range.value = String(Math.min(v, maxv));
+          // mantiene el input formateado
+          amount.value = moneyFormatStr(v);
+
+          clamp.style.display = wasOver ? "inline" : "none";
+
+          const paid1 = Math.min(total, paid0 + v);
+          const pend1 = Math.max(0, total - paid1);
+
+          nowPaid.textContent = fmtCOP(paid0);
+          nowPend.textContent = fmtCOP(pending);
+          afterPaid.textContent = fmtCOP(paid1);
+          afterPend.textContent = fmtCOP(pend1);
+
+          const pct1 = total>0 ? Math.min(100, Math.round((paid1/total)*100)) : 0;
+          pct.textContent = pct1 + "%";
+          bar.style.width = pct1 + "%";
+        };
+
+        amount.oninput=()=>sync("amount");
+        range.oninput=()=>sync("range");
+        $$(".chips button[data-set]").forEach(b=>b.onclick=()=>{
+          const k=b.dataset.set;
+          let v = 0;
+          if(k==="25") v = pending*0.25;
+          if(k==="50") v = pending*0.50;
+          if(k==="all") v = pending;
+          amount.value = moneyFormatStr(round100(v));
+          sync("amount");
+        });
+
+        sync("amount");
+
         $("#ok").onclick=()=>{
           const fd=new FormData($("#payForm"));
           const date=(fd.get("date")||today()).toString();
           const method=(fd.get("method")||"efectivo").toString();
-          let amount=num(fd.get("amount"));
-          if(amount<=0){ toast("bad","Valor inválido","Debe ser > 0."); return; }
-          amount=Math.min(amount,pending);
-          s.paidAmount=num(s.paidAmount)+amount;
+          let amountV=num(fd.get("amount"));
+          if(!date){ openAlert({title:"Faltan datos", message:"Ingresa la fecha.", kind:"bad"}); return; }
+          if(amountV<=0){ openAlert({title:"Valor inválido", message:"El abono debe ser mayor a 0.", kind:"bad"}); return; }
+
+          const pendNow=Math.max(0,num(s.total)-num(s.paidAmount));
+          amountV=Math.min(round100(amountV), pendNow);
+          if(amountV<=0){ openAlert({title:"Sin saldo", message:"No hay saldo pendiente para abonar.", kind:"bad"}); return; }
+
+          s.paidAmount=num(s.paidAmount)+amountV;
           const newPending=Math.max(0,num(s.total)-num(s.paidAmount));
           s.status=newPending<=0?"pagado":"parcial";
-          state.payments.push({id:uid("pay"),saleId:s.id,date,amount,method,notes:(fd.get("notes")||"").toString().trim()});
-          state.transactions.push({id:uid("tx"),date,type:"ingreso",category:"Abono venta",amount,method,refType:"sale",refId:s.id,notes:`Abono a ${s.id.slice(-6)}`});
+
+          state.payments = state.payments || [];
+          state.payments.push({id:uid("pay"),saleId:s.id,date,amount:amountV,method,notes:(fd.get("notes")||"").toString().trim()});
+          state.transactions.push({id:uid("tx"),date,type:"ingreso",category:"Ventas / lechones",amount:amountV,method,refType:"sale",refId:s.id,notes:`Abono a ${s.id.slice(-6)}`});
+
           if(newPending<=0){
-            state.tasks.forEach(t=>{ if(t.relatedType==="sale" && t.relatedId===s.id && t.title.startsWith("Cobro pendiente")) t.status="hecha"; });
+            state.tasks.forEach(t=>{ if(t.relatedType==="sale" && t.relatedId===s.id && (t.title||"").startsWith("Cobro pendiente")) t.status="hecha"; });
           }
+
           save(); dlg.close(); toast("ok","Abono registrado",`Nuevo saldo: ${fmtCOP(newPending)}`); render();
         };
       }
     });
   }
+
+
 
   function saleDetail(id){
     const s=get.sale(id); if(!s) return;
@@ -2529,7 +3356,615 @@ function openInvMove(itemId, mode, forcedLink){
     });
   }
 
-  // ------- Finanzas -------
+  
+
+  // ------- Carne (ventas por kilos) -------
+  const PIGLET_DAYS_FOR_MEAT = 90; // referencia (ajústalo si lo deseas)
+
+  function meatEligibleHeads(){
+    // Sugerido: camadas con edad mayor a PIGLET_DAYS_FOR_MEAT y con stock disponible
+    const t=today();
+    return state.batches
+      .filter(b=>num(b.countCurrent)>0 && b.birthDate)
+      .map(b=>({b, days: daysBetween(b.birthDate, t)}))
+      .filter(x=>x.days!==null && x.days>=PIGLET_DAYS_FOR_MEAT)
+      .reduce((acc,x)=>acc + num(x.b.countCurrent), 0);
+  }
+
+  function meatStats(){
+    const rows=(state.meatSales||[]);
+    const total = rows.reduce((a,s)=>a+num(s.total),0);
+    const paid  = rows.reduce((a,s)=>a+num(s.paidAmount),0);
+    const pending = Math.max(0, total - paid);
+    const kgSold = rows.reduce((a,s)=>a+num(s.qty),0);
+    return {total, paid, pending, kgSold, stockKg: num(state.meat?.stockKg)};
+  }
+
+  function renderMeat(){
+    auditState();
+    const st = meatStats();
+
+    const actions = `
+      <button class="btn" id="meatStockBtn">🥩 Stock (kg)</button>
+      <button class="btn" id="meatHeadsBtn">🐷 Cerdos para carne</button>
+      <button class="btn primary" id="meatNew">➕ Nueva venta (kg)</button>
+    `;
+
+    const body = `
+      <div class="kpis">
+        ${kpi("Stock carne (kg)", fmtNum(st.stockKg,2)+" kg", st.stockKg<=0?"warn":"ok")}
+        ${kpi("Kg vendidos", fmtNum(st.kgSold,2)+" kg", "info")}
+        ${kpi("Ingresos (carne)", fmtCOP(st.total), "ok")}
+        ${kpi("Pendiente por cobrar", fmtCOP(st.pending), st.pending>0?"warn":"ok")}
+      </div>
+
+      <div class="helpCard" style="margin-top:12px">
+        <div class="helpHd">
+          <div>
+            <b>Disponibilidad (referencia)</b>
+            <div class="muted">Sugerido por edad: camadas con más de ${PIGLET_DAYS_FOR_MEAT} días.</div>
+          </div>
+          <span class="tag info">Sugerido: ${fmtNum(meatEligibleHeads(),0)} cerdos</span>
+        </div>
+        <div class="muted" style="margin-top:8px">
+          Puedes registrar manualmente cuántos cerdos tienes disponibles para carne (sin afectar camadas) y manejar el stock por kg.
+        </div>
+        <div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+          <span class="tag ok">Disponibles para carne (manual): <b>${fmtNum(num(state.meat?.headsForSale),0)}</b> cerdos</span>
+          <span class="tag info">Stock carne (kg): <b>${fmtNum(num(state.meat?.stockKg),2)}</b> kg</span>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <div class="cardHd">
+          <b>Ventas de carne (kg)</b>
+          <div class="muted">Filtra con el buscador general de la izquierda (cliente, fecha, estado…).</div>
+        </div>
+        <div class="wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Fecha</th><th>Cliente</th><th>Kg</th><th>Precio/kg</th><th>Total</th><th>Abonado</th><th>Estado</th><th class="r">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${(state.meatSales||[])
+                .filter(s=>{
+                  const c=get.client(s.clientId);
+                  return matchQ(s.date,s.status,s.notes,c?.name,c?.phone,s.qty,s.total);
+                })
+                .sort((a,b)=>(b.date||"").localeCompare(a.date||""))
+                .map(s=>{
+                  const c=get.client(s.clientId);
+                  const pend=Math.max(0,num(s.total)-num(s.paidAmount));
+                  return `<tr>
+                    <td class="mono">${esc(s.date||"—")}</td>
+                    <td>${esc(c?.name||"—")}</td>
+                    <td class="mono">${fmtNum(num(s.qty),2)}</td>
+                    <td class="mono">${fmtCOP(num(s.unitPrice))}</td>
+                    <td class="mono">${fmtCOP(num(s.total))}</td>
+                    <td class="mono">${fmtCOP(num(s.paidAmount))}</td>
+                    <td><span class="tag ${s.status==="pagado"?"ok":(s.status==="parcial"?"warn":"info")}">${esc(s.status||"")}</span></td>
+                    <td class="r">
+                      ${pend>0?`<button class="btn" data-mpay="${s.id}">Abonar</button>`:""}
+                      <button class="btn" data-medit="${s.id}">Editar</button>
+                      <button class="btn danger" data-mdel="${s.id}">Eliminar</button>
+                    </td>
+                  </tr>`;
+                }).join("") || `<tr><td colspan="8" class="muted">Aún no hay ventas de carne registradas.</td></tr>`}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+
+    view.innerHTML = shell(
+      "Carne (Kg)",
+      "Ventas a carnicerías y clientes por kg. Controla stock (kg), abonos y tareas de cobro.",
+      actions,
+      body
+    );
+
+    const btnNew = $("#meatNew");
+    const btnStock = $("#meatStockBtn");
+    const btnHeads = $("#meatHeadsBtn");
+    if(btnNew) btnNew.onclick=()=>openMeatSale();
+    if(btnStock) btnStock.onclick=()=>openMeatStock();
+    if(btnHeads) btnHeads.onclick=()=>openMeatHeads();
+
+    view.querySelectorAll("button[data-medit]").forEach(b=>b.onclick=()=>openMeatSale(b.dataset.medit));
+    view.querySelectorAll("button[data-mdel]").forEach(b=>b.onclick=()=>delMeatSale(b.dataset.mdel));
+    view.querySelectorAll("button[data-mpay]").forEach(b=>b.onclick=()=>openMeatPayment(b.dataset.mpay));
+  }
+
+  function openMeatHeads(){
+    const suggested = meatEligibleHeads();
+    const cur = num(state.meat?.headsForSale);
+    openModal({
+      title:"Cerdos disponibles para carne",
+      sub:"Registro manual (no afecta camadas).",
+      body:`<form id="mhForm" class="grid2">
+        <div class="f12">
+          <label>Cantidad disponible (cabezas) *</label>
+          <input name="heads" data-qty="1" value="${fmtNum(cur,2)}" />
+          <div class="muted" style="margin-top:6px">Sugerido por edad: <b>${fmtNum(suggested,0)}</b> cerdos.</div>
+        </div>
+        <div class="f12"><label>Notas</label><textarea name="notes" placeholder="Ej: listos para sacrificio, lote A…"></textarea></div>
+      </form>`,
+      footer:`<button class="btn" id="mClose">Cancelar</button><button class="btn primary" id="ok">Guardar</button>`,
+      onMount: ()=>{
+        $("#ok").onclick=()=>{
+          const fd=new FormData($("#mhForm"));
+          const heads=num(fd.get("heads"));
+          if(heads<0){ openAlert({title:"Valor inválido", message:"La cantidad no puede ser negativa.", kind:"bad"}); return; }
+          state.meat = state.meat || {stockKg:0,headsForSale:0,movements:[]};
+          state.meat.headsForSale = heads;
+          save(); dlg.close(); toast("ok","Guardado",`Disponibles: ${fmtNum(heads,0)} cerdos`); render();
+        };
+      }
+    });
+  }
+
+  function openMeatStock(){
+    const cur = num(state.meat?.stockKg);
+    openModal({
+      title:"Ajustar stock de carne (kg)",
+      sub:"Control del inventario de carne por kilos.",
+      body:`<form id="msForm" class="grid2">
+        <div class="f4"><label>Tipo</label>
+          <select name="type" id="mst">
+            <option value="entrada">Entrada (+)</option>
+            <option value="salida">Salida (-)</option>
+            <option value="ajuste">Ajuste (fijar)</option>
+          </select>
+        </div>
+        <div class="f4"><label>Stock actual</label><input readonly value="${fmtNum(cur,2)} kg"/></div>
+        <div class="f4"><label>Kilos (kg) *</label><input name="kg" data-qty="1" value="${fmtNum(cur,2)}"/></div>
+        <div class="f12"><label>Motivo</label><input name="reason" placeholder="Ej: sacrificio, merma, conteo…"/></div>
+      </form>`,
+      footer:`<button class="btn" id="mClose">Cancelar</button><button class="btn primary" id="ok">Aplicar</button>`,
+      onMount: ()=>{
+        const sel=$("#mst"); const kgI=$('input[name="kg"]');
+        const sync=()=>{
+          const t=sel.value;
+          if(t==="entrada"||t==="salida") kgI.value = "";
+          if(t==="ajuste") kgI.value = fmtNum(cur);
+        };
+        sel.onchange=sync; sync();
+
+        $("#ok").onclick=()=>{
+          const fd=new FormData($("#msForm"));
+          const type=(fd.get("type")||"ajuste").toString();
+          const kg=num(fd.get("kg"));
+          if(kg<=0 && type!=="ajuste"){ openAlert({title:"Faltan datos", message:"Ingresa los kilos para el movimiento.", kind:"bad"}); return; }
+          state.meat = state.meat || {stockKg:0,headsForSale:0,movements:[]};
+          const before = num(state.meat.stockKg);
+          let after = before;
+          if(type==="entrada") after = before + kg;
+          if(type==="salida"){
+            if(kg>before){ openAlert({title:"Excede el stock", message:`Disponible: ${fmtNum(before,2)} kg`, kind:"bad"}); return; }
+            after = before - kg;
+          }
+          if(type==="ajuste") after = Math.max(0, kg);
+
+          state.meat.stockKg = after;
+          state.meat.movements = state.meat.movements || [];
+          state.meat.movements.push({id:uid("mkmov"),date:today(),type,kg: (type==="ajuste"? after : kg),before,after,reason:(fd.get("reason")||"").toString().trim()});
+
+          save(); dlg.close(); toast("ok","Stock actualizado",`Ahora: ${fmtNum(after,2)} kg`); render();
+        };
+      }
+    });
+  }
+
+  function openMeatSale(id){
+    if(!state.clients.length){ openAlert({title:"Faltan datos", message:"Primero crea un cliente.", kind:"bad"}); return; }
+
+    const ms = state.meatSales || [];
+    let s = id ? ms.find(x=>x.id===id) : null;
+
+    s = s || {
+      id: uid("meat"),
+      date: today(),
+      clientId: "",
+      qty: 0, // kg
+      unitPrice: 0, // COP/kg
+      total: 0,
+      status: "credito",
+      paidAmount: 0,
+      dueDate: "",
+      notes: "",
+      deductStock: true
+    };
+
+    const hasPays = !!id && (state.meatPayments||[]).some(p=>p.saleId===id);
+    s._lockPay = hasPays || num(s.paidAmount)>0;
+
+    openModal({
+      title: id? "Editar venta de carne" : "Nueva venta de carne (kg)",
+      sub: `Stock actual: ${fmtNum(num(state.meat?.stockKg),2)} kg`,
+      body: meatSaleForm(s),
+      footer:`<button class="btn" id="mClose">Cancelar</button><button class="btn primary" id="ok">Guardar</button>`,
+      onMount: ()=>{
+        const sq=$("#mkq"), su=$("#mku"), st=$("#mkt"), ss=$("#mks"), sp=$("#mkp");
+        const ds=$("#mkds");
+        const recalc=()=>{
+          const t=Math.max(0,num(sq.value)*num(su.value));
+          setMoney(st, t);
+          if(ss.value==="pagado") setMoney(sp, t);
+          if(ss.value==="credito") setMoney(sp, 0);
+          const p=num(sp.value);
+          if(p>t) setMoney(sp, t);
+        };
+        sq.oninput=recalc; su.oninput=recalc; ss.onchange=recalc; sp.oninput=recalc; recalc();
+
+        $("#ok").onclick=()=>saveMeatSale(id, ds?.checked);
+      }
+    });
+  }
+
+  function meatSaleForm(s){
+    const clientOps=state.clients
+      .slice()
+      .sort((a,b)=>(a.name||"").localeCompare(b.name||""))
+      .map(c=>`<option value="${c.id}" ${s.clientId===c.id?"selected":""}>${esc(c.name)}</option>`).join("");
+
+    return `<form id="meatSaleForm" class="grid2">
+      <input type="hidden" name="id" value="${esc(s.id)}"/>
+      <div class="f4"><label>Fecha *</label><input type="date" name="date" required value="${esc(s.date)}"/></div>
+      <div class="f8"><label>Cliente *</label><select name="clientId" required><option value="">Selecciona</option>${clientOps}</select></div>
+
+      <div class="f4"><label>Kilos (kg) *</label><input id="mkq" name="qty" data-qty="1" step="0.01" required value="${fmtNum(num(s.qty),2)}"/></div>
+      <div class="f4"><label>Precio por kg (COP) *</label><input id="mku" name="unitPrice" data-money="1" required value="${fmtNum(num(s.unitPrice),0)}"/></div>
+      <div class="f4"><label>Total (auto)</label><input id="mkt" name="total" data-money="1" readonly value="${fmtNum(num(s.total),0)}"/></div>
+
+      <div class="f4"><label>Estado</label>
+        <select name="status" id="mks" ${s._lockPay?"disabled":""}>
+          ${["pagado","parcial","credito"].map(x=>`<option value="${x}" ${s.status===x?"selected":""}>${x}</option>`).join("")}
+        </select>
+      </div>
+      <div class="f4"><label>Pagado hoy (COP)</label><input id="mkp" name="paidAmount" data-money="1" ${s._lockPay?"disabled":""} value="${fmtNum(num(s.paidAmount),0)}"/></div>
+      <div class="f4"><label>Vence</label><input type="date" name="dueDate" value="${esc(s.dueDate||"")}"/></div>
+
+      ${s._lockPay?`<div class="f12"><span class="tag info">Esta venta ya tiene abonos. Para registrar más pagos usa el botón <b>Abonar</b>.</span></div>`:""}
+
+      <div class="f12">
+        <label class="row">
+          <input type="checkbox" id="mkds" ${s.deductStock!==false?"checked":""}/>
+          <span>Descontar del stock de carne (kg)</span>
+        </label>
+        <div class="muted" style="margin-top:6px">Si no llevas stock en kg, puedes desmarcarlo.</div>
+      </div>
+
+      <div class="f12"><label>Notas</label><textarea name="notes">${esc(s.notes||"")}</textarea></div>
+    </form>`;
+  }
+
+  function saveMeatSale(editId, deductStock=true){
+    const fd=new FormData($("#meatSaleForm"));
+    const id = editId || (fd.get("id")||uid("meat")).toString();
+    const date=(fd.get("date")||"").toString();
+    const clientId=(fd.get("clientId")||"").toString();
+    const qty=num(fd.get("qty"));          // kg
+    const unitPrice=num(fd.get("unitPrice")); // COP/kg
+    const total=Math.max(0, qty*unitPrice);
+    let status=(fd.get("status")||"credito").toString();
+    let paid=num(fd.get("paidAmount"));
+    const dueDate=(fd.get("dueDate")||"").toString();
+    const notes=(fd.get("notes")||"").toString().trim();
+
+    if(!date||!clientId||qty<=0||unitPrice<0){
+      openAlert({title:"Faltan datos", message:"Debes seleccionar fecha, cliente, kilos y precio por kg.", kind:"bad"}); return;
+    }
+
+    state.meat = state.meat || {stockKg:0,headsForSale:0,movements:[]};
+    state.meatSales = state.meatSales || [];
+    state.meatPayments = state.meatPayments || [];
+    state.transactions = state.transactions || [];
+    state.tasks = state.tasks || [];
+
+    const existing = (state.meatSales||[]).find(x=>x.id===id) || null;
+    const hasPays = (state.meatPayments||[]).some(p=>p.saleId===id);
+
+    // Si ya tiene pagos registrados, no permitimos editar paid/status desde el formulario
+    if(existing && hasPays){
+      paid = num(existing.paidAmount);
+      status = existing.status || status;
+    } else {
+      if(paid>total) paid=total;
+      // Ajuste de estado coherente
+      if(status==="pagado") paid = total;
+      if(status==="credito") paid = 0;
+      if(status==="parcial" && paid<=0) paid = Math.min(total, Math.max(0, paid));
+      if(paid>=total) status="pagado";
+      else if(paid>0) status="parcial";
+      else status = (status==="parcial"?"credito":status);
+    }
+
+    // --- Stock: revertir venta anterior si estaba descontando stock ---
+    const stockNow = num(state.meat.stockKg);
+    let stockTemp = stockNow;
+
+    if(existing && existing.deductStock){
+      stockTemp = stockTemp + num(existing.qty);
+      state.meat.movements.push({
+        id:uid("mkmov"),
+        date: today(),
+        type:"entrada",
+        kg:num(existing.qty),
+        before: stockNow,
+        after: stockTemp,
+        reason:`Reversión (edición) venta carne ${id.slice(-6)}`
+      });
+    }
+
+    // Aplicar nueva deducción si corresponde
+    if(deductStock){
+      if(qty>stockTemp){
+        openAlert({title:"Stock insuficiente", message:`Disponible: ${fmtNum(stockTemp,2)} kg. Ajusta el stock o desmarca “Descontar stock”.`, kind:"bad"}); 
+        // revertimos cualquier movimiento temporal? (no guardado todavía, pero ya agregamos log) — limpiarlo:
+        if(existing && existing.deductStock) state.meat.movements.pop();
+        return;
+      }
+      const before = stockTemp;
+      stockTemp = Math.max(0, stockTemp - qty);
+      state.meat.movements.push({
+        id:uid("mkmov"),
+        date,
+        type:"salida",
+        kg:qty,
+        before,
+        after:stockTemp,
+        reason:`Venta carne (${get.client(clientId)?.name||clientId})`
+      });
+    }
+
+    state.meat.stockKg = stockTemp;
+
+    // --- Guardar/actualizar venta ---
+    const payload={
+      id,
+      date, clientId,
+      qty, unitPrice, total,
+      status,
+      paidAmount: paid,
+      dueDate,
+      notes,
+      deductStock
+    };
+
+    const idx = state.meatSales.findIndex(x=>x.id===id);
+    if(idx>=0) state.meatSales[idx]=payload;
+    else state.meatSales.push(payload);
+
+    // --- Finanzas: ingreso inicial (solo si NO hay pagos previos) ---
+    // Si existía y no tenía pagos, actualizamos el "ingreso inicial" eliminando el anterior
+    state.transactions = state.transactions.filter(tx=>!(tx.refType==="meatSale" && tx.refId===id && String(tx.notes||"").startsWith("Venta carne")));
+    if(!hasPays && paid>0){
+      state.transactions.push({
+        id:uid("tx"),
+        date,
+        type:"ingreso",
+        category:"Ventas / carne (kg)",
+        amount:paid,
+        method:"",
+        refType:"meatSale",
+        refId:id,
+        notes:`Venta carne (${fmtNum(qty,2)} kg)`
+      });
+    }
+
+    // --- Tarea de cobro si queda pendiente ---
+    const pending = Math.max(0, total - paid);
+    state.tasks = state.tasks.filter(t=>!(t.relatedType==="meatSale" && t.relatedId===id));
+    if(pending>0){
+      state.tasks.push({
+        id:uid("task"),
+        title:`Cobro pendiente carne (${id.slice(-6)})`,
+        dueDate: dueDate || addDays(date, 7),
+        priority:"media",
+        done:false,
+        relatedType:"meatSale",
+        relatedId:id,
+        notes:`Pendiente: ${fmtCOP(pending)} • Cliente: ${(get.client(clientId)?.name||"")}`
+      });
+    }
+
+    save(); dlg.close(); toast("ok","Venta guardada", pending>0?`Pendiente: ${fmtCOP(pending)}`:"Pagada"); render();
+  }
+
+
+  function delMeatSale(id){
+    const s=get.meatSale(id); if(!s) return;
+    openModal({
+      title:"Eliminar venta de carne",
+      sub:`${s.id.slice(-6)} • ${fmtCOP(num(s.total))}`,
+      body:`<div class="muted">Se eliminará la venta y se revertirá (si aplica) el stock descontado, los abonos/ingresos y la tarea de cobro.</div>`,
+      footer:`<button class="btn" id="mClose">Cancelar</button><button class="btn danger" id="ok">Eliminar</button>`,
+      onMount: ()=>{
+        $("#ok").onclick=()=>{
+          // Revertir stock si la venta descontó stock
+          state.meat = state.meat || {stockKg:0,headsForSale:0,movements:[]};
+          const before = num(state.meat.stockKg);
+          if(s.deductStock){
+            state.meat.stockKg = before + num(s.qty);
+            state.meat.movements = state.meat.movements || [];
+            state.meat.movements.push({id:uid("mkmov"),date:today(),type:"entrada",kg:num(s.qty),before,after:num(state.meat.stockKg),reason:`Reversión (eliminar) venta carne ${s.id.slice(-6)}`});
+          }
+
+          // Eliminar venta
+          state.meatSales = (state.meatSales||[]).filter(x=>x.id!==id);
+
+          // Eliminar pagos y transacciones asociadas
+          state.meatPayments = (state.meatPayments||[]).filter(p=>p.saleId!==id);
+          state.transactions = (state.transactions||[]).filter(tx=>!(tx.refType==="meatSale" && tx.refId===id));
+
+          // Eliminar tarea asociada
+          state.tasks = (state.tasks||[]).filter(t=>!(t.relatedType==="meatSale" && t.relatedId===id));
+
+          save(); dlg.close(); toast("ok","Eliminado","Venta y registros asociados eliminados."); render();
+        };
+      }
+    });
+  }
+
+
+  function openMeatPayment(saleId){
+    const s=get.meatSale(saleId); if(!s) return;
+    const total=num(s.total);
+    const paid0=num(s.paidAmount);
+    let pending=Math.max(0,total-paid0);
+    if(pending<=0){ toast("ok","Sin saldo","La venta ya está pagada."); return; }
+
+    const pays=(state.meatPayments||[]).filter(p=>p.saleId===saleId).sort((a,b)=>(b.date||"").localeCompare(a.date||""));
+    const pct0 = total>0 ? Math.min(100, Math.round((paid0/total)*100)) : 0;
+
+    openModal({
+      title:"Registrar abono (carne)",
+      sub:`Venta ${saleId.slice(-6)} • Pendiente: ${fmtCOP(pending)}`,
+      body:`
+        <div class="payTop">
+          <div class="paySummary">
+            <div class="payKpi"><div class="muted">Total</div><b>${fmtCOP(total)}</b></div>
+            <div class="payKpi"><div class="muted">Abonado</div><b class="mono" id="payNowPaid">${fmtCOP(paid0)}</b></div>
+            <div class="payKpi"><div class="muted">Pendiente</div><b class="mono" id="payNowPend">${fmtCOP(pending)}</b></div>
+          </div>
+          <div class="prog" title="Progreso de cobro"><div class="bar" id="payProgBar" style="width:${pct0}%"></div></div>
+          <div class="muted" style="margin-top:8px">Progreso: <b id="payPct">${pct0}%</b></div>
+        </div>
+
+        <form id="payForm" class="grid2" style="margin-top:12px">
+          <div class="f4"><label>Fecha</label><input type="date" name="date" value="${today()}"/></div>
+          <div class="f4"><label>Método</label>
+            <select name="method">
+              <option value="efectivo">Efectivo</option>
+              <option value="transferencia">Transferencia</option>
+              <option value="tarjeta">Tarjeta</option>
+              <option value="nequi">Nequi/Daviplata</option>
+              <option value="otro">Otro</option>
+            </select>
+          </div>
+
+          <div class="f12">
+            <label>Valor a abonar (COP) *</label>
+            <input type="text" id="payAmount" name="amount" data-money="1" value="${fmtNum(Math.min(pending,total))}"/>
+            <input type="range" id="payRange" min="0" max="${Math.max(1, Math.floor(pending))}" step="1" value="${Math.min(pending,total)}"/>
+            <div class="chips">
+              <button class="btn chip" type="button" data-set="25">25%</button>
+              <button class="btn chip" type="button" data-set="50">50%</button>
+              <button class="btn chip" type="button" data-set="all">Todo</button>
+              <span class="muted" id="payClamp" style="display:none;margin-left:auto">Se ajustó al pendiente.</span>
+            </div>
+            <div class="helpLine">
+              Después de este abono: <b class="mono" id="payAfterPaid">${fmtCOP(Math.min(total, paid0 + Math.min(pending,total)))}</b>
+              • Pendiente: <b class="mono" id="payAfterPend">${fmtCOP(Math.max(0, total - (paid0 + Math.min(pending,total))))}</b>
+            </div>
+          </div>
+
+          <div class="f12"><label>Notas</label><textarea name="notes" placeholder="Referencia, observación…"></textarea></div>
+        </form>
+
+        <div class="helpCard" style="margin-top:12px">
+          <div class="helpHd">
+            <div><b>Últimos abonos</b><div class="muted">Historial (reciente)</div></div>
+            <span class="tag info">${pays.length}</span>
+          </div>
+          <div class="wrap"><table>
+            <thead><tr><th>Fecha</th><th>Método</th><th>Valor</th><th>Notas</th></tr></thead>
+            <tbody>
+              ${pays.slice(0,6).map(p=>`<tr><td class="mono">${esc(p.date||"—")}</td><td>${esc(p.method||"—")}</td><td class="mono">${fmtCOP(p.amount)}</td><td>${esc(p.notes||"")}</td></tr>`).join("") || `<tr><td colspan="4" class="muted">Sin abonos aún.</td></tr>`}
+            </tbody>
+          </table></div>
+        </div>
+      `,
+      footer:`<button class="btn" id="mClose">Cancelar</button><button class="btn primary" id="ok">Registrar abono</button>`,
+      onMount: ()=>{
+        const amount=$("#payAmount");
+        const range=$("#payRange");
+        const pct=$("#payPct");
+        const bar=$("#payProgBar");
+        const clamp=$("#payClamp");
+        const nowPaid=$("#payNowPaid");
+        const nowPend=$("#payNowPend");
+        const afterPaid=$("#payAfterPaid");
+        const afterPend=$("#payAfterPend");
+
+        const sync = (src)=>{
+          pending = Math.max(0, num(s.total) - num(s.paidAmount));
+          const maxv = Math.max(0, Math.floor(pending));
+          range.max = String(Math.max(1, maxv||1));
+
+          let v = num(amount.value);
+          if(src==="range") v = num(range.value);
+
+          const wasOver = v>pending;
+          v = Math.max(0, Math.min(v, pending));
+
+          amount.value = moneyFormatStr(v);
+          range.value = String(Math.min(v, maxv));
+
+          clamp.style.display = wasOver ? "inline" : "none";
+
+          const paid1 = Math.min(total, paid0 + v);
+          const pend1 = Math.max(0, total - paid1);
+
+          nowPaid.textContent = fmtCOP(paid0);
+          nowPend.textContent = fmtCOP(pending);
+          afterPaid.textContent = fmtCOP(paid1);
+          afterPend.textContent = fmtCOP(pend1);
+
+          const pct1 = total>0 ? Math.min(100, Math.round((paid1/total)*100)) : 0;
+          pct.textContent = pct1 + "%";
+          bar.style.width = pct1 + "%";
+        };
+
+        amount.oninput=()=>sync("amount");
+        range.oninput=()=>sync("range");
+        $$(".chips button[data-set]").forEach(b=>b.onclick=()=>{
+          const k=b.dataset.set;
+          let v = 0;
+          if(k==="25") v = pending*0.25;
+          if(k==="50") v = pending*0.50;
+          if(k==="all") v = pending;
+          amount.value = moneyFormatStr(v);
+          sync("amount");
+        });
+
+        sync("amount");
+
+        $("#ok").onclick=()=>{
+          const fd=new FormData($("#payForm"));
+          const date=(fd.get("date")||today()).toString();
+          const method=(fd.get("method")||"efectivo").toString();
+          let amountV=num(fd.get("amount"));
+          if(amountV<=0){ openAlert({title:"Valor inválido", message:"El abono debe ser mayor a 0.", kind:"bad"}); return; }
+
+          const pendNow=Math.max(0,num(s.total)-num(s.paidAmount));
+          amountV=Math.min(amountV, pendNow);
+          if(amountV<=0){ openAlert({title:"Sin saldo", message:"No hay saldo pendiente para abonar.", kind:"bad"}); return; }
+
+          s.paidAmount=num(s.paidAmount)+amountV;
+          const newPending=Math.max(0,num(s.total)-num(s.paidAmount));
+          s.status=newPending<=0?"pagado":"parcial";
+
+          state.meatPayments = state.meatPayments || [];
+          state.meatPayments.push({id:uid("mpay"),saleId:s.id,date,amount:amountV,method,notes:(fd.get("notes")||"").toString().trim()});
+          state.transactions.push({id:uid("tx"),date,type:"ingreso",category:"Ventas / carne (kg)",amount:amountV,method,refType:"meatSale",refId:s.id,notes:`Abono carne ${s.id.slice(-6)}`});
+
+          // cerrar tarea
+          state.tasks = state.tasks || [];
+          if(newPending<=0){
+            state.tasks = state.tasks.filter(t=>!(t.relatedType==="meatSale" && t.relatedId===s.id));
+          }
+
+          save(); dlg.close(); toast("ok","Abono registrado",`Nuevo saldo: ${fmtCOP(newPending)}`); render();
+        };
+      }
+    });
+  }
+
+
+// ------- Finanzas -------
   function renderFinance(){
     const m=today().slice(0,7);
     const income=sumMonth("ingreso"), expense=sumMonth("gasto");
@@ -2635,58 +4070,175 @@ function openInvMove(itemId, mode, forcedLink){
   // ------- Cuentas por pagar (compras a crédito/parcial) -------
   function openPayablePay(pid){
     const p=get.payable(pid); if(!p) return;
-    const remain=Math.max(0, num(p.total)-num(p.paid));
+    const total = num(p.total);
+    const paid0 = num(p.paid);
+    let remain = Math.max(0, total - paid0);
+    if(remain<=0){ toast("ok","Sin saldo","Esta cuenta ya está pagada."); return; }
+
+    const hist = (p.payments||[]).slice().sort((a,b)=>(b.date||"").localeCompare(a.date||""));
+    const pct0 = total>0 ? Math.min(100, Math.round((paid0/total)*100)) : 0;
+
     openModal({
       title:"Registrar pago",
       sub:`${p.itemName||"Compra"} • Pendiente: ${fmtCOP(remain)}`,
-      body:`<form id="payF" class="grid2">
-        <div class="f4"><label>Fecha</label><input type="date" name="date" value="${today()}"/></div>
-        <div class="f4"><label>Método</label>
-          <select name="method">
-            <option value="efectivo">Efectivo</option>
-            <option value="transferencia">Transferencia</option>
-            <option value="tarjeta">Tarjeta</option>
-            <option value="otro">Otro</option>
-          </select>
+      body:`
+        <div class="payTop">
+          <div class="paySummary">
+            <div class="payKpi"><div class="muted">Total</div><b>${fmtCOP(total)}</b></div>
+            <div class="payKpi"><div class="muted">Pagado</div><b class="mono" id="cxpNowPaid">${fmtCOP(paid0)}</b></div>
+            <div class="payKpi"><div class="muted">Pendiente</div><b class="mono" id="cxpNowPend">${fmtCOP(remain)}</b></div>
+          </div>
+          <div class="prog"><div class="bar" id="cxpBar" style="width:${pct0}%"></div></div>
+          <div class="muted" style="margin-top:8px">Progreso: <b id="cxpPct">${pct0}%</b></div>
         </div>
-        <div class="f4"><label>Valor (COP)</label><input type="number" step="0.01" name="amount" value="${esc(remain)}" min="0"/></div>
-        <div class="f12"><label>Notas</label><textarea name="notes" placeholder="Ej: abono proveedor, factura #..."></textarea></div>
-      </form>`,
-      footer:`<button class="btn" id="mClose">Cancelar</button><button class="btn primary" id="ok">Guardar</button>`,
-      onMount:()=>{
+
+        <form id="payF" class="grid2" style="margin-top:12px">
+          <div class="f4"><label>Fecha</label><input type="date" name="date" value="${today()}"/></div>
+          <div class="f4"><label>Método</label>
+            <select name="method">
+              <option value="efectivo">Efectivo</option>
+              <option value="transferencia">Transferencia</option>
+              <option value="tarjeta">Tarjeta</option>
+              <option value="otro">Otro</option>
+            </select>
+          </div>
+
+          <div class="f12">
+            <label>Valor a pagar (COP) *</label>
+            <input type="number" id="cxpAmount" name="amount" min="0" step="1" value="${Math.min(remain, total)}"/>
+            <input type="range" id="cxpRange" min="0" max="${Math.max(1, Math.floor(remain))}" step="1" value="${Math.min(remain, total)}"/>
+            <div class="chips">
+              <button class="btn chip" type="button" data-set="25">25%</button>
+              <button class="btn chip" type="button" data-set="50">50%</button>
+              <button class="btn chip" type="button" data-set="all">Todo</button>
+              <span class="muted" id="cxpClamp" style="display:none;margin-left:auto">Se ajustó al pendiente.</span>
+            </div>
+            <div class="helpLine">
+              Después de este pago: <b class="mono" id="cxpAfterPaid">${fmtCOP(Math.min(total, paid0 + Math.min(remain,total)))}</b>
+              • Pendiente: <b class="mono" id="cxpAfterPend">${fmtCOP(Math.max(0, total - (paid0 + Math.min(remain,total))))}</b>
+            </div>
+          </div>
+
+          <div class="f12"><label>Notas</label><textarea name="notes" placeholder="Referencia, observación…"></textarea></div>
+        </form>
+
+        <div class="helpCard" style="margin-top:12px">
+          <div class="helpHd">
+            <div><b>Historial de pagos</b><div class="muted">Esta cuenta</div></div>
+            <span class="tag info">${hist.length}</span>
+          </div>
+          <div class="wrap"><table>
+            <thead><tr><th>Fecha</th><th>Método</th><th>Valor</th><th>Notas</th></tr></thead>
+            <tbody>
+              ${hist.slice(0,6).map(x=>`<tr><td class="mono">${esc(x.date||"—")}</td><td>${esc(x.method||"—")}</td><td class="mono">${fmtCOP(x.amount)}</td><td>${esc(x.notes||"")}</td></tr>`).join("") || `<tr><td colspan="4" class="muted">Sin pagos aún.</td></tr>`}
+            </tbody>
+          </table></div>
+        </div>
+      `,
+      footer:`<button class="btn" id="mClose">Cancelar</button><button class="btn primary" id="ok">Registrar pago</button>`,
+      onMount: ()=>{
+        const amount=$("#cxpAmount");
+        const range=$("#cxpRange");
+        const pct=$("#cxpPct");
+        const bar=$("#cxpBar");
+        const clamp=$("#cxpClamp");
+        const nowPaid=$("#cxpNowPaid");
+        const nowPend=$("#cxpNowPend");
+        const afterPaid=$("#cxpAfterPaid");
+        const afterPend=$("#cxpAfterPend");
+
+        const round100=(x)=>x;
+
+        const sync=(src)=>{
+          remain = Math.max(0, num(p.total) - num(p.paid));
+          const maxv = Math.max(0, Math.floor(remain));
+          range.max = String(Math.max(1, maxv||1));
+
+          let v = num(amount.value);
+          if(src==="range") v = num(range.value);
+
+          const wasOver = v>remain;
+          v = Math.max(0, Math.min(v, remain));
+          v = round100(v);
+          if(v>remain) v = remain;
+
+          amount.value = moneyFormatStr(v);
+          range.value = String(Math.min(v, maxv));
+          // mantiene el input formateado
+          amount.value = moneyFormatStr(v);
+
+          clamp.style.display = wasOver ? "inline" : "none";
+
+          const paid1 = Math.min(total, paid0 + v);
+          const pend1 = Math.max(0, total - paid1);
+
+          nowPaid.textContent = fmtCOP(paid0);
+          nowPend.textContent = fmtCOP(remain);
+          afterPaid.textContent = fmtCOP(paid1);
+          afterPend.textContent = fmtCOP(pend1);
+
+          const pct1 = total>0 ? Math.min(100, Math.round((paid1/total)*100)) : 0;
+          pct.textContent = pct1 + "%";
+          bar.style.width = pct1 + "%";
+        };
+
+        amount.oninput=()=>sync("amount");
+        range.oninput=()=>sync("range");
+        $$(".chips button[data-set]").forEach(b=>b.onclick=()=>{
+          const k=b.dataset.set;
+          let v=0;
+          if(k==="25") v = remain*0.25;
+          if(k==="50") v = remain*0.50;
+          if(k==="all") v = remain;
+          amount.value = moneyFormatStr(round100(v));
+          sync("amount");
+        });
+        sync("amount");
+
         $("#ok").onclick=()=>{
           const fd=new FormData($("#payF"));
           const date=(fd.get("date")||today()).toString();
-          const amount=num(fd.get("amount"));
           const method=(fd.get("method")||"efectivo").toString();
-          if(amount<=0){ toast("bad","Valor inválido","Debe ser > 0."); return; }
-          const remainNow=Math.max(0, num(p.total)-num(p.paid));
-          if(amount>remainNow){ toast("bad","Excede el pendiente",`Máximo: ${fmtCOP(remainNow)}`); return; }
+          let amountV=num(fd.get("amount"));
+          if(amountV<=0){ openAlert({title:"Valor inválido", message:"El pago debe ser mayor a 0.", kind:"bad"}); return; }
 
-          // Gasto (salida de caja)
+          const remainNow=Math.max(0, num(p.total)-num(p.paid));
+          amountV=Math.min(round100(amountV), remainNow);
+          if(amountV<=0){ openAlert({title:"Sin saldo", message:"No hay saldo pendiente en esta cuenta.", kind:"bad"}); return; }
+
+          // registra gasto
           state.transactions.push({
             id:uid("tx"),
             date,
             type:"gasto",
             category:p.category||"Inventario / compra",
-            amount,
+            amount:amountV,
             method,
             refType:"inventory",
             refId:p.refId||"",
             notes:`Pago compra: ${p.itemName||"insumo"}${p.supplier?(" • "+p.supplier):""}`.trim()
           });
 
-          // Actualiza la cuenta por pagar
-          p.paid = num(p.paid) + amount;
+          // guarda historial interno de la CxP
+          p.payments = p.payments || [];
+          p.payments.push({date, amount:amountV, method, notes:(fd.get("notes")||"").toString().trim()});
+
+          // actualiza CxP
+          p.paid = num(p.paid) + amountV;
           if(num(p.paid) >= num(p.total) - 0.0001){
             p.paid = num(p.total);
             p.status = "cerrado";
+          }else{
+            p.status = "abierto";
           }
+
           save(); dlg.close(); toast("ok","Pago registrado",`Pendiente: ${fmtCOP(Math.max(0,num(p.total)-num(p.paid)))}`); render();
         };
       }
     });
   }
+
+
 
   // ------- Tareas -------
   function renderTasks(){

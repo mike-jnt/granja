@@ -498,10 +498,16 @@ header .brand .logo{
   width: 38px !important;
   height: 38px !important;
   border-radius: 14px !important;
-  background: rgba(255,255,255,.96) !important;
-  color: rgba(6,95,70,.98) !important;
+  background-color: rgba(255,255,255,.96) !important;
+  background-image: var(--farmLogo) !important;
+  background-size: contain !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
   border: 1px solid rgba(255,255,255,.32) !important;
   box-shadow: 0 10px 22px rgba(2,6,23,.14) !important;
+  color: transparent !important;
+  font-size: 0 !important;
+  overflow: hidden !important;
 }
 
 /* Texto del nombre (bien visible) */
@@ -991,7 +997,7 @@ input[type="range"]{
     <section class="loginPane">
       <div class="loginCard2" role="region" aria-label="Inicio de sesión">
         <div class="loginHead">
-          <div class="loginIcon" id="loginIcon">GP</div>
+          
           <div class="loginHeadText">
             <div class="loginTitleRow">
             <span class="titleLogo" aria-hidden="true"></span>
@@ -1564,13 +1570,7 @@ const defaults = () => ({
     try{
       const name = (state && state.settings && state.settings.farmName) ? String(state.settings.farmName) : "Sistema";
       const t = $("#loginAppName"); if(t) t.textContent = name;
-      const ic = $("#loginIcon");
-      if(ic){
-        const parts = name.trim().split(/\s+/).filter(Boolean).slice(0,2);
-        const initials = parts.map(p=>p[0].toUpperCase()).join("") || "GP";
-        ic.textContent = initials;
-      }
-    }catch(e){}
+}catch(e){}
 
     setTimeout(()=>{ try{ (p||u).focus(); }catch{} }, 60);
     const lo=$("#logoutBtn"); if(lo) lo.style.display="none";

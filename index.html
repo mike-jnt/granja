@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Granja Porcícola Campo Bello - Gestión (v1)</title>
+    <link rel="stylesheet" href="styles.css">
+
+  </head>
+  <body class="auth-locked">
+
+
+    <div id="loginScreen" class="loginScreen">
+      <div class="loginLeft">
+        <div class="loginGlow"></div>
+        <img
+          id="loginMark"
+          class="loginLogoHero"
+          src="assets/img1.png"
+          alt="BRO Marketing"
+        />
+      </div>
+
+      <div class="loginRight">
+        <div class="loginCard">
+          <div class="loginHd">
+            <div class="loginIcon" aria-hidden="true">
+              <img
+                id="loginIcon"
+                class="loginLogoMini"
+                src="assets/img2.png"
+                alt="Logo"
+              />
+            </div>
+            <div>
+              <div class="loginTitle" id="loginAppName">
+                Granja Porcícola Campo Bello
+              </div>
+              <div class="loginSub">
+                Accede con tu usuario para ver el sistema completo
+              </div>
+            </div>
+          </div>
+
+          <form id="loginForm" class="loginForm" autocomplete="on">
+            <label class="lLabel">Correo electrónico / Usuario</label>
+            <input
+              id="loginUser"
+              name="user"
+              class="lInput"
+              autocomplete="username"
+              placeholder="Ingresa tu usuario"
+              required
+            />
+
+            <label class="lLabel" style="margin-top: 10px">Contraseña</label>
+            <div class="passWrap">
+              <input
+                id="loginPass"
+                name="pass"
+                class="lInput"
+                type="password"
+                autocomplete="current-password"
+                placeholder="Ingresa tu contraseña"
+                required
+              />
+              <button
+                class="passToggle"
+                type="button"
+                id="togglePass"
+                title="Mostrar / Ocultar contraseña"
+              >
+                👁️
+              </button>
+            </div>
+
+            <button id="loginBtn" class="lBtn" type="submit">
+              Iniciar sesión
+            </button>
+
+            <div id="loginMsg" class="loginMsg" style="display: none"></div>
+
+            <div class="forgot">
+              <b>¿Olvidaste tu clave?</b><br />
+              <span>Pídele al admin que la restablezca.</span>
+            </div>
+          </form>
+
+          <div class="loginFoot">BRO Market • Sistemas</div>
+        </div>
+      </div>
+    </div>
+
+    <header>
+      <div class="bar">
+        <div class="brand">
+          <div class="logo">
+            <img
+              class="logoImg"
+              src="assets/img3.png"
+              alt="Campo Bello"
+            />
+          </div>
+          <div class="title">
+            <b id="farmName">Granja Porcícola Campo Bello</b>
+            <span>Cerdas • Camadas • Ventas • Finanzas</span>
+          </div>
+        </div>
+        <div class="right">
+          <input
+            id="q"
+            class="search"
+            placeholder="Buscar: cerda, camada, cliente, insumo, venta…"
+          />
+          <button
+            class="btn"
+            id="quick"
+            title="Crear rápido: cerda, servicio, parto, insumo, gasto, tarea"
+          >
+            ➕ Rápido
+          </button>
+          <button
+            class="btn"
+            id="helpBtn"
+            title="Abrir guía rápida y primeros pasos"
+          >
+            ❓ Ayuda
+          </button>
+          <button
+            class="btn primary"
+            id="newSale"
+            title="Registrar una venta de lechones"
+          >
+            Nueva venta
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="layout">
+      <aside class="sidebar" id="sidebar">
+        <div class="sideHead">
+          <div class="sideTitle">
+            Secciones
+            <span
+              class="tag warn"
+              id="warnBadge"
+              style="display: none; margin-left: 8px"
+              >0</span
+            >
+          </div>
+          <div class="muted" style="font-size: 12px">Dashboard → Ajustes</div>
+        </div>
+        <nav id="nav" class="sideNav"></nav>
+        <div class="sideFoot">
+          <button class="btn danger" id="logoutBtn">🚪 Cerrar sesión</button>
+        </div>
+      </aside>
+
+      <main class="content">
+        <div id="view"></div>
+      </main>
+    </div>
+
+    <dialog id="dlg">
+      <div class="dlgHd">
+        <div>
+          <b id="dlgTitle">Modal</b>
+          <span id="dlgSub">—</span>
+        </div>
+        <button class="btn" id="dlgClose">✕</button>
+      </div>
+      <div class="dlgBd" id="dlgBody"></div>
+      <div class="dlgFt" id="dlgFt"></div>
+    </dialog>
+
+    <dialog id="dlg2" class="dlgMini">
+      <div class="dlgHd">
+        <div>
+          <b id="dlg2Title">Mensaje</b>
+          <div class="muted" id="dlg2Sub"></div>
+        </div>
+        <button class="btn" id="dlg2Close">✕</button>
+      </div>
+      <div class="dlgBd" id="dlg2Body"></div>
+      <div class="dlgFt" id="dlg2Ft"></div>
+    </dialog>
+
+    <div class="toast" id="toast"></div>
+
+    
+  <script src="app.js" defer></script>
+</body>
+</html>

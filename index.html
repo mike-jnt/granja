@@ -972,7 +972,7 @@ input[type="range"]{
 </style>
 </head>
 <body>
-<div id="loginScreen" class="loginOverlay is-hidden" aria-hidden="true">
+<div id="loginScreen" class="loginOverlay is-hidden" aria-hidden="true" inert>
   <div class="loginWrap">
     <section class="loginHero" aria-hidden="true">
       <div class="heroInner">
@@ -1542,7 +1542,11 @@ const defaults = () => ({
 
   function showLogin(){
     const ls=$("#loginScreen"); const root=$("#appRoot");
-    if(ls) ls.classList.remove("is-hidden");
+    if(ls){
+      ls.classList.remove("is-hidden");
+      ls.setAttribute("aria-hidden","false");
+      try{ ls.removeAttribute("inert"); }catch(e){}
+    }
     if(root) root.style.display="none";
     const u=$("#loginUser"); const p=$("#loginPass");
     if(u) u.value=(state.settings.authUser||"admin");
@@ -1564,8 +1568,17 @@ const defaults = () => ({
   }
   function showApp(){
     const ls=$("#loginScreen"); const root=$("#appRoot");
-    if(ls) ls.classList.add("is-hidden");
+    const u=$("#loginUser"); const p=$("#loginPass");
+    try{ u && u.blur && u.blur(); }catch(e){}
+    try{ p && p.blur && p.blur(); }catch(e){}
+    if(ls){
+      ls.classList.add("is-hidden");
+      ls.setAttribute("aria-hidden","true");
+      try{ ls.setAttribute("inert",""); }catch(e){}
+    }
     if(root) root.style.display="block";
+    const q=$("#q");
+    setTimeout(()=>{ try{ q && q.focus && q.focus(); }catch(e){} }, 60);
     const lo=$("#logoutBtn"); if(lo) lo.style.display=requireAuth()?"inline-flex":"none";
   }
   function enforceAuth(){

@@ -839,38 +839,189 @@ input[type="range"]{
   .loginCard .actions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;margin-top:12px}
   .is-hidden{display:none !important}
 
+
+/* --------------------------
+   Login estilo BRO Market
+--------------------------- */
+#loginScreen.loginOverlay{
+  position:fixed; inset:0; z-index:9999;
+  display:flex; background:#f4f7fb;
+}
+#loginScreen.is-hidden{display:none !important;}
+#loginScreen .loginWrap{display:flex; width:100%; height:100%;}
+#loginScreen .loginHero{
+  flex:1; min-width:48%;
+  position:relative; overflow:hidden;
+  display:flex; align-items:center; justify-content:center;
+  padding:34px;
+  background:linear-gradient(135deg,#7ee3a6 0%, #2f7d33 55%, #1f5e2a 100%);
+}
+#loginScreen .loginHero::before{
+  content:"";
+  position:absolute; inset:-40%;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(255,255,255,.38), transparent 55%),
+    radial-gradient(circle at 75% 35%, rgba(0,0,0,.18), transparent 60%),
+    radial-gradient(circle at 30% 75%, rgba(255,255,255,.18), transparent 60%);
+}
+#loginScreen .heroInner{position:relative; width:100%; display:flex; align-items:center; justify-content:center;}
+#loginScreen .heroCard{
+  width:min(460px, 85%);
+  aspect-ratio:1/1;
+  border-radius:28px;
+  background:rgba(0,0,0,.12);
+  box-shadow:0 22px 70px rgba(0,0,0,.28);
+  backdrop-filter:blur(10px);
+  display:flex; align-items:center; justify-content:center;
+  padding:36px;
+}
+#loginScreen .heroLogo{color:#fff; text-align:center; line-height:1;}
+#loginScreen .heroLogoBro{font-size:110px; font-weight:950; letter-spacing:-2px;}
+#loginScreen .heroLogoMarket{font-size:52px; font-weight:280; letter-spacing:10px; margin-top:10px;}
+#loginScreen .loginPane{
+  flex:1; min-width:420px;
+  display:flex; align-items:center; justify-content:center;
+  padding:34px;
+  background:#f7f9fc;
+}
+#loginScreen .loginCard2{
+  width:min(560px, 92vw);
+  background:#fff;
+  border-radius:18px;
+  box-shadow:0 22px 60px rgba(17,24,39,.12);
+  padding:22px 22px 18px;
+}
+#loginScreen .loginHead{display:flex; gap:14px; align-items:center; margin-bottom:14px;}
+#loginScreen .loginIcon{
+  width:44px; height:44px; border-radius:12px;
+  background:#1f7a2f; color:#fff;
+  display:flex; align-items:center; justify-content:center;
+  font-weight:950; letter-spacing:.5px;
+}
+#loginScreen .loginHeadText h2{font-size:28px; font-weight:950; letter-spacing:-.3px;}
+#loginScreen .loginForm .field{display:flex; flex-direction:column; gap:7px; margin-top:12px;}
+#loginScreen .loginForm label{font-size:13px; font-weight:800; color:#111827;}
+#loginScreen .loginForm input{
+  width:100%;
+  border:1px solid #d6dde8;
+  border-radius:10px;
+  padding:12px 12px;
+  font-size:14px;
+  outline:none;
+  background:#fff;
+}
+#loginScreen .loginForm input:focus{
+  border-color:#1f7a2f;
+  box-shadow:0 0 0 3px rgba(31,122,47,.15);
+}
+#loginScreen .passWrap{position:relative; display:flex; align-items:center;}
+#loginScreen .passWrap input{padding-right:46px;}
+#loginScreen .passToggle{
+  position:absolute; right:8px;
+  border:0; background:transparent;
+  width:34px; height:34px;
+  border-radius:10px;
+  display:flex; align-items:center; justify-content:center;
+  color:#6b7280;
+  cursor:pointer;
+}
+#loginScreen .passToggle:hover{background:#f3f4f6;}
+#loginScreen .loginBtn{
+  margin-top:14px;
+  width:100%;
+  border:0;
+  background:#2f7d33;
+  color:#fff;
+  padding:12px 14px;
+  font-weight:900;
+  border-radius:12px;
+  cursor:pointer;
+}
+#loginScreen .loginBtn:hover{filter:brightness(.97);}
+#loginScreen .loginHelp{margin-top:6px;}
+#loginScreen .loginRepair{display:flex; justify-content:flex-end; margin-top:10px;}
+#loginScreen .repairBtn{
+  border:1px solid #d6dde8;
+  background:#fff;
+  color:#111827;
+  padding:10px 12px;
+  border-radius:12px;
+  font-weight:850;
+  cursor:pointer;
+}
+#loginScreen .repairBtn:hover{background:#f6f7f9;}
+#loginScreen .loginFooter{margin-top:14px;}
+#loginScreen .loginDivider{height:1px; background:#e7ecf3; margin:14px 0;}
+@media (max-width: 980px){
+  #loginScreen .loginHero{display:none;}
+  #loginScreen .loginPane{min-width:100%;}
+  #loginScreen .loginCard2{width:min(520px, 92vw);}
+}
+
 </style>
 </head>
 <body>
 <div id="loginScreen" class="loginOverlay is-hidden" aria-hidden="true">
-  <div class="loginCard">
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
-      <div class="logo" style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-weight:800">GP</div>
-      <div>
-        <h2 style="margin:0">Iniciar sesión</h2>
-        <div class="muted" style="font-size:13px;margin-top:2px">Acceso al software de la granja</div>
+  <div class="loginWrap">
+    <section class="loginHero" aria-hidden="true">
+      <div class="heroInner">
+        <div class="heroCard">
+          <div class="heroLogo" aria-hidden="true">
+            <div class="heroLogoBro">BRO</div>
+            <div class="heroLogoMarket">Market</div>
+          </div>
+        </div>
       </div>
-    </div>
+    </section>
 
-    <form id="loginForm" class="row">
-      <div>
-        <label for="loginUser">Usuario</label>
-        <input id="loginUser" autocomplete="username" inputmode="email" placeholder="admin" />
-      </div>
-      <div>
-        <label for="loginPass">Contraseña</label>
-        <input id="loginPass" type="password" autocomplete="current-password" placeholder="••••••" />
-      </div>
+    <section class="loginPane">
+      <div class="loginCard2" role="region" aria-label="Inicio de sesión">
+        <div class="loginHead">
+          <div class="loginIcon" id="loginIcon">GP</div>
+          <div class="loginHeadText">
+            <h2 id="loginAppName" style="margin:0">Granja</h2>
+            <div class="muted" style="margin-top:2px">Accede con tu usuario para ver el sistema completo</div>
+          </div>
+        </div>
 
-      <div class="actions">
-        <button type="button" class="btn" id="btnRepair" title="Borra los datos guardados del sistema en este navegador y recarga">🔧 Reparar inicio</button>
-        <button type="submit" class="btn primary" id="btnLogin">Entrar</button>
-      </div>
+        <form id="loginForm" class="loginForm">
+          <div class="field">
+            <label for="loginUser">Correo electrónico / Usuario</label>
+            <input id="loginUser" autocomplete="username" inputmode="email" placeholder="Ingresa tu usuario" />
+          </div>
 
-      <div class="muted" style="margin-top:10px;font-size:12px;line-height:1.35">
-        Usuario por defecto: <b class="mono">admin</b> • Contraseña: <b class="mono">1234</b>. Puedes cambiarlo en <b>Ajustes</b>.
+          <div class="field">
+            <label for="loginPass">Contraseña</label>
+            <div class="passWrap">
+              <input id="loginPass" type="password" autocomplete="current-password" placeholder="Ingresa tu contraseña" />
+              <button type="button" class="passToggle" id="togglePass" aria-label="Mostrar contraseña" title="Mostrar/Ocultar contraseña">
+                <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                  <path fill="currentColor" d="M12 5c5.5 0 10 5 10 7s-4.5 7-10 7S2 14 2 12s4.5-7 10-7zm0 2C7.5 7 4 11 4 12s3.5 5 8 5 8-4 8-5-3.5-5-8-5zm0 2.5A2.5 2.5 0 1 1 12 15a2.5 2.5 0 0 1 0-5z"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <button type="button" class="loginBtn" id="btnLogin">Iniciar sesión</button>
+
+          <div class="loginHelp">
+            <div style="margin-top:10px">
+              <div class="muted" style="font-weight:800">¿Olvidaste tu clave?</div>
+              <div class="muted" style="font-size:12.5px;margin-top:2px">Pídele al admin que la restablezca.</div>
+            </div>
+
+            <div class="loginRepair">
+              <button type="button" class="repairBtn" id="btnRepair" title="Borra los datos guardados del sistema en este navegador y recarga">🔧 Reparar inicio</button>
+            </div>
+
+            <div class="loginFooter">
+              <div class="loginDivider"></div>
+              <div class="muted" style="text-align:center;font-size:12px">BRO Market • Sistemas</div>
+            </div>
+          </div>
+        </form>
       </div>
-    </form>
+    </section>
   </div>
 </div>
 
@@ -1388,6 +1539,18 @@ const defaults = () => ({
     const u=$("#loginUser"); const p=$("#loginPass");
     if(u) u.value=(state.settings.authUser||"admin");
     if(p) p.value="";
+    // Título/ícono del login (toma el nombre de la granja)
+    try{
+      const name = (state && state.settings && state.settings.farmName) ? String(state.settings.farmName) : "Sistema";
+      const t = $("#loginAppName"); if(t) t.textContent = name;
+      const ic = $("#loginIcon");
+      if(ic){
+        const parts = name.trim().split(/\s+/).filter(Boolean).slice(0,2);
+        const initials = parts.map(p=>p[0].toUpperCase()).join("") || "GP";
+        ic.textContent = initials;
+      }
+    }catch(e){}
+
     setTimeout(()=>{ try{ (p||u).focus(); }catch{} }, 60);
     const lo=$("#logoutBtn"); if(lo) lo.style.display="none";
   }
@@ -1422,6 +1585,15 @@ const defaults = () => ({
       f.addEventListener("submit",(e)=>{ e.preventDefault(); attemptLogin(); });
     }
     const b=$("#btnLogin"); if(b) b.onclick=attemptLogin;
+    const tp=$("#togglePass");
+    if(tp){
+      tp.onclick=()=>{
+        const p=$("#loginPass"); if(!p) return;
+        const show = (p.type==="password");
+        p.type = show ? "text" : "password";
+        tp.setAttribute("aria-label", show ? "Ocultar contraseña" : "Mostrar contraseña");
+      };
+    }
     const r=$("#btnRepair"); if(r) r.onclick=()=>{
       const ok = confirm("Esto borrará los datos guardados del sistema en este navegador (incluye inventario, ventas, etc.) y recargará la página. ¿Continuar?");
       if(!ok) return;

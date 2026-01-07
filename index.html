@@ -830,9 +830,51 @@ input[type="range"]{
     .miniRow{display:flex;gap:8px;align-items:center;margin-top:8px}
     .miniRow input{flex:1}
     
+
+  /* ---- Login (universal) ---- */
+  .loginOverlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(0,0,0,.62);backdrop-filter:blur(6px);z-index:9999}
+  .loginCard{width:min(440px,94vw);background:rgba(17,24,39,.92);border:1px solid rgba(255,255,255,.14);border-radius:18px;padding:16px;box-shadow:0 24px 70px rgba(0,0,0,.55)}
+  .loginCard h2{font-size:18px}
+  .loginCard .row{display:grid;gap:10px}
+  .loginCard .actions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;margin-top:12px}
+  .is-hidden{display:none !important}
+
 </style>
 </head>
 <body>
+<div id="loginScreen" class="loginOverlay is-hidden" aria-hidden="true">
+  <div class="loginCard">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+      <div class="logo" style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-weight:800">GP</div>
+      <div>
+        <h2 style="margin:0">Iniciar sesión</h2>
+        <div class="muted" style="font-size:13px;margin-top:2px">Acceso al software de la granja</div>
+      </div>
+    </div>
+
+    <form id="loginForm" class="row">
+      <div>
+        <label for="loginUser">Usuario</label>
+        <input id="loginUser" autocomplete="username" inputmode="email" placeholder="admin" />
+      </div>
+      <div>
+        <label for="loginPass">Contraseña</label>
+        <input id="loginPass" type="password" autocomplete="current-password" placeholder="••••••" />
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn" id="btnRepair" title="Borra los datos guardados del sistema en este navegador y recarga">🔧 Reparar inicio</button>
+        <button type="submit" class="btn primary" id="btnLogin">Entrar</button>
+      </div>
+
+      <div class="muted" style="margin-top:10px;font-size:12px;line-height:1.35">
+        Usuario por defecto: <b class="mono">admin</b> • Contraseña: <b class="mono">1234</b>. Puedes cambiarlo en <b>Ajustes</b>.
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="appRoot">
 <header>
   <div class="bar">
     <div class="brand">
@@ -847,6 +889,7 @@ input[type="range"]{
       <button class="btn" id="quick" title="Crear rápido: cerda, servicio, parto, insumo, gasto, tarea">➕ Rápido</button>
       <button class="btn" id="helpBtn" title="Abrir guía rápida y primeros pasos">❓ Ayuda</button>
       <button class="btn primary" id="newSale" title="Registrar una venta de lechones">Nueva venta</button>
+      <button class="btn" id="logoutBtn" title="Cerrar sesión">🚪 Salir</button>
     </div>
   </div>
 </header>
@@ -891,6 +934,8 @@ input[type="range"]{
 </dialog>
 
 <div class="toast" id="toast"></div>
+
+</div>
 
 <script>
 (() => {
@@ -1308,7 +1353,7 @@ const uid = (p="id") => p + "_" + Math.random().toString(16).slice(2) + "_" + Da
   }
 
 const defaults = () => ({
-    settings:{farmName:"Granja Porcina",currency:"COP",gestationDays:114,serviceMethods:["inseminación","monta","otro"]},
+    settings:{farmName:"Granja Porcina",currency:"COP",gestationDays:114,serviceMethods:["inseminación","monta","otro"],requireLogin:true,authUser:"admin",authPass:"1234"},
     sows:[], breedings:[], farrowings:[], batches:[],
     inventory:[], stockMovements:[],
     clients:[], sales:[], payments:[],
@@ -1317,6 +1362,79 @@ const defaults = () => ({
   });
 
   let state = load();
+
+  // ------- Login / Auth (universal) -------
+  const AUTH_KEY = KEY + "_session";
+  const authStore = (()=> {
+    const testKey="__as";
+    try{
+      sessionStorage.setItem(testKey,"1");
+      sessionStorage.removeItem(testKey);
+      return Object.assign(sessionStorage,{_mode:"sessionStorage"});
+    }catch(e){
+      return Object.assign(storage,{_mode:storage._mode||"storage"});
+    }
+  })();
+  const isAuthed = ()=>{ try{ return authStore.getItem(AUTH_KEY)==="1"; }catch{ return false; } };
+  const setAuthed = (v)=>{ try{ v?authStore.setItem(AUTH_KEY,"1"):authStore.removeItem(AUTH_KEY);}catch{} };
+  const clearAuthed = ()=>{ try{ authStore.removeItem(AUTH_KEY);}catch{} };
+
+  function requireAuth(){ return state.settings.requireLogin!==false; }
+
+  function showLogin(){
+    const ls=$("#loginScreen"); const root=$("#appRoot");
+    if(ls) ls.classList.remove("is-hidden");
+    if(root) root.style.display="none";
+    const u=$("#loginUser"); const p=$("#loginPass");
+    if(u) u.value=(state.settings.authUser||"admin");
+    if(p) p.value="";
+    setTimeout(()=>{ try{ (p||u).focus(); }catch{} }, 60);
+    const lo=$("#logoutBtn"); if(lo) lo.style.display="none";
+  }
+  function showApp(){
+    const ls=$("#loginScreen"); const root=$("#appRoot");
+    if(ls) ls.classList.add("is-hidden");
+    if(root) root.style.display="block";
+    const lo=$("#logoutBtn"); if(lo) lo.style.display=requireAuth()?"inline-flex":"none";
+  }
+  function enforceAuth(){
+    if(requireAuth() && !isAuthed()) showLogin();
+    else showApp();
+  }
+  function attemptLogin(){
+    const uEl=$("#loginUser");
+    const pEl=$("#loginPass");
+    const u=((uEl && uEl.value)||"").toString().trim();
+    const p=((pEl && pEl.value)||"").toString();
+    const su=(state.settings.authUser||"admin").toString();
+    const sp=(state.settings.authPass||"1234").toString();
+    if(u===su && p===sp){
+      setAuthed(true);
+      toast("ok","Bienvenido","Sesión iniciada.");
+      enforceAuth();
+    }else{
+      toast("bad","Datos inválidos","Revisa usuario y contraseña.");
+    }
+  }
+  function mountLogin(){
+    const f=$("#loginForm");
+    if(f){
+      f.addEventListener("submit",(e)=>{ e.preventDefault(); attemptLogin(); });
+    }
+    const b=$("#btnLogin"); if(b) b.onclick=attemptLogin;
+    const r=$("#btnRepair"); if(r) r.onclick=()=>{
+      const ok = confirm("Esto borrará los datos guardados del sistema en este navegador (incluye inventario, ventas, etc.) y recargará la página. ¿Continuar?");
+      if(!ok) return;
+      try{ storage.removeItem(KEY); }catch{}
+      try{ authStore.removeItem(AUTH_KEY); }catch{}
+      location.reload();
+    };
+    const lo=$("#logoutBtn"); if(lo) lo.onclick=()=>{
+      clearAuthed();
+      toast("ok","Sesión cerrada","Vuelve a iniciar sesión para continuar.");
+      enforceAuth();
+    };
+  }
   // auditState() se ejecuta luego de inicializar 'get'
   function load(){ try{ const r=storage.getItem(KEY); return r?Object.assign(defaults(),JSON.parse(r)):defaults(); } catch { return defaults(); } }
   function save(){
@@ -4726,6 +4844,16 @@ return list;
         <div class="f6"><label>Nombre granja</label><input name="farmName" value="${esc(state.settings.farmName||"")}"/></div>
         <div class="f3"><label>Moneda</label><select name="currency"><option value="COP" ${state.settings.currency==="COP"?"selected":""}>COP</option><option value="USD" ${state.settings.currency==="USD"?"selected":""}>USD</option></select></div>
         <div class="f3"><label>Días gestación</label><input type="number" name="gestationDays" min="90" max="130" value="${esc(state.settings.gestationDays||114)}"/></div>
+        <div class="f12"><div class="tag info">Seguridad</div></div>
+        <div class="f4"><label>Requerir inicio de sesión</label>
+          <select name="requireLogin">
+            <option value="1" ${state.settings.requireLogin!==false?"selected":""}>Sí</option>
+            <option value="0" ${state.settings.requireLogin===false?"selected":""}>No</option>
+          </select>
+        </div>
+        <div class="f4"><label>Usuario</label><input name="authUser" value="${esc(state.settings.authUser||"admin")}"/></div>
+        <div class="f4"><label>Contraseña</label><input type="password" name="authPass" value="${esc(state.settings.authPass||"1234")}"/></div>
+
       </form>
       <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
         <button class="btn primary" id="save">Guardar</button>
@@ -4743,6 +4871,10 @@ return list;
       state.settings.farmName=(fd.get("farmName")||"Granja Porcina").toString().trim()||"Granja Porcina";
       state.settings.currency=(fd.get("currency")||"COP").toString();
       state.settings.gestationDays=num(fd.get("gestationDays"))||114;
+      
+      state.settings.requireLogin=(fd.get("requireLogin")||"1").toString()==="1";
+      state.settings.authUser=(fd.get("authUser")||"admin").toString().trim()||"admin";
+      state.settings.authPass=(fd.get("authPass")||"1234").toString();
       save(); toast("ok","Guardado","Ajustes actualizados."); render();
     };
     $("#expJson").onclick=exportJSON;
@@ -4865,13 +4997,15 @@ return list;
   const hb=$("#helpBtn"); if(hb) hb.onclick=()=>openHelp();
 
   // ------- Init -------
+  mountLogin();
   renderNav();
   render();
+  enforceAuth();
   if(storage._mode==="memory"){
     toast("warn","Almacenamiento bloqueado","Este navegador está bloqueando el almacenamiento. Los datos NO se guardarán hasta permitir almacenamiento/sitio.");
   }
   save(); // ensures pills update
-  setTimeout(()=>maybeOnboard(), 80);
+  if(!requireAuth() || isAuthed()) setTimeout(()=>maybeOnboard(), 80);
 })();
 </script>
 </body>

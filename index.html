@@ -1,4 +1,4 @@
-
+<!doctype html>
 <html lang="es">
   <head>
     <meta charset="utf-8" />
@@ -1867,6 +1867,34 @@
         const $$ = (s, el = document) => Array.from(el.querySelectorAll(s));
         const KEY = "granja_porcina_v1_compact";
 
+        // -------- Safe storage (fallback si localStorage no está disponible) --------
+        const storage = (() => {
+          const test = (s) => {
+            try {
+              const k = "__gp_test__";
+              s.setItem(k, "1");
+              s.removeItem(k);
+              return true;
+            } catch {
+              return false;
+            }
+          };
+          if (typeof localStorage !== "undefined" && test(localStorage))
+            return localStorage;
+          if (typeof sessionStorage !== "undefined" && test(sessionStorage))
+            return sessionStorage;
+          const mem = Object.create(null);
+          return {
+            getItem: (k) => (k in mem ? mem[k] : null),
+            setItem: (k, v) => {
+              mem[k] = String(v);
+            },
+            removeItem: (k) => {
+              delete mem[k];
+            },
+          };
+        })();
+
         // -------- Auth (Inicio de sesión) --------
         const AUTH_KEY = "gp_auth_v1";
         const AUTH_USERS = [
@@ -1876,14 +1904,14 @@
 
         const authGet = () => {
           try {
-            return JSON.parse(localStorage.getItem(AUTH_KEY) || "null");
+            return JSON.parse(storage.getItem(AUTH_KEY) || "null");
           } catch {
             return null;
           }
         };
         const isAuthed = () => !!(authGet() && authGet().ok);
         const authSet = (ok, user = "") => {
-          localStorage.setItem(
+          storage.setItem(
             AUTH_KEY,
             JSON.stringify({
               ok: !!ok,
@@ -2586,7 +2614,7 @@
         // auditState() se ejecuta luego de inicializar 'get'
         function load() {
           try {
-            const r = localStorage.getItem(KEY);
+            const r = storage.getItem(KEY);
             return r ? Object.assign(defaults(), JSON.parse(r)) : defaults();
           } catch {
             return defaults();
@@ -2594,7 +2622,7 @@
         }
         function save() {
           auditState();
-          localStorage.setItem(KEY, JSON.stringify(state));
+          storage.setItem(KEY, JSON.stringify(state));
           if (typeof renderNavBadges === "function") renderNavBadges();
         }
 
@@ -2834,7 +2862,7 @@
         }
 
         function openOnboarding(force = false) {
-          if (!force && localStorage.getItem(ONBOARD_KEY) === "1") return;
+          if (!force && storage.getItem(ONBOARD_KEY) === "1") return;
           const body = `
       <div class="helpCard" style="margin-top:0">
         <div class="helpHd">
@@ -2861,7 +2889,7 @@
             onMount: () => {
               $("#obClose", dlgFt).onclick = () => dlg.close();
               $("#obNo", dlgFt).onclick = () => {
-                localStorage.setItem(ONBOARD_KEY, "1");
+                storage.setItem(ONBOARD_KEY, "1");
                 dlg.close();
                 toast("ok", "Listo", "No volverá a mostrarse automáticamente.");
               };
@@ -8021,7 +8049,6 @@
         save(); // ensures pills update
         setTimeout(() => maybeOnboard(), 80);
       })();
-      
     </script>
   </body>
 </html>

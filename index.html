@@ -1144,9 +1144,271 @@ dialog::backdrop{
   box-shadow:0 18px 44px rgba(15,23,42,.18) !important;
 }
 
+
+
+/* =======================================================================
+   SERIOUS / EMPRESARIAL (menos dinámico)
+   - Reduce animaciones, transforms, brillos y cambios agresivos en hover.
+   ======================================================================= */
+:root{
+  --radius-sm: 10px;
+  --radius-md: 12px;
+  --radius-lg: 14px;
+}
+
+/* Quitar animaciones llamativas */
+*{
+  animation: none !important;
+}
+
+/* Mantener transiciones solo para color/borde (sin movimiento) */
+.btn, button, a, .pill, .chip, .badge, .tab, .side a, .card, dialog, .modal, .toast{
+  transition: background-color .12s ease, border-color .12s ease, color .12s ease, opacity .12s ease !important;
+}
+
+/* Evitar “saltos”/movimientos al pasar el mouse */
+.btn:hover, button:hover, a:hover,
+.card:hover, .tile:hover, .kpi:hover,
+dialog:hover, .modal:hover{
+  transform: none !important;
+  filter: none !important;
+}
+
+/* Sombras más sobrias y consistentes */
+.card, .tile, .kpi, dialog, .modal, .toast, .loginCard{
+  box-shadow: 0 1px 4px rgba(0,0,0,.22) !important;
+}
+
+/* Nada de “glow” extra en hover */
+.card:hover, .tile:hover, .kpi:hover, .btn:hover, button:hover, .toast:hover{
+  box-shadow: 0 1px 4px rgba(0,0,0,.22) !important;
+}
+
+/* Bordes y radios más serios */
+.card, .tile, .kpi, dialog, .modal, .toast{
+  border-radius: var(--radius-lg) !important;
+}
+.btn, button, input, select, textarea{
+  border-radius: var(--radius-md) !important;
+}
+
+/* Fondos con menos “vidrio” y sin blur (más empresarial) */
+.loginOverlay, .modalBackdrop, .backdrop{
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Sidebar/menú: hover sobrio */
+.side a:hover{
+  transform: none !important;
+  filter: none !important;
+}
+
+/* Tablas: hover suave (sin cambio brusco) */
+table tr:hover{
+  filter: none !important;
+}
+
+
+/* --- Iconografía empresarial (reemplaza emojis) --- */
+  .ico{width:16px;height:16px;display:inline-block;flex:0 0 auto;color:inherit}
+  .ico.lg{width:18px;height:18px}
+  .btn{display:inline-flex;align-items:center;gap:10px}
+  #nav button{display:flex;align-items:center;gap:10px}
+  #nav button .ico{opacity:.92}
+  .step .ico{display:flex;align-items:center;justify-content:center}
 </style>
 </head>
 <body>
+<!-- Iconos empresariales (SVG sprite) -->
+<svg xmlns="http://www.w3.org/2000/svg" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true" focusable="false">
+  <symbol id="i-dashboard" viewBox="0 0 24 24">
+    <g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round">
+      <rect x="3" y="3" width="8" height="8" rx="1"/>
+      <rect x="13" y="3" width="8" height="5" rx="1"/>
+      <rect x="13" y="10" width="8" height="11" rx="1"/>
+      <rect x="3" y="13" width="8" height="8" rx="1"/>
+    </g>
+  </symbol>
+
+  <symbol id="i-pig" viewBox="0 0 24 24">
+    <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M6 8l-2 2v4l2 2"/>
+      <path d="M18 8l2 2v4l-2 2"/>
+      <path d="M8 7l-1.5-2.5"/>
+      <path d="M16 7l1.5-2.5"/>
+      <path d="M8 20c-2-1.2-3-3.2-3-5.5C5 10 8 7 12 7s7 3 7 7.5c0 2.3-1 4.3-3 5.5"/>
+      <path d="M9 13h6"/>
+      <rect x="9" y="12" width="6" height="5" rx="2"/>
+      <path d="M11 14h0"/>
+      <path d="M13 14h0"/>
+    </g>
+  </symbol>
+
+  <symbol id="i-weight" viewBox="0 0 24 24">
+    <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M8 7a4 4 0 0 1 8 0"/>
+      <path d="M7 9h10l2 12H5L7 9z"/>
+      <path d="M12 12v3"/>
+    </g>
+  </symbol>
+
+  <symbol id="i-dna" viewBox="0 0 24 24">
+    <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M7 3c4 4 6 6 10 10"/>
+      <path d="M17 21c-4-4-6-6-10-10"/>
+      <path d="M8 8h8"/>
+      <path d="M8 16h8"/>
+      <path d="M7 3c0 6 10 6 10 12 0 6-10 6-10 6"/>
+    </g>
+  </symbol>
+
+  <symbol id="i-users" viewBox="0 0 24 24">
+    <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M16 11a3 3 0 1 0-6 0 3 3 0 0 0 6 0z"/>
+      <path d="M4 20c0-3.3 3.6-6 8-6s8 2.7 8 6"/>
+      <path d="M6.5 10.5a2.5 2.5 0 1 1 3.5-3.5"/>
+      <path d="M17.5 7a2.5 2.5 0 1 1 0 3.5"/>
+    </g>
+  </symbol>
+
+  <symbol id="i-box" viewBox="0 0 24 24">
+    <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 8l-9-5-9 5 9 5 9-5z"/>
+      <path d="M3 8v10l9 5 9-5V8"/>
+      <path d="M12 13v10"/>
+    </g>
+  </symbol>
+
+  <symbol id="i-card" viewBox="0 0 24 24">
+    <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="6" width="18" height="12" rx="2"/>
+      <path d="M3 10h18"/>
+      <path d="M7 14h4"/>
+    </g>
+  </symbol>
+
+  <symbol id="i-cash" viewBox="0 0 24 24">
+    <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="9"/>
+      <path d="M12 7v10"/>
+      <path d="M9.5 9.5C9.5 8.7 10.6 8 12 8s2.5.7 2.5 1.5S13.4 11 12 11s-2.5.7-2.5 1.5S10.6 14 12 14s2.5.7 2.5 1.5S13.4 17 12 17s-2.5-.7-2.5-1.5"/>
+    </g>
+  </symbol>
+
+  <symbol id="i-clock" viewBox="0 0 24 24">
+    <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="9"/>
+      <path d="M12 7v6l4 2"/>
+    </g>
+  </symbol>
+
+  <symbol id="i-gear" viewBox="0 0 24 24">
+    <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/>
+      <path d="M19.4 15a7.8 7.8 0 0 0 .1-2l2-1.2-2-3.5-2.3.6a7.6 7.6 0 0 0-1.7-1l-.3-2.4H10.8l-.3 2.4a7.6 7.6 0 0 0-1.7 1l-2.3-.6-2 3.5 2 1.2a7.8 7.8 0 0 0 .1 2l-2 1.2 2 3.5 2.3-.6a7.6 7.6 0 0 0 1.7 1l.3 2.4h4.4l.3-2.4a7.6 7.6 0 0 0 1.7-1l2.3.6 2-3.5-2-1.2z"/>
+    </g>
+  </symbol>
+
+  <symbol id="i-book" viewBox="0 0 24 24">
+    <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 19c-2-1.3-4-2-6-2a3 3 0 0 0-3 3V5a3 3 0 0 1 3-3c2 0 4 .7 6 2"/>
+      <path d="M12 19c2-1.3 4-2 6-2a3 3 0 0 1 3 3V5a3 3 0 0 0-3-3c-2 0-4 .7-6 2"/>
+      <path d="M12 4v15"/>
+    </g>
+  </symbol>
+
+  <symbol id="i-receipt" viewBox="0 0 24 24">
+    <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M6 2h12v20l-2-1-2 1-2-1-2 1-2-1-2 1V2z"/>
+      <path d="M8 7h8"/>
+      <path d="M8 11h8"/>
+      <path d="M8 15h6"/>
+    </g>
+  </symbol>
+
+  <symbol id="i-warning" viewBox="0 0 24 24">
+    <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 3l10 18H2L12 3z"/>
+      <path d="M12 9v5"/>
+      <path d="M12 17h0"/>
+    </g>
+  </symbol>
+
+  <symbol id="i-utensils" viewBox="0 0 24 24">
+    <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M7 2v9"/>
+      <path d="M5 2v9"/>
+      <path d="M9 2v9"/>
+      <path d="M7 11v11"/>
+      <path d="M14 2c2 3 2 6 0 9v11"/>
+      <path d="M18 2v20"/>
+    </g>
+  </symbol>
+
+  <symbol id="i-plus" viewBox="0 0 24 24">
+    <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+      <path d="M12 5v14"/>
+      <path d="M5 12h14"/>
+    </g>
+  </symbol>
+
+  <symbol id="i-minus" viewBox="0 0 24 24">
+    <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+      <path d="M5 12h14"/>
+    </g>
+  </symbol>
+
+  <symbol id="i-help" viewBox="0 0 24 24">
+    <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="9"/>
+      <path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 2-2.5 2-2.5 4"/>
+      <path d="M12 17h0"/>
+    </g>
+  </symbol>
+
+  <symbol id="i-wrench" viewBox="0 0 24 24">
+    <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M14.7 6.3a4 4 0 0 0-5.6 5.6L3 18l3 3 6.1-6.1a4 4 0 0 0 5.6-5.6l-3 3-3-3 3-3z"/>
+    </g>
+  </symbol>
+
+  <symbol id="i-logout" viewBox="0 0 24 24">
+    <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M10 17l5-5-5-5"/>
+      <path d="M15 12H3"/>
+      <path d="M21 3v18"/>
+    </g>
+  </symbol>
+
+  <symbol id="i-user" viewBox="0 0 24 24">
+    <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M20 21c0-4-4-7-8-7s-8 3-8 7"/>
+      <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/>
+    </g>
+  </symbol>
+
+  <symbol id="i-check" viewBox="0 0 24 24">
+    <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M20 6L9 17l-5-5"/>
+    </g>
+  </symbol>
+<symbol id="i-info" viewBox="0 0 24 24">
+    <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="9"/>
+      <path d="M12 10v7"/>
+      <path d="M12 7h0"/>
+    </g>
+  </symbol>
+
+  <symbol id="i-ban" viewBox="0 0 24 24">
+    <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="9"/>
+      <path d="M7 7l10 10"/>
+    </g>
+  </symbol>
+</svg>
+
 <div id="loginScreen" class="loginOverlay is-hidden" aria-hidden="true" inert>
   <div class="loginWrap">
     <section class="loginHero" aria-hidden="true">
@@ -1197,7 +1459,7 @@ dialog::backdrop{
             </div>
 
             <div class="loginRepair">
-              <button type="button" class="repairBtn" id="btnRepair" title="Borra los datos guardados del sistema en este navegador y recarga">🔧 Reparar inicio</button>
+              <button type="button" class="repairBtn" id="btnRepair" title="Borra los datos guardados del sistema en este navegador y recarga"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-wrench" xlink:href="#i-wrench"></use></svg><span>Reparar inicio</span></button>
             </div>
 
             <div class="loginFooter">
@@ -1223,10 +1485,10 @@ dialog::backdrop{
     </div>
     <div class="right">
       <input id="q" class="search" placeholder="Buscar: cerda, camada, cliente, insumo, venta…" />
-      <button class="btn" id="quick" title="Crear rápido: cerda, servicio, parto, insumo, gasto, tarea">➕ Rápido</button>
-      <button class="btn" id="helpBtn" title="Abrir guía rápida y primeros pasos">❓ Ayuda</button>
+      <button class="btn" id="quick" title="Crear rápido: cerda, servicio, parto, insumo, gasto, tarea"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-plus" xlink:href="#i-plus"></use></svg><span>Rápido</span></button>
+      <button class="btn" id="helpBtn" title="Abrir guía rápida y primeros pasos"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-help" xlink:href="#i-help"></use></svg><span>Ayuda</span></button>
       <button class="btn primary" id="newSale" title="Registrar una venta de lechones">Nueva venta</button>
-      <button class="btn" id="logoutBtn" title="Cerrar sesión">🚪 Salir</button>
+      <button class="btn" id="logoutBtn" title="Cerrar sesión"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-logout" xlink:href="#i-logout"></use></svg><span>Salir</span></button>
     </div>
   </div>
 </header>
@@ -1333,6 +1595,8 @@ const uid = (p="id") => p + "_" + Math.random().toString(16).slice(2) + "_" + Da
   const addDays = (iso, d) => { const x = new Date(iso+"T00:00:00"); x.setDate(x.getDate()+d); return x.toISOString().slice(0,10); };
   const daysBetween = (a,b) => Math.round((new Date(b+"T00:00:00") - new Date(a+"T00:00:00"))/(1000*60*60*24));
   const esc = (s) => String(s??"").replace(/[<>&]/g, ch => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[ch]));
+const svgIcon = (name, cls="ico") => `<svg class="${cls}" aria-hidden="true" focusable="false"><use href="#i-${name}" xlink:href="#i-${name}"></use></svg>`;
+  const btnLabel = (iconName, text, cls="ico") => `${svgIcon(iconName, cls)}<span>${text}</span>`;
   const fmtCOP = (n) => { n=num(n); try { return n.toLocaleString("es-CO",{style:"currency",currency:"COP",maximumFractionDigits:0}); } catch { return "COP "+Math.round(n).toString(); } };
 
   const fmtNum = (n, dec=0) => {
@@ -1559,7 +1823,7 @@ const uid = (p="id") => p + "_" + Math.random().toString(16).slice(2) + "_" + Da
           <div><h2>${title}</h2><p>Fecha • Cantidad • Costo</p></div>
           <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
             <span class="tag info">Total: <span class="mono">${fmtCOP(total)}</span></span>
-            <button class="btn primary" type="button" data-supply="${type}" data-supplyid="${id}">➖ Registrar suministro</button>
+            <button class="btn primary" type="button" data-supply="${type}" data-supplyid="${id}"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-utensils" xlink:href="#i-utensils"></use></svg><span>Registrar suministro</span></button>
           </div>
         </div>
         <div class="bd">
@@ -1858,11 +2122,11 @@ const defaults = () => ({
 
   function gettingStartedCardHTML(){
     const steps = [
-      {k:"sows",  ico:"🐷", title:"Registra tu primera cerda",  desc:"Crea el registro maestro (Arete/Tag).", done: state.sows.length>0, act:"Crear cerda", on:"sow"},
-      {k:"breed", ico:"🧬", title:"Registra un servicio/inseminación", desc:"Así el sistema calcula parto estimado y crea tareas.", done: state.breedings.length>0, act:"Registrar servicio", on:"breeding"},
-      {k:"litt",  ico:"👶", title:"Registra un parto (camada)", desc:"Crea camadas y lechones disponibles para vender.", done: (state.farrowings.length>0 || state.batches.length>0), act:"Registrar parto", on:"farrowing"},
-      {k:"inv",   ico:"📦", title:"Crea inventario (insumos)", desc:"Alimento/medicamento con mínimos y vencimiento.", done: state.inventory.length>0, act:"Nuevo insumo", on:"inv"},
-      {k:"sales", ico:"💳", title:"Registra una venta", desc:"Vende lechones por camada y controla abonos/saldo.", done: state.sales.length>0, act:"Nueva venta", on:"sale"},
+      {k:"sows",  icon:"pig", title:"Registra tu primera cerda",  desc:"Crea el registro maestro (Arete/Tag).", done: state.sows.length>0, act:"Crear cerda", on:"sow"},
+      {k:"breed", icon:"dna", title:"Registra un servicio/inseminación", desc:"Así el sistema calcula parto estimado y crea tareas.", done: state.breedings.length>0, act:"Registrar servicio", on:"breeding"},
+      {k:"litt",  icon:"users", title:"Registra un parto (camada)", desc:"Crea camadas y lechones disponibles para vender.", done: (state.farrowings.length>0 || state.batches.length>0), act:"Registrar parto", on:"farrowing"},
+      {k:"inv",   icon:"box", title:"Crea inventario (insumos)", desc:"Alimento/medicamento con mínimos y vencimiento.", done: state.inventory.length>0, act:"Nuevo insumo", on:"inv"},
+      {k:"sales", icon:"card", title:"Registra una venta", desc:"Vende lechones por camada y controla abonos/saldo.", done: state.sales.length>0, act:"Nueva venta", on:"sale"},
     ];
     const doneCount = steps.filter(s=>s.done).length;
     if(doneCount===steps.length) return "";
@@ -1879,7 +2143,7 @@ const defaults = () => ({
           ${steps.map(s=>`
             <div class="step ${s.done?"done":""}">
               <div class="left">
-                <div class="ico">${s.done?"✅":s.ico}</div>
+                <div class="ico">${s.done?svgIcon("check","ico lg"):svgIcon(s.icon,"ico lg")}</div>
                 <div class="txt">
                   <b>${esc(s.title)}</b>
                   <div class="muted">${esc(s.desc)}</div>
@@ -1929,9 +2193,9 @@ const defaults = () => ({
             <span class="tag info">Tip</span>
           </div>
           <div class="actions" style="display:flex;gap:8px;flex-wrap:wrap">
-            <button class="btn primary" id="openOnb">📘 Primeros pasos</button>
-            <button class="btn" id="goSettings">⚙️ Ajustes</button>
-            <button class="btn" id="goBackup">🧾 Exportar respaldo</button>
+            <button class="btn primary" id="openOnb"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-book" xlink:href="#i-book"></use></svg><span>Primeros pasos</span></button>
+            <button class="btn" id="goSettings"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-gear" xlink:href="#i-gear"></use></svg><span>Ajustes</span></button>
+            <button class="btn" id="goBackup"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-receipt" xlink:href="#i-receipt"></use></svg><span>Exportar respaldo</span></button>
           </div>
         </div>
 
@@ -1939,7 +2203,7 @@ const defaults = () => ({
           <table>
             <thead><tr><th>Acción</th><th>Qué hace</th><th>Atajo</th></tr></thead>
             <tbody>
-              <tr><td><b>➕ Rápido</b></td><td class="muted">Crea cerda/servicio/parto/insumo/gasto/tarea sin cambiar de módulo.</td><td class="mono">Header</td></tr>
+              <tr><td><b><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-plus" xlink:href="#i-plus"></use></svg> Rápido</b></td><td class="muted">Crea cerda/servicio/parto/insumo/gasto/tarea sin cambiar de módulo.</td><td class="mono">Header</td></tr>
               <tr><td><b>Buscar</b></td><td class="muted">Busca por tag, cliente, insumo, venta… y filtra la vista actual.</td><td class="mono">Caja de búsqueda</td></tr>
               <tr><td><b>Abonos</b></td><td class="muted">Registra pagos parciales y mira historial de cobros.</td><td class="mono">Ventas → Ver</td></tr>
               <tr><td><b>Respaldos</b></td><td class="muted">Exporta/Importa JSON para no perder datos (recomendado semanal).</td><td class="mono">Ajustes</td></tr>
@@ -1982,7 +2246,7 @@ const defaults = () => ({
       </div>
     `;
     openModal({
-      title:"📘 Primeros pasos",
+      title:"Primeros pasos",
       sub:"Checklist dentro del sistema.",
       body,
       footer:`<button class="btn" id="obClose">Cerrar</button>
@@ -2274,7 +2538,7 @@ return list;
         ${ws.map(w=>`
           <div class="step ${w.level==="bad"?"":"done"}">
             <div class="left">
-              <div class="ico">${w.level==="bad"?"⛔":(w.level==="warn"?"⚠️":"ℹ️")}</div>
+              <div class="ico">${w.level==="bad"?svgIcon("ban","ico lg"):(w.level==="warn"?svgIcon("warning","ico lg"):svgIcon("info","ico lg"))}</div>
               <div class="txt">
                 <b>${esc(w.title)}</b>
                 <div class="muted">${esc(w.detail||"")}</div>
@@ -2320,21 +2584,21 @@ return list;
 
   // ------- UI Nav -------
   const tabs = [
-    ["dashboard","📊 Dashboard"],
-    ["sows","🐷 Cerdas"],
-    ["meat","🥩 Carne (Kg)"],
-    ["breed","🧬 Reproducción"],
-    ["litters","👶 Camadas"],
-    ["inv","📦 Inventario"],
-    ["sales","💳 Ventas"],
-    ["finance","💰 Finanzas"],
-    ["tasks","⏰ Tareas"],
-    ["settings","⚙️ Ajustes"]
+    ["dashboard","Dashboard","dashboard"],
+    ["sows","Cerdas","pig"],
+    ["meat","Carne (Kg)","weight"],
+    ["breed","Reproducción","dna"],
+    ["litters","Camadas","users"],
+    ["inv","Inventario","box"],
+    ["sales","Ventas","card"],
+    ["finance","Finanzas","cash"],
+    ["tasks","Tareas","clock"],
+    ["settings","Ajustes","gear"]
   ];
   let current="dashboard", q="";
   function goTab(tab){ current=tab; renderNav(); render(); }
   function renderNav(){
-    $("#nav").innerHTML = tabs.map(([id,label])=>`<button data-tab="${id}" class="${id===current?"active":""}">${label}</button>`).join("");
+    $("#nav").innerHTML = tabs.map(([id,label,icon])=>`<button data-tab="${id}" class="${id===current?"active":""}">${svgIcon(icon, "ico")}<span>${label}</span></button>`).join("");
     $("#nav").onclick = (e)=>{
       const b=e.target.closest("button[data-tab]"); if(!b) return;
       current=b.dataset.tab; renderNav(); render();
@@ -2417,15 +2681,15 @@ return list;
     view.innerHTML = shell(
       "Dashboard",
       "Vista rápida con métricas y alertas automáticas.",
-      `<button class="btn" id="dashFeedSows">🍽️ Alimentar cerdas</button>
-       <button class="btn" id="dashFeedBatches">🍽️ Alimentar camadas</button>
-       <button class="btn primary" id="addSow">➕ Nueva cerda</button>
-       <button class="btn" id="addInv">📦 Nuevo insumo</button>
-       ${state.inventory.length?`<button class="btn" id="dashIn">➕ Entrada</button>
-       <button class="btn" id="dashOut">➖ Salida</button>`:""}
-       <button class="btn" id="addBreeding">🧬 Servicio</button>
-       <button class="btn" id="addFarrowing">👶 Parto</button>
-       <button class="btn" id="startGuide">📘 Primeros pasos</button>`,
+      `<button class="btn" id="dashFeedSows"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-utensils" xlink:href="#i-utensils"></use></svg><span>Alimentar cerdas</span></button>
+       <button class="btn" id="dashFeedBatches"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-utensils" xlink:href="#i-utensils"></use></svg><span>Alimentar camadas</span></button>
+       <button class="btn primary" id="addSow"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-plus" xlink:href="#i-plus"></use></svg><span>Nueva cerda</span></button>
+       <button class="btn" id="addInv"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-box" xlink:href="#i-box"></use></svg><span>Nuevo insumo</span></button>
+       ${state.inventory.length?`<button class="btn" id="dashIn"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-plus" xlink:href="#i-plus"></use></svg><span>Entrada</span></button>
+       <button class="btn" id="dashOut"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-minus" xlink:href="#i-minus"></use></svg><span>Salida</span></button>`:""}
+       <button class="btn" id="addBreeding"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-dna" xlink:href="#i-dna"></use></svg><span>Servicio</span></button>
+       <button class="btn" id="addFarrowing"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-users" xlink:href="#i-users"></use></svg><span>Parto</span></button>
+       <button class="btn" id="startGuide"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-book" xlink:href="#i-book"></use></svg><span>Primeros pasos</span></button>`,
       gs + wp + kpis + alertsHTML
     );
 
@@ -2476,9 +2740,9 @@ return list;
     view.innerHTML = shell(
       "Cerdas",
       "Registro maestro de animales.",
-      `<button class="btn primary" id="add">➕ Nueva cerda</button>
+      `<button class="btn primary" id="add"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-plus" xlink:href="#i-plus"></use></svg><span>Nueva cerda</span></button>
         <button class="btn" id="sowSupply">Suministrar producto</button>
-       <button class="btn" id="svc">🧬 Registrar servicio</button>`,
+       <button class="btn" id="svc"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-dna" xlink:href="#i-dna"></use></svg><span>Registrar servicio</span></button>`,
       `<div class="wrap"><table>
         <thead><tr><th>Identificación</th><th>Raza/Estado</th><th>Gestación</th><th>Parto estimado</th><th>Inversión</th><th>Acciones</th></tr></thead>
         <tbody>${rows || `<tr><td colspan="6" class="muted">Sin cerdas todavía.</td></tr>`}</tbody>
@@ -2570,7 +2834,7 @@ return list;
           <tbody>${ba.map(b=>`<tr><td class="mono">${esc(b.id.slice(-8))}</td><td class="mono">${esc(b.birthDate||"—")}</td><td class="mono">${esc(b.weaningDate||"—")}</td><td class="mono">${esc(b.countInitial)}</td><td class="mono">${esc(b.countCurrent)}</td></tr>`).join("")||`<tr><td colspan="5" class="muted">Sin registros.</td></tr>`}</tbody></table></div>
         </div></div>
       </div>`,
-      footer:`<button class="btn" id="mClose">Cerrar</button><button class="btn" id="goSvc">🧬 Servicio</button><button class="btn" id="supSow">➖ Suministrar</button><button class="btn" id="goFar">👶 Registrar parto</button>`,
+      footer:`<button class="btn" id="mClose">Cerrar</button><button class="btn" id="goSvc"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-dna" xlink:href="#i-dna"></use></svg><span>Servicio</span></button><button class="btn" id="supSow"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-utensils" xlink:href="#i-utensils"></use></svg><span>Suministrar</span></button><button class="btn" id="goFar"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-users" xlink:href="#i-users"></use></svg><span>Registrar parto</span></button>`,
       onMount: ()=>{
         $("#goSvc").onclick=()=>{ dlg.close(); openBreeding(null,{sowId:id}); };
         $("#goFar").onclick=()=>{ dlg.close(); openBatch(null,{mode:"birth", sowId:id, birthDate: today()}); };
@@ -2658,7 +2922,7 @@ return list;
     view.innerHTML = shell(
       "Reproducción",
       `Servicios e inseminaciones. Gestación por defecto: ${state.settings.gestationDays} días.`,
-      `<button class="btn primary" id="add">🧬 Registrar servicio</button>`,
+      `<button class="btn primary" id="add"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-dna" xlink:href="#i-dna"></use></svg><span>Registrar servicio</span></button>`,
       `<div class="wrap"><table>
         <thead><tr><th>Servicio</th><th>Cerda</th><th>Método</th><th>Parto est.</th><th>Estado</th><th>Inversión</th><th>Acciones</th></tr></thead>
         <tbody>${rows||`<tr><td colspan="6" class="muted">Sin registros.</td></tr>`}</tbody>
@@ -2827,7 +3091,7 @@ return list;
     view.innerHTML = shell(
       "Camadas",
       "Cada parto crea un lote. Controla cantidad actual y disponibilidad.",
-      `<button class="btn" id="far">👶 Registrar parto</button><button class="btn" id="manual">➕ Camada manual</button>`,
+      `<button class="btn" id="far"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-users" xlink:href="#i-users"></use></svg><span>Registrar parto</span></button><button class="btn" id="manual"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-plus" xlink:href="#i-plus"></use></svg><span>Camada manual</span></button>`,
       `<div class="wrap"><table>
         <thead><tr><th>Lote</th><th>Cerda</th><th>Nac.</th><th>Dest.</th><th>Inicial</th><th>Actual</th><th>Estado</th><th>Inversión</th><th>Acciones</th></tr></thead>
         <tbody>${rows||`<tr><td colspan="9" class="muted">Sin camadas.</td></tr>`}</tbody>
@@ -3060,7 +3324,7 @@ return list;
     view.innerHTML = shell(
       "Inventario",
       "Alimentos, medicamentos e insumos con movimientos y alertas por mínimo.",
-      `<button class="btn primary" id="add">➕ Nuevo insumo</button><button class="btn" id="movs">Ver movimientos</button>`,
+      `<button class="btn primary" id="add"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-plus" xlink:href="#i-plus"></use></svg><span>Nuevo insumo</span></button><button class="btn" id="movs">Ver movimientos</button>`,
       `<div class="row" style="margin-bottom:10px">${lowMsg}</div>
        <div class="wrap"><table>
         <thead><tr><th>Insumo</th><th>Cant.</th><th>Mín.</th><th>Estado</th><th>Costo unit.</th><th>Proveedor</th><th>Acciones</th></tr></thead>
@@ -3324,7 +3588,7 @@ return list;
       .map(i=>`<option value="${i.id}">${esc(i.name)} • ${esc(i.category||"insumo")} • ${esc(i.qty||0)} ${esc(i.unit||"")}</option>`)
       .join("");
     openModal({
-      title: mode==="entrada" ? "➕ Entrada rápida" : "➖ Salida rápida",
+      title: mode==="entrada" ? "Entrada rápida" : "Salida rápida",
       sub: mode==="entrada"
         ? "Aumenta stock por compra/recepción."
         : "Descuenta stock por consumo. Si la relacionas con una cerda/camada, se suma a su inversión.",
@@ -3673,7 +3937,7 @@ return list;
     view.innerHTML = shell(
       "Ventas",
       "Venta de lechones con control de abonos (COP) y saldo pendiente.",
-      `<button class="btn primary" id="sale">💳 Nueva venta</button><button class="btn" id="client">👤 Nuevo cliente</button>`,
+      `<button class="btn primary" id="sale"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-card" xlink:href="#i-card"></use></svg><span>Nueva venta</span></button><button class="btn" id="client"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-user" xlink:href="#i-user"></use></svg><span>Nuevo cliente</span></button>`,
       `<div class="wrap"><table>
         <thead><tr><th>Fecha</th><th>Cliente</th><th>Camada</th><th>Cant.</th><th>Total</th><th>Estado</th><th>Inversión</th><th>Acciones</th></tr></thead>
         <tbody>${rows||`<tr><td colspan="7" class="muted">Sin ventas.</td></tr>`}</tbody>
@@ -4256,9 +4520,9 @@ return list;
     const st = meatStats();
 
     const actions = `
-      <button class="btn" id="meatStockBtn">🥩 Stock (kg)</button>
-      <button class="btn" id="meatHeadsBtn">🐷 Cerdos para carne</button>
-      <button class="btn primary" id="meatNew">➕ Nueva venta (kg)</button>
+      <button class="btn" id="meatStockBtn"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-weight" xlink:href="#i-weight"></use></svg><span>Stock (kg)</span></button>
+      <button class="btn" id="meatHeadsBtn"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-pig" xlink:href="#i-pig"></use></svg><span>Cerdos para carne</span></button>
+      <button class="btn primary" id="meatNew"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-plus" xlink:href="#i-plus"></use></svg><span>Nueva venta (kg)</span></button>
     `;
 
     const body = `
@@ -4876,8 +5140,8 @@ return list;
     view.innerHTML = shell(
       "Finanzas",
       "Ingresos y gastos (ventas e inventario alimentan automáticamente).",
-      `<button class="btn primary" id="inc">➕ Ingreso</button>
-       <button class="btn" id="exp">➕ Gasto</button>
+      `<button class="btn primary" id="inc"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-plus" xlink:href="#i-plus"></use></svg><span>Ingreso</span></button>
+       <button class="btn" id="exp"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-minus" xlink:href="#i-minus"></use></svg><span>Gasto</span></button>
        <button class="btn" id="csv">Exportar CSV</button>`,
       `<div class="kpis" style="margin-bottom:12px">
         <div class="kpi" style="grid-column:span 4"><small>Ingresos (${m})</small><b>${fmtCOP(income)}</b><div class="muted mono">Ventas + abonos</div></div>
@@ -5136,7 +5400,7 @@ return list;
     view.innerHTML = shell(
       "Tareas",
       "Agenda destete, chequeos, vacunación y cobros (algunas se crean automáticamente).",
-      `<button class="btn primary" id="add">➕ Nueva tarea</button>`,
+      `<button class="btn primary" id="add"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-plus" xlink:href="#i-plus"></use></svg><span>Nueva tarea</span></button>`,
       `<div class="wrap"><table>
         <thead><tr><th>Estado</th><th>Tarea</th><th>Vence</th><th>Relacionado</th><th>Acciones</th></tr></thead>
         <tbody>${rows||`<tr><td colspan="5" class="muted">Sin tareas.</td></tr>`}</tbody>
@@ -5204,7 +5468,7 @@ return list;
     view.innerHTML = shell(
       "Ajustes",
       "Nombre de granja, días de gestación, respaldo JSON y exportaciones CSV.",
-      `<button class="btn" id="reset">🧨 Reset</button>`,
+      `<button class="btn" id="reset"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-warning" xlink:href="#i-warning"></use></svg><span>Reset</span></button>`,
       `<form id="setForm" class="grid2">
         <div class="f6"><label>Nombre granja</label><input name="farmName" value="${esc(state.settings.farmName||"")}"/></div>
         <div class="f3"><label>Moneda</label><select name="currency"><option value="COP" ${state.settings.currency==="COP"?"selected":""}>COP</option><option value="USD" ${state.settings.currency==="USD"?"selected":""}>USD</option></select></div>

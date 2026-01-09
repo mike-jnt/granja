@@ -1587,6 +1587,123 @@ table tr:hover{
 
 </div>
 
+
+<script type="module">
+  // ==============================
+  // Firebase (Firestore) Sync Layer
+  // ==============================
+  // Nota: Este bloque NO toca tu UI. Solo expone window.firebaseCloud para cargar/guardar state.
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+  import { getFirestore, doc, getDoc, setDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+  import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCf5JD4AfLEkgFEJFJfYyEuharFdq1d6lY",
+    authDomain: "granja-7b4b5.firebaseapp.com",
+    projectId: "granja-7b4b5",
+    storageBucket: "granja-7b4b5.firebasestorage.app",
+    messagingSenderId: "570166643052",
+    appId: "1:570166643052:web:01925e9935d14637434b49"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+
+  // Identificador del dispositivo (para ignorar eco de nuestros propios cambios)
+  const DEVICE_ID_KEY = "granja_device_id";
+  const deviceId = (() => {
+    let v = localStorage.getItem(DEVICE_ID_KEY);
+    if (!v) {
+      v = (crypto?.randomUUID?.() || ("dev_" + Math.random().toString(16).slice(2)));
+      localStorage.setItem(DEVICE_ID_KEY, v);
+    }
+    return v;
+  })();
+
+  function stateDocRef(uid){
+    // Documento único por usuario (puedes cambiar la ruta si quieres "estado compartido")
+    return doc(db, "apps", "granja-7b4b5", "users", uid, "state", "main");
+  }
+
+  async function loadStateFromCloud(uid){
+    const snap = await getDoc(stateDocRef(uid));
+    if (!snap.exists()) return null;
+    return snap.data()?.state || null;
+  }
+
+  async function saveStateToCloud(uid, state){
+    await setDoc(
+      stateDocRef(uid),
+      { state, updatedAt: serverTimestamp(), deviceId },
+      { merge: true }
+    );
+  }
+
+  function subscribeState(uid, onRemoteState){
+    return onSnapshot(stateDocRef(uid), (snap) => {
+      if (!snap.exists()) return;
+      const data = snap.data();
+      if (data?.deviceId && data.deviceId === deviceId) return; // ignorar eco propio
+      if (data?.state) onRemoteState(data.state, data);
+    });
+  }
+
+  // Exponemos API mínima a la app (script clásico)
+  window.firebaseCloud = {
+    enabled: true,
+    _uid: null,
+    _unsub: null,
+    async saveNow(state){
+      const uid = window.firebaseCloud?._uid;
+      if(!uid) return;
+      await saveStateToCloud(uid, state);
+    },
+    async loadNow(){
+      const uid = window.firebaseCloud?._uid;
+      if(!uid) return null;
+      return await loadStateFromCloud(uid);
+    }
+  };
+
+  // Inicia sesión anónima (rápido para empezar)
+  try{ await signInAnonymously(auth); }catch(e){ console.warn("Firebase auth error:", e); }
+
+  onAuthStateChanged(auth, async (user) => {
+    if(!user) return;
+    window.firebaseCloud._uid = user.uid;
+
+    // 1) Bootstrap desde nube (una vez)
+    try{
+      const cloudState = await loadStateFromCloud(user.uid);
+      if(cloudState){
+        // Si la app ya expuso applyRemoteState, aplicamos de una
+        if(typeof window.applyRemoteState === "function"){
+          window.applyRemoteState(cloudState, {source:"cloud_boot"});
+        }else{
+          window.__BOOTSTRAP_STATE__ = cloudState;
+        }
+      }
+    }catch(e){
+      console.warn("Firebase load error:", e);
+    }
+
+    // 2) Tiempo real (opcional)
+    try{
+      if(window.firebaseCloud._unsub) window.firebaseCloud._unsub();
+      window.firebaseCloud._unsub = subscribeState(user.uid, (remoteState) => {
+        if(typeof window.applyRemoteState === "function"){
+          window.applyRemoteState(remoteState, {source:"cloud_live"});
+        }else{
+          window.__REMOTE_STATE__ = remoteState;
+        }
+      });
+    }catch(e){
+      console.warn("Firebase subscribe error:", e);
+    }
+  });
+</script>
+
 <script>
 (() => {
   "use strict";
@@ -6047,6 +6164,40 @@ return list;
   }
   save(); // ensures pills update
   if(!requireAuth() || isAuthed()) setTimeout(()=>maybeOnboard(), 80);
+
+
+  // ==============================
+  // Firebase: Aplicar estado remoto
+  // ==============================
+  window.applyRemoteState = function(remoteState, meta){
+    try{
+      if(!remoteState) return;
+      window.__APPLYING_REMOTE__ = true;
+      state = remoteState;
+      normalizeState();
+      auditState();
+      // Guardar local para offline
+      try{ storage.set(KEY, state); }catch(e){}
+      // Re-render
+      render();
+    }catch(e){
+      console.warn("applyRemoteState error:", e);
+    }finally{
+      setTimeout(()=>{ window.__APPLYING_REMOTE__ = false; }, 0);
+    }
+  };
+
+  // Si Firebase cargó state antes de que la app estuviera lista, aplícalo aquí.
+  try{
+    if(window.__BOOTSTRAP_STATE__){
+      window.applyRemoteState(window.__BOOTSTRAP_STATE__, {source:"cloud_boot_deferred"});
+      window.__BOOTSTRAP_STATE__ = null;
+    }else if(window.__REMOTE_STATE__){
+      window.applyRemoteState(window.__REMOTE_STATE__, {source:"cloud_live_deferred"});
+      window.__REMOTE_STATE__ = null;
+    }
+  }catch(e){}
+
 })();
 </script>
 </body>

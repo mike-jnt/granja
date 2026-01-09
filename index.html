@@ -1219,6 +1219,55 @@ table tr:hover{
   #nav button{display:flex;align-items:center;gap:10px}
   #nav button .ico{opacity:.92}
   .step .ico{display:flex;align-items:center;justify-content:center}
+
+/* --- Modal de error para Login (encima del inicio de sesión) --- */
+#loginErrModal{
+  position: fixed;
+  inset: 0;
+  z-index: 10050; /* encima de #loginScreen (9999) */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px;
+  background: rgba(0,0,0,.38);
+}
+#loginErrModal .lem-card{
+  width: min(420px, 92vw);
+  background: rgba(17,24,39,.96);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 18px;
+  box-shadow: 0 26px 80px rgba(0,0,0,.55);
+  color: #fff;
+  padding: 16px 16px 14px;
+}
+#loginErrModal .lem-title{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-weight: 800;
+  letter-spacing: .2px;
+  font-size: 16px;
+  margin-bottom: 6px;
+}
+#loginErrModal .lem-sub{
+  color: rgba(255,255,255,.78);
+  font-size: 13px;
+  margin-bottom: 14px;
+}
+#loginErrModal .lem-actions{
+  display:flex;
+  justify-content:flex-end;
+  gap:10px;
+}
+#loginErrModal .lem-ico{
+  width: 34px; height: 34px;
+  border-radius: 12px;
+  display:grid; place-items:center;
+  background: rgba(239,68,68,.22);
+  border: 1px solid rgba(239,68,68,.35);
+}
+#loginErrModal .lem-ico svg{ width:18px; height:18px; fill:none; stroke: #fecaca; stroke-width:2; }
+
 </style>
 </head>
 <body>
@@ -1751,6 +1800,9 @@ const svgIcon = (name, cls="ico") => `<svg class="${cls}" aria-hidden="true" foc
     batch: (batchId) => (state.stockMovements||[])
       .filter(m=>m.type==="salida" && m.linkedType==="batch" && m.linkedId===batchId)
       .reduce((s,m)=>s+moveCost(m),0),
+      engorde: (engordeId) => (state.stockMovements||[])
+        .filter(m=>m.type==="salida" && m.linkedType==="engorde" && m.linkedId===engordeId)
+        .reduce((s,m)=>s+moveCost(m),0),
     list: (type, id, limit=8) => (state.stockMovements||[])
       .filter(m=>m.type==="salida" && m.linkedType===type && m.linkedId===id)
       .sort((a,b)=>(b.date||"").localeCompare(a.date||""))
@@ -1801,7 +1853,7 @@ const svgIcon = (name, cls="ico") => `<svg class="${cls}" aria-hidden="true" foc
 
 
     function supplyHistoryHTML(type, id, limit=60){
-    const title = type==="sow" ? "Historial de suministros (cerda)" : "Historial de suministros (camada)";
+    const title = type==="sow" ? "Historial de suministros (cerda)" : (type==="engorde" ? "Historial de suministros (engorde)" : "Historial de suministros (camada)");
     const total = type==="sow" ? invested.sow(id) : invested.batch(id);
     const all = (state.stockMovements||[])
       .filter(m=>m.type==="salida" && m.linkedType===type && m.linkedId===id)
@@ -2047,6 +2099,7 @@ const defaults = () => ({
       enforceAuth();
     }else{
       toast("bad","Datos inválidos","Revisa usuario y contraseña.");
+      openLoginErrorModal("Usuario o contraseña incorrectos");
     }
   }
   function mountLogin(){
@@ -2055,6 +2108,17 @@ const defaults = () => ({
       f.addEventListener("submit",(e)=>{ e.preventDefault(); attemptLogin(); });
     }
     const b=$("#btnLogin"); if(b) b.onclick=attemptLogin;
+    // Permitir Enter en usuario/contraseña para iniciar sesión
+    const u=$("#loginUser"), p=$("#loginPass");
+    [u,p].forEach(el=>{
+      if(!el) return;
+      el.addEventListener("keydown",(ev)=>{
+        if(ev.key==="Enter"){
+          ev.preventDefault();
+          attemptLogin();
+        }
+      });
+    });
     const tp=$("#togglePass");
     if(tp){
       tp.onclick=()=>{
@@ -2130,6 +2194,47 @@ const defaults = () => ({
     $("#aOk",dlg2Ft).onclick=close;
   }
 
+
+  // Modal bonito sobre el login (sirve incluso cuando #appRoot está oculto)
+  function openLoginErrorModal(message){
+    const existing = document.getElementById("loginErrModal");
+    if(existing) existing.remove();
+
+    const wrap = document.createElement("div");
+    wrap.id = "loginErrModal";
+    wrap.innerHTML = `
+      <div class="lem-card" role="dialog" aria-modal="true" aria-label="Error de inicio de sesión">
+        <div class="lem-title">
+          <span class="lem-ico" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M12 9v4m0 4h.01M10.29 3.86l-7.4 12.84A2 2 0 0 0 4.6 20h14.8a2 2 0 0 0 1.71-3.3l-7.4-12.84a2 2 0 0 0-3.42 0Z"/></svg>
+          </span>
+          Datos inválidos
+        </div>
+        <div class="lem-sub">${message ? esc(String(message)) : "Usuario o contraseña incorrectos"}</div>
+        <div class="lem-actions">
+          <button class="btn primary" id="lemOk">Entendido</button>
+        </div>
+      </div>
+    `;
+    const close = ()=>{
+      try{ wrap.remove(); }catch(e){}
+      // devuelve foco al password para reintentar
+      const p=$("#loginPass");
+      if(p){ try{ p.focus(); p.select && p.select(); }catch(e){} }
+    };
+    wrap.addEventListener("click",(e)=>{ if(e.target===wrap) close(); });
+    document.addEventListener("keydown", function onKey(ev){
+      if(ev.key==="Escape"){
+        document.removeEventListener("keydown", onKey);
+        close();
+      }
+    });
+    document.body.appendChild(wrap);
+    const okBtn = wrap.querySelector("#lemOk");
+    if(okBtn) okBtn.onclick = ()=> close();
+    // foco accesible
+    setTimeout(()=>{ try{ okBtn && okBtn.focus(); }catch(e){} }, 20);
+  }
   // ------- Ayuda + Onboarding -------
   const ONBOARD_KEY = KEY + "_onboard_seen";
 
@@ -2353,6 +2458,9 @@ function normalizeState(){
     state.transactions = state.transactions || [];
     state.payables = state.payables || [];
     state.tasks = state.tasks || [];
+    state.engorde = state.engorde || {manual:[], movements:[]};
+    state.engorde.manual = state.engorde.manual || [];
+    state.engorde.movements = state.engorde.movements || [];
     state.settings = state.settings || defaults().settings;
     state.settings.serviceMethods = state.settings.serviceMethods || ["inseminación","monta","otro"];
   }
@@ -2489,7 +2597,7 @@ function normalizeState(){
       list.push({level:"warn", title:"Vencimientos próximos", detail:`${expSoon.length} insumo(s) vencen en ≤ 30 días.`, tab:"inv"});
     }
 
-    const pending = state.tasks.filter(t=>!t.done && t.dueDate);
+    const pending = state.tasks.filter(t => (t.status || "pendiente") !== "hecha" && t.dueDate);
     const overdue = pending.filter(t=>daysBetween(t.dueDate, todayS)>0);
     const dueSoon = pending.filter(t=>{ const d=daysBetween(todayS, t.dueDate); return d!==null && d>=0 && d<=7; });
     if(overdue.length) list.push({level:"bad", title:"Tareas vencidas", detail:`${overdue.length} tarea(s) atrasadas.`, tab:"tasks"});
@@ -2601,11 +2709,254 @@ return list;
     return state.transactions.filter(t=>t.type===type && String(t.date||"").slice(0,7)===m).reduce((s,t)=>s+num(t.amount),0);
   }
 
-  // ------- UI Nav -------
+  
+
+  // ------- Engorde -------
+  function engordeEligibleBatches(){
+    const t=today();
+    return (state.batches||[])
+      .filter(b=>num(b.countCurrent)>0 && b.birthDate && (b.status||"disponible")!=="cerrado")
+      .map(b=>({b, days: daysBetween(b.birthDate, t)}))
+      .filter(x=>x.days!==null && x.days>=PIGLET_DAYS_FOR_MEAT)
+      .sort((a,b)=> (b.b.birthDate||"").localeCompare(a.b.birthDate||""));
+  }
+
+  function engordeManualTotal(){
+    return (state.engorde?.manual||[]).reduce((s,x)=>s + Math.max(0,num(x.heads)), 0);
+  }
+
+  function engordeAutoHeadsAvailable(){
+    const elig = engordeEligibleBatches()
+      .filter(x=>num(x.b.countCurrent)>0)
+      .slice()
+      .sort((a,b)=>(a.b.birthDate||"").localeCompare(b.b.birthDate||""));
+    return {elig, heads: elig.reduce((s,x)=>s+Math.max(0,num(x.b.countCurrent)),0)};
+  }
+
+  function engordeTotalHeadsAvailable(){
+    const manual = engordeManualTotal();
+    const auto = engordeAutoHeadsAvailable().heads;
+    return Math.max(0, manual + auto);
+  }
+
+  function engordeDeductHeads(heads, date, reason){
+    heads = Math.max(0, num(heads));
+    if(heads<=0) return {deducted:0, remaining:0};
+    state.engorde = state.engorde || {manual:[], movements:[]};
+    state.engorde.manual = state.engorde.manual || [];
+    state.engorde.movements = state.engorde.movements || [];
+
+    const beforeTotal = engordeTotalHeadsAvailable();
+    let remaining = heads;
+
+    // 1) Deduct from manual stock (oldest first)
+    const manualSorted = state.engorde.manual
+      .slice()
+      .sort((a,b)=>(a.date||"").localeCompare(b.date||""));
+    for(const x of manualSorted){
+      if(remaining<=0) break;
+      const avail = Math.max(0, num(x.heads));
+      if(avail<=0) continue;
+      const take = Math.min(avail, remaining);
+      x.heads = avail - take;
+      remaining -= take;
+    }
+    // Clean empty entries
+    state.engorde.manual = state.engorde.manual.filter(x=>Math.max(0,num(x.heads))>0);
+
+    // 2) Deduct from automatic eligible batches (oldest first)
+    const auto = engordeAutoHeadsAvailable().elig;
+    for(const x of auto){
+      if(remaining<=0) break;
+      const b = x.b;
+      const avail = Math.max(0, num(b.countCurrent));
+      if(avail<=0) continue;
+      const take = Math.min(avail, remaining);
+      b.countCurrent = avail - take;
+      remaining -= take;
+    }
+
+    const afterTotal = engordeTotalHeadsAvailable();
+    const deducted = Math.max(0, beforeTotal - afterTotal);
+
+    if(deducted>0){
+      state.engorde.movements.push({
+        id:uid("engmov"),
+        date: date || today(),
+        type:"salida",
+        heads:deducted,
+        before: beforeTotal,
+        after: afterTotal,
+        reason: reason || "Descuento de engorde"
+      });
+    }
+    return {deducted, remaining};
+  }
+
+
+  function renderEngorde(){
+    auditState();
+    state.engorde = state.engorde || {manual:[], movements:[]};
+
+    const elig = engordeEligibleBatches();
+    const autoHeads = elig.reduce((s,x)=>s + Math.max(0,num(x.b.countCurrent)), 0);
+    const manualHeads = engordeManualTotal();
+    const manualAvailable = engordeTotalHeadsAvailable();
+
+    const rowsAuto = elig.map(x=>{
+      const b=x.b, s=get.sow(b.sowId);
+      return `<tr>
+        <td class="mono">${esc((b.id||"").slice(-8))}</td>
+        <td>${esc(s?.tag||s?.name||"—")}</td>
+        <td class="mono">${esc(b.birthDate||"—")}</td>
+        <td class="mono">${esc(x.days)}</td>
+        <td class="mono">${esc(b.countCurrent)}</td>
+        <td class="r">
+          <button class="btn" data-eng-act="sup-all" data-id="${b.id}">Suministrar</button>
+          <button class="btn" data-eng-act="go-batch" data-id="${b.id}">Ver camada</button>
+        </td>
+      </tr>`;
+    }).join("") || `<tr><td colspan="6" class="muted">No hay camadas con más de ${PIGLET_DAYS_FOR_MEAT} días y stock.</td></tr>`;
+
+    const rowsManual = (state.engorde.manual||[])
+      .slice()
+      .sort((a,b)=>(b.date||"").localeCompare(a.date||""))
+      .map(x=>`<tr>
+        <td class="mono">${esc((x.id||"").slice(-8))}</td>
+        <td class="mono">${esc(x.date||"—")}</td>
+        <td class="mono">${esc(x.heads||0)}</td>
+        <td class="muted">${esc(x.notes||"")}</td>
+        <td class="r">
+          <button class="btn" data-eng-act="sup-all" data-id="${x.id}">Suministrar</button>
+          <button class="btn danger" data-eng-act="del-manual" data-id="${x.id}">Eliminar</button>
+        </td>
+      </tr>`).join("") || `<tr><td colspan="5" class="muted">Aún no has agregado cerdos manuales.</td></tr>`;
+
+    const actions = `
+      <button class="btn primary" id="engAdd"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-plus" xlink:href="#i-plus"></use></svg><span>Agregar cerdos</span></button>
+      <button class="btn" id="engSupAll"><svg class="ico" aria-hidden="true" focusable="false"><use xlink:href="#i-box"></use></svg><span>Suministrar a engorde</span></button>
+    `;
+
+    const body = `
+      <div class="kpis">
+        ${kpi("Engorde (camadas ≥ "+PIGLET_DAYS_FOR_MEAT+" días)", fmtNum(autoHeads,0)+" cabezas", autoHeads>0?"info":"ok")}
+        ${kpi("Engorde manual (registrado)", fmtNum(manualHeads,0)+" cabezas", manualHeads>0?"info":"ok")}
+        ${kpi("Stock manual para carne", fmtNum(manualAvailable,0)+" cabezas", manualAvailable>0?"ok":"warn")}
+      </div>
+
+      <div class="helpCard" style="margin-top:12px">
+        <div class="helpHd">
+          <div>
+            <b>¿Qué es Engorde?</b>
+            <div class="muted">Aquí ves lechones/camadas que ya pasaron de ${PIGLET_DAYS_FOR_MEAT} días (referencia) y puedes registrar cerdos manuales como stock para la sección de Carne.</div>
+          </div>
+          <span class="tag info">Referencia: ${fmtNum(PIGLET_DAYS_FOR_MEAT,0)} días</span>
+        </div>
+        <div class="muted" style="margin-top:8px">
+          Los cerdos manuales se suman a <b>Carne → Cerdos para carne</b> (stock manual). Al vender carne, puedes indicar cuántas cabezas descontar.
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <div class="cardHd"><b>Camadas en engorde (automático)</b><div class="muted">Camadas con stock y edad ≥ ${PIGLET_DAYS_FOR_MEAT} días.</div></div>
+        <div class="wrap">
+          <table>
+            <thead><tr><th>Lote</th><th>Cerda</th><th>Nacimiento</th><th>Días</th><th>Stock</th><th class="r">Acciones</th></tr></thead>
+            <tbody>${rowsAuto}</tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <div class="cardHd"><b>Engorde manual (stock para carne)</b><div class="muted">Registra cerdos adicionales que tengas para venta como carne.</div></div>
+        <div class="wrap">
+          <table>
+            <thead><tr><th>ID</th><th>Fecha</th><th>Cabezas</th><th>Notas</th><th class="r">Acciones</th></tr></thead>
+            <tbody>${rowsManual}</tbody>
+          </table>
+        </div>
+      </div>
+    `;
+
+    view.innerHTML = shell(
+      "Engorde",
+      "Control de cerdos listos para carne y stock manual.",
+      actions,
+      body
+    );
+
+    const add=$("#engAdd"); if(add) add.onclick=()=>openEngordeAdd();
+    const sup=$("#engSupAll"); if(sup) sup.onclick=()=>openSupplyFor("engorde","all");
+
+    view.onclick=(e)=>{
+      const b=e.target.closest("button[data-eng-act]"); if(!b) return;
+      const id=b.dataset.id, act=b.dataset.engAct;
+      if(act==="go-batch"){ openBatch(id); return; }
+      if(act==="sup-all"){ openSupplyFor("engorde","all"); return; }
+      if(act==="sup-all"){ openSupplyFor("engorde","all"); return; }
+      if(act==="del-manual"){ delEngordeManual(id); return; }
+    };
+  }
+
+  function openEngordeAdd(){
+    openModal({
+      title:"Agregar cerdos a engorde",
+      sub:"Estos cerdos se sumarán al stock manual de carne (cabezas).",
+      body:`<form id="engAddForm" class="grid2">
+        <div class="f4"><label>Fecha</label><input type="date" name="date" value="${today()}"/></div>
+        <div class="f4"><label>Cabezas *</label><input type="number" name="heads" min="1" value="1" required/></div>
+        <div class="f12"><label>Notas</label><textarea name="notes" placeholder="Ej: compra, rescate, traslado…"></textarea></div>
+      </form>`,
+      footer:`<button class="btn" id="mClose">Cancelar</button><button class="btn primary" id="save">Guardar</button>`,
+      onMount: ()=>{
+        $("#save").onclick=()=>{
+          const fd=new FormData($("#engAddForm"));
+          const date=(fd.get("date")||today()).toString();
+          const heads=Math.max(0, num(fd.get("heads")));
+          if(heads<=0){ toast("bad","Cantidad inválida","Debe ser > 0."); return; }
+          const notes=(fd.get("notes")||"").toString().trim();
+          const entry={id:uid("eng"),date,heads,notes};
+          state.engorde = state.engorde || {manual:[], movements:[]};
+          state.engorde.manual = state.engorde.manual || [];
+          state.engorde.manual.push(entry);
+
+          save(); dlg.close(); toast("ok","Guardado",`+${heads} cabeza(s) agregadas a Engorde.`); render();
+        };
+      }
+    });
+  }
+
+  function delEngordeManual(id){
+    const x=(state.engorde?.manual||[]).find(e=>e.id===id);
+    openModal({
+      title:"Eliminar registro de engorde",
+      sub:`${(id||"").slice(-8)}`,
+      body:`<div class="muted">Se eliminará el registro. Opcionalmente puedes descontar esas cabezas del stock manual de carne.</div>
+        <div style="margin-top:10px">
+          <label>Descontar de stock manual de carne</label>
+          <select id="engRestock"><option value="no">No</option><option value="yes">Sí</option></select>
+        </div>`,
+      footer:`<button class="btn" id="mClose">Cancelar</button><button class="btn danger" id="ok">Eliminar</button>`,
+      onMount: ()=>{
+        $("#ok").onclick=()=>{
+          const doAdj = $("#engRestock").value==="yes";
+          const heads = Math.max(0, num(x?.heads));
+          state.engorde.manual = (state.engorde.manual||[]).filter(e=>e.id!==id);
+          if(doAdj && heads>0){
+            state.meat = state.meat || {stockKg:0,headsForSale:0,movements:[]};
+            state.meat.headsForSale = Math.max(0, num(state.meat.headsForSale) - heads);
+          }
+          save(); dlg.close(); toast("ok","Eliminado","Registro eliminado."); render();
+        };
+      }
+    });
+  }
+// ------- UI Nav -------
   const tabs = [
     ["dashboard","Dashboard","dashboard"],
     ["sows","Cerdas","pig"],
     ["meat","Carne (Kg)","weight"],
+    ["engorde","Engorde","pig"],
     ["breed","Reproducción","dna"],
     ["litters","Camadas","users"],
     ["inv","Inventario","box"],
@@ -2654,6 +3005,7 @@ return list;
     else if(current==="inv") renderInventory();
     else if(current==="sales") renderSales();
     else if(current==="meat") renderMeat();
+    else if(current==="engorde") renderEngorde();
     else if(current==="finance") renderFinance();
     else if(current==="tasks") renderTasks();
     else if(current==="settings") renderSettings();
@@ -3633,7 +3985,7 @@ return list;
       openInvItem();
       return;
     }
-    const title = type==="sow" ? "Suministrar a cerda" : "Suministrar a camada";
+    const title = type==="sow" ? "Suministrar a cerda" : (type==="engorde" ? "Suministrar a engorde" : "Suministrar a camada");
     const ops = state.inventory.slice().sort((a,b)=>(a.name||"").localeCompare(b.name||""))
       .map(i=>`<option value="${i.id}">${esc(i.name)} • ${esc(i.category||"insumo")} • ${esc(i.qty||0)} ${esc(i.unit||"")}</option>`)
       .join("");
@@ -4510,7 +4862,7 @@ return list;
   
 
   // ------- Carne (ventas por kilos) -------
-  const PIGLET_DAYS_FOR_MEAT = 90; // referencia (ajústalo si lo deseas)
+  const PIGLET_DAYS_FOR_MEAT = 46; // referencia (ajústalo si lo deseas)
 
   function meatEligibleHeads(){
     // Sugerido: camadas con edad mayor a PIGLET_DAYS_FOR_MEAT y con stock disponible
@@ -4629,29 +4981,21 @@ return list;
   }
 
   function openMeatHeads(){
-    const suggested = meatEligibleHeads();
-    const cur = num(state.meat?.headsForSale);
+    const total = engordeTotalHeadsAvailable();
+    const auto = engordeAutoHeadsAvailable().heads;
+    const manual = engordeManualTotal();
     openModal({
       title:"Cerdos disponibles para carne",
-      sub:"Registro manual (no afecta camadas).",
-      body:`<form id="mhForm" class="grid2">
-        <div class="f12">
-          <label>Cantidad disponible (cabezas) *</label>
-          <input name="heads" data-qty="1" value="${fmtNum(cur,2)}" />
-          <div class="muted" style="margin-top:6px">Sugerido por edad: <b>${fmtNum(suggested,0)}</b> cerdos.</div>
-        </div>
-        <div class="f12"><label>Notas</label><textarea name="notes" placeholder="Ej: listos para sacrificio, lote A…"></textarea></div>
-      </form>`,
-      footer:`<button class="btn" id="mClose">Cancelar</button><button class="btn primary" id="ok">Guardar</button>`,
+      sub:"Este stock se administra en la sección Engorde (automático + manual).",
+      body:`<div class="grid2">
+        <div class="f4">${kpi("Total disponibles", fmtNum(total,0)+" cabezas", total>0?"ok":"warn")}</div>
+        <div class="f4">${kpi("Automático (camadas)", fmtNum(auto,0)+" cabezas", "info")}</div>
+        <div class="f4">${kpi("Manual", fmtNum(manual,0)+" cabezas", "info")}</div>
+        <div class="f12 muted">Para agregar stock manual o suministrar a todos, ve a <b>Engorde</b>.</div>
+      </div>`,
+      footer:`<button class="btn" id="mClose">Cerrar</button><button class="btn primary" id="goEng">Ir a Engorde</button>`,
       onMount: ()=>{
-        $("#ok").onclick=()=>{
-          const fd=new FormData($("#mhForm"));
-          const heads=num(fd.get("heads"));
-          if(heads<0){ openAlert({title:"Valor inválido", message:"La cantidad no puede ser negativa.", kind:"bad"}); return; }
-          state.meat = state.meat || {stockKg:0,headsForSale:0,movements:[]};
-          state.meat.headsForSale = heads;
-          save(); dlg.close(); toast("ok","Guardado",`Disponibles: ${fmtNum(heads,0)} cerdos`); render();
-        };
+        $("#goEng").onclick=()=>{ dlg.close(); navTo("engorde"); };
       }
     });
   }
@@ -4739,6 +5083,12 @@ return list;
       onMount: ()=>{
         const sq=$("#mkq"), su=$("#mku"), st=$("#mkt"), ss=$("#mks"), sp=$("#mkp");
         const ds=$("#mkds");
+        const dh=$("#mkdh");
+        const heads=$("#mkheads");
+        if(!editId){
+          if(num(state.meat?.headsForSale)>0){ dh.checked=true; heads.value="1"; }
+        }
+
         const recalc=()=>{
           const t=Math.max(0,num(sq.value)*num(su.value));
           setMoney(st, t);
@@ -4785,6 +5135,21 @@ return list;
           <span>Descontar del stock de carne (kg)</span>
         </label>
         <div class="muted" style="margin-top:6px">Si no llevas stock en kg, puedes desmarcarlo.</div>
+      </div>
+
+      <div class="f12">
+        <label class="row">
+          <input type="checkbox" id="mkdh" ${s.deductHeads===true?"checked":""}/>
+          <span>Descontar cabezas del stock de engorde (auto + manual)</span>
+        </label>
+        <div style="margin-top:8px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+          <div style="min-width:220px;flex:1">
+            <label>Cabezas a descontar</label>
+            <input type="number" id="mkheads" name="headsUsed" min="0" value="${esc(String(num(s.headsUsed||0)))}"/>
+          </div>
+          <span class="tag info">Disponibles (engorde): <b>${fmtNum(engordeTotalHeadsAvailable(),0)}</b></span>
+        </div>
+        <div class="muted" style="margin-top:6px">Tip: marca la casilla y define cuántas cabezas usar si quieres descontar.</div>
       </div>
 
       <div class="f12"><label>Notas</label><textarea name="notes">${esc(s.notes||"")}</textarea></div>
@@ -4849,6 +5214,14 @@ return list;
       });
     }
 
+    // --- Cabezas: revertir venta anterior si descontó cabezas ---
+    const headsNow = Math.max(0, num(state.meat.headsForSale));
+    let headsTemp = headsNow;
+    if(existing && existing.deductHeads){
+      headsTemp = headsTemp + Math.max(0, num(existing.headsUsed));
+    }
+    const finalHeadsUsed = deductHeads ? headsUsed : 0;
+
     // Aplicar nueva deducción si corresponde
     if(deductStock){
       if(qty>stockTemp){
@@ -4857,6 +5230,17 @@ return list;
         if(existing && existing.deductStock) state.meat.movements.pop();
         return;
       }
+          // Revertir cabezas si la venta descontó stock manual
+          if(s.deductHeads){
+            state.meat.headsForSale = Math.max(0, num(state.meat.headsForSale) + Math.max(0, num(s.headsUsed)));
+          }
+
+      if(deductHeads && finalHeadsUsed > headsTemp){
+        openAlert({title:"Stock insuficiente", message:"No hay suficientes cabezas en stock manual para descontar.", kind:"bad"});
+        if(existing && existing.deductStock) state.meat.movements.pop();
+        return;
+      }
+
       const before = stockTemp;
       stockTemp = Math.max(0, stockTemp - qty);
       state.meat.movements.push({
@@ -4870,7 +5254,17 @@ return list;
       });
     }
 
-    state.meat.stockKg = stockTemp;
+    
+
+    // --- Cabezas: descontar stock de engorde si aplica ---
+    if(deductHeads && finalHeadsUsed>0){
+      const available = engordeTotalHeadsAvailable();
+      if(finalHeadsUsed>available){
+        openAlert({title:"Stock insuficiente", message:`Disponibles en engorde: ${fmtNum(available,0)} cabezas. Intentas descontar: ${fmtNum(finalHeadsUsed,0)}.`, kind:"bad"});
+        return;
+      }
+      engordeDeductHeads(finalHeadsUsed, date, `Venta carne ${id.slice(-6)}`);
+    }
 
     // --- Guardar/actualizar venta ---
     const payload={
@@ -4881,7 +5275,9 @@ return list;
       paidAmount: paid,
       dueDate,
       notes,
-      deductStock
+      deductStock,
+      deductHeads,
+      headsUsed: finalHeadsUsed
     };
 
     const idx = state.meatSales.findIndex(x=>x.id===id);

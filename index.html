@@ -1268,6 +1268,94 @@ table tr:hover{
 }
 #loginErrModal .lem-ico svg{ width:18px; height:18px; fill:none; stroke: #fecaca; stroke-width:2; }
 
+
+/* =========================================================
+   RESPONSIVE PATCH — Mobile & Tablet friendly (sin romper PC)
+   ========================================================= */
+
+/* Mejor lectura/tacto en pantallas táctiles */
+@media (hover: none) and (pointer: coarse){
+  .btn{ min-height: 40px; }
+  input, select, textarea{ min-height: 40px; }
+}
+
+/* Tablets / pantallas medianas */
+@media (max-width: 900px){
+  .layout{ padding: 12px; gap: 12px; }
+
+  /* Header: que el bloque derecho no “empuje” */
+  header .bar{ padding: 12px; }
+  header .right{ width: 100%; justify-content: flex-start; }
+  header .search{ flex: 1 1 320px; min-width: 0 !important; width: 100%; }
+
+  /* KPIs: 2 por fila */
+  .kpi{ grid-column: span 6 !important; }
+
+  /* Navegación lateral en barra: scroll suave horizontal si se llena */
+  .sideNav{
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 6px;
+  }
+  .sideNav::-webkit-scrollbar{ height: 6px; }
+  .sideNav button{ white-space: nowrap; }
+}
+
+/* Teléfonos */
+@media (max-width: 560px){
+  .layout{ padding: 10px; gap: 10px; }
+
+  /* Títulos y marca más compactos */
+  .brand{ gap: 8px; }
+  .logo{ width: 34px; height: 34px; border-radius: 12px; }
+  .title b{ max-width: 92vw !important; }
+
+  /* Header: botones compactos y wrap ordenado */
+  header .bar{ gap: 10px; padding: 10px 10px; }
+  header .right{ gap: 8px; }
+  header .search{ flex: 1 1 100%; width: 100%; }
+
+  /* Reducir texto de botones con icono (mantener “Nueva venta”) */
+  header .right .btn:not(.primary):not(#newSale) span{ display: none; }
+  header .right .btn{ padding: 9px 10px; border-radius: 14px; }
+
+  /* KPIs: 1 por fila */
+  .kpi{ grid-column: span 12 !important; }
+
+  /* Forms: columnas a una sola */
+  form.grid2{ gap: 8px; }
+  .f6, .f4, .f3{ grid-column: span 12 !important; }
+
+  /* Inputs a 16px para evitar zoom iOS */
+  input, select, textarea{ font-size: 16px !important; }
+
+  /* Tablas: menos ancho mínimo (igual se puede hacer scroll) */
+  table{ min-width: 680px !important; }
+
+  /* Acciones/botones dentro de cards: que no se salgan */
+  .actions, .rowActions, .miniRow, .btnRow, .toolbar{
+    flex-wrap: wrap !important;
+    justify-content: flex-start !important;
+  }
+
+  /* Chips y tags más respirables */
+  .tag{ padding: 4px 9px; font-size: 12px; }
+
+  /* Dialogs: más cómodos en móvil */
+  dialog, dialog#dlg, dialog#dlg2{
+    width: calc(100vw - 16px) !important;
+    max-height: calc(100vh - 16px) !important;
+    border-radius: 16px !important;
+  }
+}
+
+/* Muy pequeño */
+@media (max-width: 390px){
+  header .right .btn{ padding: 8px 9px; }
+  .title span{ display:none; } /* libera espacio, el título principal queda */
+}
+
 </style>
 </head>
 <body>

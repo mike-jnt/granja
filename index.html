@@ -1642,7 +1642,7 @@ table tr:hover{
   // Ruta: /apps/granja-7b4b5/users/<uid>/state/main
 
   import { initializeApp } from "firebase/app";
-  import { getAuth, signInAnonymously, onAuthStateChanged } from "firebase/auth";
+  import { getAuth, onAuthStateChanged, signInWithEmailAndPassword as fbSignInWithEmailAndPassword, setPersistence, browserLocalPersistence, signOut as fbSignOut } from "firebase/auth";
   import { getFirestore, doc, getDoc, setDoc, onSnapshot, serverTimestamp } from "firebase/firestore";
 
   const firebaseConfig = {
@@ -1657,6 +1657,13 @@ table tr:hover{
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
   const auth = getAuth(app);
+
+  // === Modo "un solo usuario" ===
+  // Crea este usuario en Firebase Auth (Email/Password) y usa SIEMPRE la misma cuenta en todos los dispositivos.
+  const SINGLE_USER_EMAIL = "admin@granja.local";
+
+  // Estado inicial
+  window.__setFBStatus && window.__setFBStatus(false,"inicia sesión");
 
   // Identificador del dispositivo (para ignorar el eco de nuestros propios cambios)
   const DEVICE_ID_KEY = "granja_device_id";
@@ -1690,27 +1697,61 @@ table tr:hover{
         { state, updatedAt: serverTimestamp(), deviceId },
         { merge: true }
       );
-    }
-  };
+    },
+  
+    // Iniciar sesión (Email/Password). Para "un solo usuario" usa la MISMA cuenta en todos los dispositivos.
+    async signIn(userOrEmail, password){
+      const u = (userOrEmail || "").toString().trim();
+      const p = (password || "").toString();
+      if(!u || !p) throw new Error("missing-credentials");
+      // Acepta "admin" o "admin@granja.local"
+      const emailCandidate = (u.includes("@") ? u : (u + "@granja.local")).toLowerCase();
+      if(emailCandidate !== SINGLE_USER_EMAIL.toLowerCase()) throw new Error("invalid-user");
+      await setPersistence(auth, browserLocalPersistence);
+      await fbSignInWithEmailAndPassword(auth, SINGLE_USER_EMAIL, p);
+      return true;
+    },
+    async signOut(){
+      try{ await fbSignOut(auth); }catch(e){}
+    },
+};
 
-  // Auth anónimo (recomendado para empezar si no tienes login Firebase)
-  (async ()=>{
-    try{
-      await signInAnonymously(auth);
-      window.__setFBStatus && window.__setFBStatus(false,"autenticando…");
-      console.log("[Firebase] Auth anónimo OK");
-    }catch(e){
-      console.warn("[Firebase] Auth error:", e);
-      window.__setFBStatus && window.__setFBStatus(false,"auth error");
-    }
-  })();
-
+  // Firebase Auth (Email/Password): cuando hay sesión cargamos/sincronizamos el state
   onAuthStateChanged(auth, async (user) => {
-    if(!user) return;
+    if(!user){
+      window.firebaseCloud.ready = false;
+      window.firebaseCloud.uid = null;
+      try{ if(window.firebaseCloud.unsub) window.firebaseCloud.unsub(); }catch(e){}
+      window.__setFBStatus && window.__setFBStatus(false,"inicia sesión");
+      // Si la app ya cargó, fuerza pantalla de login
+      try{
+        if(typeof window.__clearLocalAuthed === "function") window.__clearLocalAuthed();
+        if(typeof window.__enforceAuth === "function") window.__enforceAuth();
+        else window.__PENDING_LOCAL_CLEAR__ = true;
+      }catch(e){}
+      return;
+    }
 
     window.firebaseCloud.uid = user.uid;
+    // Marca sesión local como activa para no volver a pedir login si Firebase ya está autenticado
+    try{
+      if(typeof window.__setLocalAuthed === "function") window.__setLocalAuthed(true);
+      else window.__PENDING_LOCAL_AUTH__ = true;
+      if(typeof window.__enforceAuth === "function") window.__enforceAuth();
+    }catch(e){}
     window.firebaseCloud.ready = true;
     console.log("[Firebase] UID:", user.uid);
+
+    // Seguridad extra: si alguien inicia sesión con otro email, cerramos sesión.
+    try{
+      const em = (user.email || "").toString().toLowerCase();
+      if(em && em !== SINGLE_USER_EMAIL.toLowerCase()){
+        console.warn("[Firebase] Email no permitido:", em);
+        try{ await fbSignOut(auth); }catch(e){}
+        window.__setFBStatus && window.__setFBStatus(false,"usuario no permitido");
+        return;
+      }
+    }catch(e){}
 
     // 1) Cargar estado desde la nube
     let hadCloud = false;
@@ -2267,28 +2308,51 @@ const defaults = () => ({
     if(requireAuth() && !isAuthed()) showLogin();
     else showApp();
   }
-  function attemptLogin(){
+  async function attemptLogin(){
     const uEl=$("#loginUser");
     const pEl=$("#loginPass");
     const u=((uEl && uEl.value)||"").toString().trim();
     const p=((pEl && pEl.value)||"").toString();
-    const su=(state.settings.authUser||"admin").toString();
-    const sp=(state.settings.authPass||"1234").toString();
-    if(u===su && p===sp){
+    if(!u || !p){
+      toast("bad","Datos inválidos","Ingresa usuario y contraseña.");
+      openLoginErrorModal("Ingresa usuario y contraseña.");
+      return;
+    }
+    const b=$("#btnLogin");
+    const prevTxt = b ? b.textContent : "";
+    if(b){ b.disabled=true; b.textContent="Entrando…"; }
+    try{
+      if(window.firebaseCloud && typeof window.firebaseCloud.signIn==="function"){
+        window.__setFBStatus && window.__setFBStatus(false,"autenticando…");
+        await window.firebaseCloud.signIn(u, p);
+      }else{
+        throw new Error("firebase-not-ready");
+      }
       setAuthed(true);
       toast("ok","Bienvenido","Sesión iniciada.");
       enforceAuth();
-    }else{
+    }catch(e){
+      console.warn("Login error:", e);
+      const msg = (e && (e.code || e.message || "")) ? String(e.code || e.message) : "";
+      if(msg.includes("invalid-user")){
+        toast("bad","Usuario inválido","Usa el usuario admin.");
+        openLoginErrorModal("Usuario incorrecto. Usa: admin");
+        window.__setFBStatus && window.__setFBStatus(false,"usuario inválido");
+        return;
+      }
       toast("bad","Datos inválidos","Revisa usuario y contraseña.");
       openLoginErrorModal("Usuario o contraseña incorrectos");
+      window.__setFBStatus && window.__setFBStatus(false,"login inválido");
+    }finally{
+      if(b){ b.disabled=false; b.textContent=prevTxt || "Iniciar sesión"; }
     }
   }
   function mountLogin(){
     const f=$("#loginForm");
     if(f){
-      f.addEventListener("submit",(e)=>{ e.preventDefault(); attemptLogin(); });
+      f.addEventListener("submit",(e)=>{ e.preventDefault(); attemptLogin().catch(()=>{}); });
     }
-    const b=$("#btnLogin"); if(b) b.onclick=attemptLogin;
+    const b=$("#btnLogin"); if(b) b.onclick=()=>attemptLogin().catch(()=>{});
     // Permitir Enter en usuario/contraseña para iniciar sesión
     const u=$("#loginUser"), p=$("#loginPass");
     [u,p].forEach(el=>{
@@ -2296,7 +2360,7 @@ const defaults = () => ({
       el.addEventListener("keydown",(ev)=>{
         if(ev.key==="Enter"){
           ev.preventDefault();
-          attemptLogin();
+          attemptLogin().catch(()=>{});
         }
       });
     });
@@ -2316,9 +2380,11 @@ const defaults = () => ({
       try{ authStore.removeItem(AUTH_KEY); }catch{}
       location.reload();
     };
-    const lo=$("#logoutBtn"); if(lo) lo.onclick=()=>{
+    const lo=$("#logoutBtn"); if(lo) lo.onclick=async ()=>{
+      try{ window.firebaseCloud && window.firebaseCloud.signOut && await window.firebaseCloud.signOut(); }catch(e){}
       clearAuthed();
       toast("ok","Sesión cerrada","Vuelve a iniciar sesión para continuar.");
+      window.__setFBStatus && window.__setFBStatus(false,"inicia sesión");
       enforceAuth();
     };
   }

@@ -1,0 +1,1650 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Contabilidad • Granja</title>
+  <style>
+
+    :root{
+      --bg:#f3fff4;
+      --panel:#ffffff;
+      --panel2:#f0fdf4;
+      --line:#d6ead7;
+      --text:#0b1220;
+      --muted:#52676a;
+      --acc:#16a34a;         /* verde */
+      --acc2:#22c55e;        /* verde claro */
+      --bad:#dc2626;
+      --ok:#16a34a;
+      --warn:#f59e0b;
+      --shadow:0 10px 26px rgba(2,6,23,.10);
+      --r:18px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background:
+        radial-gradient(1200px 700px at 30% -10%, rgba(34,197,94,.18), transparent 55%),
+        linear-gradient(180deg,#ffffff,var(--bg));
+      color:var(--text);
+      font:14px/1.35 system-ui,-apple-system,Segoe UI,Roboto,Arial;
+    }
+    a{color:var(--acc);text-decoration:none}
+    .wrap{max-width:1200px;margin:0 auto;padding:18px}
+
+    header{
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
+      padding:14px 16px;border:1px solid var(--line);background:rgba(255,255,255,.88);
+      border-radius:var(--r);box-shadow:var(--shadow);backdrop-filter: blur(8px);
+      position:sticky;top:10px;z-index:10;
+    }
+    .brand{display:flex;gap:10px;align-items:center}
+    .logo{
+      width:38px;height:38px;border-radius:12px;
+      background: conic-gradient(from 180deg, var(--acc2), var(--acc), var(--acc2));
+      box-shadow:var(--shadow);
+      display:grid;place-items:center;color:#ffffff;font-weight:900;
+    }
+    .title b{display:block;font-size:16px}
+    .title small{color:var(--muted)}
+    .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+
+    .pill{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:8px 10px;border:1px solid var(--line);
+      border-radius:999px;background:var(--panel2);
+    }
+    .dot{width:8px;height:8px;border-radius:99px;background:var(--warn)}
+    .dot.ok{background:var(--ok)}
+    .dot.bad{background:var(--bad)}
+
+    .btn{
+      border:1px solid var(--line);
+      background:var(--panel2);
+      color:var(--text);
+      padding:9px 12px;border-radius:12px;
+      cursor:pointer;transition:.12s transform,.12s background,.12s border,.12s color;
+    }
+    .btn:hover{
+      transform: translateY(-1px);
+      background:#dcfce7;
+      border-color: rgba(22,163,74,.45);
+    }
+    .btn.primary{
+      background:var(--acc);
+      border-color:rgba(22,163,74,.65);
+      color:#ffffff;
+    }
+    .btn.primary:hover{background:#15803d;border-color:#15803d}
+    .btn.danger{
+      background:rgba(220,38,38,.08);
+      border-color:rgba(220,38,38,.28);
+      color:#7f1d1d;
+    }
+    .btn.danger:hover{background:rgba(220,38,38,.12);border-color:rgba(220,38,38,.38)}
+    .btn:disabled{opacity:.55;cursor:not-allowed;transform:none}
+
+    .grid{display:grid;grid-template-columns: 260px 1fr;gap:14px;margin-top:14px}
+
+    nav{
+      border:1px solid var(--line);
+      border-radius:var(--r);
+      background:rgba(255,255,255,.85);
+      box-shadow:var(--shadow);
+      overflow:hidden
+    }
+    .navTop{padding:12px;border-bottom:1px solid var(--line);background:rgba(240,253,244,.75)}
+    .navTop .muted{color:var(--muted);font-size:12px}
+    .navList{display:flex;flex-direction:column}
+    .tabBtn{
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
+      padding:12px 12px;border:none;border-bottom:1px solid rgba(214,234,215,.9);
+      background:transparent;color:var(--text);cursor:pointer;text-align:left;
+    }
+    .tabBtn:hover{background:rgba(34,197,94,.10)}
+    .tabBtn.active{background:rgba(34,197,94,.16)}
+    main{
+      border:1px solid var(--line);
+      border-radius:var(--r);
+      background:rgba(255,255,255,.85);
+      box-shadow:var(--shadow);
+      min-height:560px;overflow:hidden
+    }
+    .mainHd{
+      padding:14px 16px;border-bottom:1px solid var(--line);
+      display:flex;justify-content:space-between;gap:12px;
+      align-items:flex-start;flex-wrap:wrap;
+      background:rgba(240,253,244,.75);
+    }
+    .mainHd h2{margin:0;font-size:16px}
+    .mainHd p{margin:4px 0 0;color:var(--muted)}
+    .mainBd{padding:14px 16px}
+
+    .cards{display:grid;grid-template-columns: repeat(4, 1fr); gap:12px}
+    .card{
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.95);
+      border-radius:16px;padding:12px;min-height:84px;
+    }
+    .card small{color:var(--muted);display:block}
+    .card b{font-size:16px}
+
+    .mono{font-variant-numeric: tabular-nums; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
+    .split{display:grid;grid-template-columns: 1.2fr .8fr; gap:12px;margin-top:12px}
+
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:10px 10px;border-bottom:1px solid rgba(214,234,215,.9);vertical-align:top}
+    th{color:var(--muted);text-align:left;font-size:12px;font-weight:700}
+    .right{text-align:right}
+    .muted{color:var(--muted)}
+
+    .tag{
+      display:inline-flex;align-items:center;gap:6px;
+      padding:4px 8px;border:1px solid rgba(22,163,74,.25);
+      border-radius:999px;background:rgba(34,197,94,.10);
+      font-size:12px;color:#14532d;
+    }
+    .tag.ok{border-color:rgba(22,163,74,.35);background:rgba(34,197,94,.14);color:#14532d}
+    .tag.bad{border-color:rgba(220,38,38,.30);background:rgba(220,38,38,.10);color:#7f1d1d}
+    .tag.warn{border-color:rgba(245,158,11,.35);background:rgba(245,158,11,.12);color:#7c2d12}
+
+    .form{display:grid;grid-template-columns: repeat(12, 1fr);gap:10px;margin-top:10px}
+    .f3{grid-column:span 3}
+    .f4{grid-column:span 4}
+    .f6{grid-column:span 6}
+    .f12{grid-column:span 12}
+
+    label{display:block;color:var(--muted);font-size:12px;margin-bottom:6px}
+    input,select,textarea{
+      width:100%;padding:10px 10px;border-radius:12px;
+      border:1px solid var(--line);
+      background:#ffffff;color:var(--text);outline:none
+    }
+    textarea{min-height:84px;resize:vertical}
+
+    .notice{
+      padding:10px 12px;border-radius:14px;
+      border:1px solid var(--line);
+      background:rgba(240,253,244,.85);
+      color:var(--muted);
+    }
+    .hr{height:1px;background:rgba(214,234,215,.95);margin:14px 0}
+    .hide{display:none !important}
+
+    .login{
+      max-width:520px;margin:18px auto;border:1px solid var(--line);
+      border-radius:var(--r);
+      padding:16px;background:rgba(255,255,255,.92);
+      box-shadow:var(--shadow)
+    }
+    .login h1{margin:0 0 4px;font-size:18px}
+    .login p{margin:0 0 12px;color:var(--muted)}
+    .foot{margin-top:14px;color:var(--muted);font-size:12px}
+
+    /* Dialog (nativo) */
+    dialog{
+      border:1px solid var(--line);
+      border-radius:var(--r);
+      background:#ffffff;
+      color:var(--text);
+      box-shadow:0 18px 50px rgba(2,6,23,.20);
+      padding:0;
+      max-width:min(820px, calc(100vw - 24px));
+    }
+    dialog::backdrop{background:rgba(2,6,23,.35)}
+    #dlgFt{border-top:1px solid var(--line)}
+
+    @media (max-width: 980px){
+      .grid{grid-template-columns:1fr}
+      .cards{grid-template-columns:repeat(2,1fr)}
+      .split{grid-template-columns:1fr}
+    }
+    @media (max-width: 520px){
+      .cards{grid-template-columns:1fr}
+      header{top:0;border-radius:0}
+      .wrap{padding:12px}
+    }
+
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo" aria-hidden="true">₱</div>
+        <div class="title">
+          <b id="farmName">Contabilidad</b>
+          <small id="subtitle">Lectura de datos de la granja</small>
+        </div>
+      </div>
+      <div class="row">
+        <span class="pill" title="Estado de sincronización">
+          <span id="fbDot" class="dot"></span>
+          <span id="fbText" class="muted">modo local</span>
+        </span>
+        <button class="btn" id="btnSync">Sincronizar</button>
+        <button class="btn" id="btnExport">Exportar</button>
+        <button class="btn danger" id="btnLogout">Salir</button>
+      </div>
+    </header>
+
+    <div id="loginScreen" class="login hide">
+      <h1>Ingresar</h1>
+      <p>Usa las credenciales de la granja. Si Firebase está activo, iniciará sesión en la nube; si no, entrará en modo local.</p>
+      <form id="loginForm" class="form">
+        <div class="f6">
+          <label>Usuario</label>
+          <input name="user" autocomplete="username" placeholder="admin" required />
+        </div>
+        <div class="f6">
+          <label>Contraseña</label>
+          <input name="pass" type="password" autocomplete="current-password" required />
+        </div>
+        <div class="f12 row" style="justify-content:flex-end">
+          <button type="button" class="btn" id="btnLocal">Entrar local</button>
+          <button class="btn primary" id="btnLogin">Entrar</button>
+        </div>
+      </form>
+      <div class="foot">
+        <div>Si no ves información, asegúrate de que la página de la granja ya tenga datos en este navegador o que tengas sesión en Firebase.</div>
+      </div>
+    </div>
+
+    <div id="appRoot" class="grid">
+      <nav>
+        <div class="navTop">
+          <div style="display:flex;justify-content:space-between;gap:10px;align-items:center">
+            <b>Contabilidad</b>
+            <span class="tag" id="deviceTag">—</span>
+          </div>
+          <div class="muted" id="navHint">Reportes claros para lechones y carne</div>
+        </div>
+        <div class="navList" id="nav"></div>
+      </nav>
+
+      <main>
+        <div class="mainHd">
+          <div>
+            <h2 id="viewTitle">Resumen</h2>
+            <p id="viewSub">Panorama financiero y productivo.</p>
+          </div>
+          <div class="row">
+            <span class="tag" id="rangeTag">—</span>
+          </div>
+        </div>
+        <div class="mainBd" id="view"></div>
+      </main>
+    </div>
+  </div>
+
+  <dialog id="dlg">
+    <div style="padding:12px 12px 0;display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+      <div>
+        <b id="dlgTitle">Modal</b>
+        <div class="muted" id="dlgSub" style="margin-top:3px">—</div>
+      </div>
+      <button class="btn" id="dlgClose">✕</button>
+    </div>
+    <div style="padding:12px" id="dlgBody"></div>
+    <div style="padding:12px;display:flex;gap:10px;justify-content:flex-end;border-top:1px solid var(--line)" id="dlgFt"></div>
+  </dialog>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "firebase/app": "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js",
+      "firebase/auth": "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js",
+      "firebase/firestore": "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js"
+    }
+  }
+  </script>
+
+  <script type="module">
+    // =========================
+    // Contabilidad (Standalone)
+    // =========================
+    // Lee la misma base (state) que la app de granja:
+    // - Local: localStorage KEY = "granja_porcina_v1_compact"
+    // - Nube: Firestore /apps/granja-7b4b5/users/<uid>/state/main (estado completo)
+    //
+    // Este archivo NO rompe la app de granja: solo agrega un bloque "state.accounting" (opcional).
+
+    import { initializeApp } from "firebase/app";
+    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword as fbSignInWithEmailAndPassword, setPersistence, browserLocalPersistence, signOut as fbSignOut } from "firebase/auth";
+    import { getFirestore, doc, getDoc, setDoc, onSnapshot, serverTimestamp } from "firebase/firestore";
+
+    // ---------- Helpers ----------
+    const $ = (sel, root=document)=>root.querySelector(sel);
+    const $$ = (sel, root=document)=>Array.from(root.querySelectorAll(sel));
+    const esc = (s)=>String(s??"").replace(/[&<>"']/g, c=>({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[c]));
+    const num = (v)=>{ const n = Number(String(v??"").replace(/[^\d.-]/g,"")); return Number.isFinite(n)?n:0; };
+    const uid = (p="id") => (crypto?.randomUUID?.() || (p+"_"+Math.random().toString(16).slice(2)+Date.now().toString(16)));
+    const today = ()=> new Date().toISOString().slice(0,10);
+    const firstDayOfMonth = ()=>{
+      const d=new Date(); d.setDate(1); return d.toISOString().slice(0,10);
+    };
+    const money = (v, currency="COP")=>{
+      try{
+        return new Intl.NumberFormat("es-CO",{style:"currency",currency,maximumFractionDigits:0}).format(Math.round(num(v)));
+      }catch{
+        return "$ " + Math.round(num(v)).toLocaleString("es-CO");
+      }
+    };
+    function inRange(dateStr, from, to){
+      if(!dateStr) return false;
+      const d = String(dateStr).slice(0,10);
+      if(from && d < from) return false;
+      if(to && d > to) return false;
+      return true;
+    }
+
+    // ---------- Storage ----------
+    const KEY = "granja_porcina_v1_compact";
+    const AUTH_KEY = KEY + "_acct_session";
+    const storage = (()=> {
+      const testKey="__ls";
+      try{ localStorage.setItem(testKey,"1"); localStorage.removeItem(testKey); return localStorage; }catch(e){
+        const mem = new Map();
+        return { getItem:k=>mem.get(k)||null, setItem:(k,v)=>mem.set(k,String(v)), removeItem:k=>mem.delete(k) };
+      }
+    })();
+    const authStore = (()=> {
+      const testKey="__ss";
+      try{ sessionStorage.setItem(testKey,"1"); sessionStorage.removeItem(testKey); return sessionStorage; }catch(e){
+        return storage;
+      }
+    })();
+    const isAuthed = ()=>{ try{ return authStore.getItem(AUTH_KEY)==="1"; }catch{ return false; } };
+    const setAuthed = (v)=>{ try{ v?authStore.setItem(AUTH_KEY,"1"):authStore.removeItem(AUTH_KEY);}catch{} };
+
+    // ---------- Farm defaults (solo para robustez al cargar) ----------
+    const farmDefaults = ()=>({
+      settings:{farmName:"Granja Porcícola",currency:"COP",arrobaKg:12.5,defaultPigKg:100,requireLogin:true,authUser:"admin",authPass:"1234"},
+      pens:[{id:"pen_gest",name:"Gestación",type:"gestacion"},{id:"pen_mat",name:"Maternidad",type:"maternidad"},{id:"pen_eng",name:"Engorde",type:"engorde"}],
+      sows:[], breedings:[], farrowings:[], batches:[],
+      inventory:[], stockMovements:[],
+      clients:[], sales:[], payments:[],
+      meat:{stockKg:0,headsForSale:0,movements:[]}, meatSales:[], meatPayments:[],
+      transactions:[], payables:[], tasks:[],
+      accounting:null
+    });
+
+    function withDefaults(s){
+      const d=farmDefaults();
+      s = (s && typeof s==="object") ? s : {};
+      s.settings = Object.assign({}, d.settings, s.settings||{});
+      // Arrays
+      for(const k of ["pens","sows","breedings","farrowings","batches","inventory","stockMovements","clients","sales","payments","meatSales","meatPayments","transactions","payables","tasks"]){
+        s[k] = Array.isArray(s[k]) ? s[k] : (Array.isArray(d[k]) ? d[k].slice() : []);
+      }
+      s.meat = Object.assign({}, d.meat, s.meat||{});
+      // Accounting defaults (no existía originalmente)
+      s.accounting = s.accounting && typeof s.accounting==="object" ? s.accounting : {};
+      const acc = s.accounting;
+
+      acc.accounts = Array.isArray(acc.accounts) ? acc.accounts : [
+        {id:"acct_cash", name:"Caja (Efectivo)", kind:"cash"},
+        {id:"acct_bank", name:"Cuenta Bancaria", kind:"bank"}
+      ];
+      acc.methodMap = acc.methodMap && typeof acc.methodMap==="object" ? acc.methodMap : {
+        "efectivo":"acct_cash",
+        "transferencia":"acct_bank",
+        "tarjeta":"acct_bank",
+        "otro":"acct_cash"
+      };
+      acc.fixedAssets = Array.isArray(acc.fixedAssets) ? acc.fixedAssets : [];
+      acc.farmItems = Array.isArray(acc.farmItems) ? acc.farmItems : [];
+      acc.owner = acc.owner && typeof acc.owner==="object" ? acc.owner : {initialCapital:0, notes:""};
+      acc.meta = acc.meta && typeof acc.meta==="object" ? acc.meta : {updatedAt:""};
+      return s;
+    }
+
+    function loadLocal(){
+      try{
+        const raw = storage.getItem(KEY);
+        return raw ? withDefaults(JSON.parse(raw)) : withDefaults(farmDefaults());
+      }catch{
+        return withDefaults(farmDefaults());
+      }
+    }
+    function saveLocal(){
+      try{ storage.setItem(KEY, JSON.stringify(state)); }catch(e){}
+    }
+
+    // ---------- Firebase (opcional) ----------
+    const firebaseConfig = {
+      apiKey: "AIzaSyCf5JD4AfLEkgFEJFJfYyEuharFdq1d6lY",
+      authDomain: "granja-7b4b5.firebaseapp.com",
+      projectId: "granja-7b4b5",
+      storageBucket: "granja-7b4b5.firebasestorage.app",
+      messagingSenderId: "570166643052",
+      appId: "1:570166643052:web:01925e9935d14637434b49"
+    };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+    const SINGLE_USER_EMAIL = "admin@granja.local";
+
+    const DEVICE_ID_KEY = "granja_device_id";
+    const deviceId = (()=> {
+      let v = localStorage.getItem(DEVICE_ID_KEY);
+      if(!v){ v = (crypto?.randomUUID?.() || ("dev_"+Math.random().toString(16).slice(2))); localStorage.setItem(DEVICE_ID_KEY, v); }
+      return v;
+    })();
+    $("#deviceTag").textContent = deviceId.slice(0,8);
+
+    function stateDocRef(uid){ return doc(db,"apps","granja-7b4b5","users",uid,"state","main"); }
+
+    let fb = {
+      enabled:true, ready:false, uid:null, unsub:null,
+      async signIn(userOrEmail, password){
+        const u=(userOrEmail||"").toString().trim();
+        const p=(password||"").toString();
+        if(!u||!p) throw new Error("missing-credentials");
+        const email = (u.includes("@")?u:(u+"@granja.local")).toLowerCase();
+        if(email !== SINGLE_USER_EMAIL.toLowerCase()) throw new Error("invalid-user");
+        await setPersistence(auth, browserLocalPersistence);
+        await fbSignInWithEmailAndPassword(auth, SINGLE_USER_EMAIL, p);
+        return true;
+      },
+      async signOut(){ try{ await fbSignOut(auth);}catch(e){} },
+      async loadNow(){
+        if(!this.uid) return null;
+        const snap = await getDoc(stateDocRef(this.uid));
+        return snap.exists() ? (snap.data()?.state || null) : null;
+      },
+      async saveNow(nextState){
+        if(!this.uid) return;
+        await setDoc(stateDocRef(this.uid), {state: nextState, updatedAt: serverTimestamp(), deviceId}, {merge:true});
+      }
+    };
+
+    // ---------- State + Sync ----------
+    let state = loadLocal();
+    let __APPLYING_REMOTE__ = false;
+    let __SAVE_TIMER__ = null;
+
+    function setFBStatus(kind, text){
+      const dot=$("#fbDot"); const t=$("#fbText");
+      dot.classList.remove("ok","bad");
+      if(kind==="ok"){ dot.classList.add("ok"); t.textContent=text||"conectado"; }
+      else if(kind==="bad"){ dot.classList.add("bad"); t.textContent=text||"error"; }
+      else { t.textContent=text||"modo local"; }
+    }
+    setFBStatus(null,"modo local");
+
+    function scheduleCloudSave(){
+      if(__APPLYING_REMOTE__) return;
+      if(!fb.ready) { saveLocal(); return; }
+      saveLocal();
+      if(__SAVE_TIMER__) clearTimeout(__SAVE_TIMER__);
+      __SAVE_TIMER__ = setTimeout(async ()=>{
+        try{ await fb.saveNow(state); }catch(e){ console.warn("[Firebase] save error", e); setFBStatus("bad","falló guardado"); }
+      }, 650);
+    }
+
+    async function applyRemoteState(remote){
+      __APPLYING_REMOTE__ = true;
+      try{
+        state = withDefaults(remote);
+        // migración ligera: asignar accountId en transacciones si falta (solo contabilidad)
+        ensureAccountIds();
+        saveLocal();
+      } finally {
+        __APPLYING_REMOTE__ = false;
+      }
+      render();
+    }
+
+    function ensureAccountIds(){
+      const map = state.accounting?.methodMap || {};
+      (state.transactions||[]).forEach(tx=>{
+        if(tx && !tx.accountId){
+          const m = String(tx.method||"").toLowerCase() || "efectivo";
+          tx.accountId = map[m] || map["efectivo"] || "acct_cash";
+        }
+      });
+    }
+    ensureAccountIds();
+
+    // ---------- Auth gate ----------
+    function requireAuth(){ return state.settings?.requireLogin !== false; }
+
+    function showApp(){
+      $("#loginScreen").classList.add("hide");
+      $("#appRoot").classList.remove("hide");
+      $("#farmName").textContent = state.settings?.farmName ? state.settings.farmName + " • Contabilidad" : "Contabilidad";
+      $("#subtitle").textContent = "Estado contable integrado (lechones y carne)";
+      $("#btnLogout").disabled = false;
+      renderNav();
+      render();
+    }
+    function showLogin(){
+      $("#appRoot").classList.add("hide");
+      $("#loginScreen").classList.remove("hide");
+      $("#btnLogout").disabled = true;
+    }
+    function localLogin(user, pass){
+      const u=(user||"").toString().trim();
+      const p=(pass||"").toString();
+      if(u !== String(state.settings?.authUser||"admin")) return false;
+      if(p !== String(state.settings?.authPass||"1234")) return false;
+      setAuthed(true);
+      return true;
+    }
+
+    async function attemptLogin(user, pass, preferCloud=true){
+      // Si ya hay sesión Firebase, no insistir
+      if(fb.ready && fb.uid){ setAuthed(true); showApp(); return true; }
+
+      // 1) Cloud (si está disponible)
+      if(preferCloud){
+        try{
+          await fb.signIn(user, pass);
+          // onAuthStateChanged se encargará de showApp
+          return true;
+        }catch(e){
+          console.warn("Cloud login error:", e);
+          // caer a local si credenciales locales coinciden
+        }
+      }
+
+      // 2) Local
+      if(localLogin(user, pass)){ showApp(); return true; }
+      return false;
+    }
+
+    // Firebase session watcher
+    onAuthStateChanged(auth, async (user)=>{
+      if(!user){
+        fb.ready=false; fb.uid=null;
+        try{ if(fb.unsub) fb.unsub(); }catch(e){}
+        setFBStatus(null,"modo local");
+        // Si exige auth, muestra login, si no, entra
+        if(requireAuth() && !isAuthed()) showLogin();
+        else showApp();
+        return;
+      }
+      fb.ready=true; fb.uid=user.uid;
+      setAuthed(true);
+      setFBStatus("ok","conectado a nube");
+      // Carga estado inicial desde nube
+      try{
+        const remote = await fb.loadNow();
+        if(remote) await applyRemoteState(remote);
+      }catch(e){
+        console.warn("[Firebase] load error", e);
+      }
+      // Suscripción a cambios
+      try{
+        if(fb.unsub) fb.unsub();
+        fb.unsub = onSnapshot(stateDocRef(user.uid), (snap)=>{
+          try{
+            const data = snap.data();
+            const remote = data?.state;
+            const remoteDevice = data?.deviceId;
+            if(!remote) return;
+            // ignora eco propio
+            if(remoteDevice && remoteDevice === deviceId) return;
+            applyRemoteState(remote);
+          }catch(e){ console.warn("[Firebase] snapshot error", e); }
+        });
+      }catch(e){ console.warn("[Firebase] subscribe error", e); }
+    });
+
+    // ---------- UI: Modal ----------
+    const dlg = $("#dlg");
+    $("#dlgClose").onclick = ()=> dlg.close();
+    function openModal({title, sub, body, footer, onMount}){
+      $("#dlgTitle").textContent = title || "Detalle";
+      $("#dlgSub").textContent = sub || "";
+      $("#dlgBody").innerHTML = body || "";
+      $("#dlgFt").innerHTML = footer || `<button class="btn" id="mClose">Cerrar</button>`;
+      const c=$("#mClose"); if(c) c.onclick=()=>dlg.close();
+      dlg.showModal();
+      onMount && onMount();
+    }
+
+    // ---------- Tabs ----------
+    const tabs = [
+      {id:"resumen", label:"Resumen"},
+      {id:"caja", label:"Caja y Bancos"},
+      {id:"resultados", label:"Resultados"},
+      {id:"inventario", label:"Inventario y Costos"},
+      {id:"activos", label:"Activos fijos"},
+      {id:"cx", label:"CxC / CxP"},
+      {id:"config", label:"Configuración"}
+    ];
+    let current = "resumen";
+    let range = {from: firstDayOfMonth(), to: today()};
+
+    function renderNav(){
+      const nav=$("#nav");
+      nav.innerHTML = tabs.map(t=>{
+        const active = t.id===current ? "active" : "";
+        return `<button class="tabBtn ${active}" data-tab="${t.id}">
+          <span>${esc(t.label)}</span>
+          <span class="muted">›</span>
+        </button>`;
+      }).join("");
+      $$(".tabBtn",nav).forEach(b=> b.onclick=()=>{ current=b.dataset.tab; renderNav(); render(); });
+    }
+
+    function setTitle(title, sub){
+      $("#viewTitle").textContent = title;
+      $("#viewSub").textContent = sub || "";
+      $("#rangeTag").textContent = `${range.from} → ${range.to}`;
+    }
+
+    // ---------- Cálculos contables ----------
+    function txsInRange(){
+      return (state.transactions||[]).filter(tx=>inRange(tx?.date, range.from, range.to));
+    }
+    function getAccount(id){
+      return (state.accounting?.accounts||[]).find(a=>a.id===id) || null;
+    }
+    function accountsBalances(allTime=false){
+      const out = new Map();
+      (state.accounting?.accounts||[]).forEach(a=> out.set(a.id, {account:a, in:0, out:0, net:0}));
+      const txs = allTime ? (state.transactions||[]) : txsInRange();
+      txs.forEach(tx=>{
+        const aid = tx.accountId || (state.accounting?.methodMap||{})[String(tx.method||"").toLowerCase()] || "acct_cash";
+        if(!out.has(aid)){
+          const phantom = {id:aid,name:"Cuenta (desconocida)",kind:"other"};
+          out.set(aid,{account:phantom,in:0,out:0,net:0});
+        }
+        const r=out.get(aid);
+        const amt = Math.max(0, num(tx.amount));
+        if(String(tx.type)==="ingreso") r.in += amt;
+        else r.out += amt;
+        r.net = r.in - r.out;
+      });
+      return Array.from(out.values()).sort((a,b)=> (b.net - a.net));
+    }
+
+    function accruedSalesByLine(){
+      const out = {monta:{sales:0,paid:0,pending:0}, engorde:{sales:0,paid:0,pending:0}};
+      (state.sales||[]).forEach(s=>{
+        if(!inRange(s?.date, range.from, range.to)) return;
+        const total = Math.max(0, num(s.total));
+        const paid = Math.max(0, num(s.paidAmount));
+        out.monta.sales += total; out.monta.paid += paid; out.monta.pending += Math.max(0,total-paid);
+      });
+      (state.meatSales||[]).forEach(s=>{
+        if(!inRange(s?.date, range.from, range.to)) return;
+        const total = Math.max(0, num(s.total));
+        const paid = Math.max(0, num(s.paidAmount));
+        out.engorde.sales += total; out.engorde.paid += paid; out.engorde.pending += Math.max(0,total-paid);
+      });
+      return out;
+    }
+
+    function inferLineFromMov(m){
+      const lt = String(m?.linkedType||"");
+      const lid = String(m?.linkedId||"");
+      if(lt==="sow") return "gestacion";
+      if(lt==="engorde") return "engorde";
+      if(lt==="batch"){
+        const b = (state.batches||[]).find(x=>x.id===lid);
+        const w = b?.weaningDate ? String(b.weaningDate).slice(0,10) : "";
+        const md = m?.date ? String(m.date).slice(0,10) : "";
+        if(w && md && md >= w) return "engorde";
+        return "monta";
+      }
+      return "general";
+    }
+    function movCost(m){
+      // Costo absoluto imputado
+      const total = num(m?.totalCost);
+      const q = Math.abs(num(m?.qty));
+      const uc = Math.max(0, num(m?.unitCost));
+      const c = (total>0) ? total : (q*uc);
+      return Math.max(0, c);
+    }
+    function consumptionByLine(){
+      const out = {gestacion:0,monta:0,engorde:0,general:0};
+      (state.stockMovements||[]).forEach(m=>{
+        if(!inRange(m?.date, range.from, range.to)) return;
+        const t = String(m?.type||"");
+        if(t!=="salida") return;
+        const line = inferLineFromMov(m);
+        out[line] = (out[line]||0) + movCost(m);
+      });
+      return out;
+    }
+
+    function inventoryValuation(){
+      const items = (state.inventory||[]).map(i=>{
+        const qty = Math.max(0, num(i.qty));
+        const uc = Math.max(0, num(i.unitCost));
+        const val = qty * uc;
+        return {id:i.id,name:i.name,category:i.category,unit:i.unit,qty,unitCost:uc,val};
+      }).sort((a,b)=>b.val-a.val);
+      const total = items.reduce((s,x)=>s+x.val,0);
+      return {items,total};
+    }
+
+    function payablesOpen(){
+      const rows = (state.payables||[]).filter(p=>String(p.status||"abierto")!=="cerrado");
+      const total = rows.reduce((s,p)=>s + Math.max(0, num(p.total) - num(p.paid)),0);
+      return {rows,total};
+    }
+
+    function fixedAssetsSummary(){
+      const assets = (state.accounting?.fixedAssets||[]).map(a=>{
+        const cost = Math.max(0, num(a.cost));
+        const salvage = Math.max(0, num(a.salvage));
+        const lifeYears = Math.max(1, num(a.lifeYears)||5);
+        const depYear = Math.max(0, (cost - salvage) / lifeYears);
+        const depMonth = depYear / 12;
+        // Depreciación acumulada (aprox) por meses desde date
+        const d0 = (a.date||today()).slice(0,10);
+        const start = new Date(d0+"T00:00:00");
+        const end = new Date(range.to+"T00:00:00");
+        let months = Math.max(0, (end.getFullYear()-start.getFullYear())*12 + (end.getMonth()-start.getMonth()));
+        // Si el día del mes aún no se cumple, no cuenta el mes completo
+        if(end.getDate() < start.getDate()) months = Math.max(0, months-1);
+        const depAcc = Math.min(cost - salvage, depMonth * months);
+        const book = Math.max(salvage, cost - depAcc);
+        return Object.assign({}, a, {cost, salvage, lifeYears, depMonth, depAcc, book});
+      });
+      const totalCost = assets.reduce((s,x)=>s+x.cost,0);
+      const totalBook = assets.reduce((s,x)=>s+x.book,0);
+      return {assets,totalCost,totalBook};
+    }
+function farmItemsSummary(){
+  // Inventario de bienes/equipos de la finca (no consumibles)
+  const items = (state.accounting?.farmItems||[]).map(it=>{
+    const qty = Math.max(0, num(it.qty));
+    const unitCost = Math.max(0, num(it.unitCost));
+    const val = qty * unitCost;
+    return Object.assign({}, it, {
+      qty, unitCost, val,
+      unit: (it.unit||"und"),
+      line: (it.line||"general")
+    });
+  }).sort((a,b)=>b.val-a.val);
+  const total = items.reduce((s,x)=>s + x.val, 0);
+  return {items,total};
+}
+
+
+    function balanceSheet(allTime=true){
+      // Activos: caja/banco neto + inventario insumos + inventario finca (equipos) + activos fijos neto
+      const balances = accountsBalances(allTime);
+      const cashNet = balances.reduce((s,x)=>s + x.net,0);
+      const inv = inventoryValuation().total;
+      const fa = fixedAssetsSummary().totalBook;
+      const fi = farmItemsSummary().total;
+      const assets = cashNet + inv + fa + fi;
+
+      // Pasivos: CxP abiertas
+      const liab = payablesOpen().total;
+
+      const equity = assets - liab;
+      return {cashNet,inv,fa,fi,assets,liab,equity};
+    }
+
+    // ---------- Views ----------
+    function rangeControls(){
+      return `
+        <div class="form" style="margin-top:0">
+          <div class="f3"><label>Desde</label><input type="date" id="from" value="${esc(range.from)}"></div>
+          <div class="f3"><label>Hasta</label><input type="date" id="to" value="${esc(range.to)}"></div>
+          <div class="f6" style="display:flex;gap:10px;align-items:flex-end;justify-content:flex-end">
+            <button class="btn" id="btnMonth">Mes actual</button>
+            <button class="btn" id="btnYear">Año actual</button>
+            <button class="btn primary" id="btnApply">Aplicar</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function mountRangeControls(){
+      $("#btnMonth").onclick=()=>{ range.from = firstDayOfMonth(); range.to=today(); render(); };
+      $("#btnYear").onclick=()=>{
+        const d=new Date(); const y=d.getFullYear();
+        range.from = `${y}-01-01`; range.to=today(); render();
+      };
+      $("#btnApply").onclick=()=>{
+        range.from = $("#from").value || range.from;
+        range.to = $("#to").value || range.to;
+        render();
+      };
+    }
+
+    function viewResumen(){
+      setTitle("Resumen", "Panorama financiero (caja), ventas (devengado) y costos (consumo de inventario).");
+      const bs = balanceSheet(true);
+      const bsPeriod = balanceSheet(false);
+      const accr = accruedSalesByLine();
+      const cons = consumptionByLine();
+      const inv = inventoryValuation();
+      const fa = fixedAssetsSummary();
+      const fi = farmItemsSummary();
+      const pay = payablesOpen();
+
+      const html = `
+        ${rangeControls()}
+        <div class="cards" style="margin-top:12px">
+          <div class="card"><small>Caja+Bancos (neto, periodo)</small><b class="mono">${money(bsPeriod.cashNet, state.settings.currency)}</b><div class="muted">Ingresos − gastos en el rango</div></div>
+          <div class="card"><small>Ventas lechones (devengado)</small><b class="mono">${money(accr.monta.sales, state.settings.currency)}</b><div class="muted">Cobrado: ${money(accr.monta.paid, state.settings.currency)}</div></div>
+          <div class="card"><small>Ventas carne (devengado)</small><b class="mono">${money(accr.engorde.sales, state.settings.currency)}</b><div class="muted">Cobrado: ${money(accr.engorde.paid, state.settings.currency)}</div></div>
+          <div class="card"><small>Consumo inventario (costos)</small><b class="mono">${money(cons.gestacion+cons.monta+cons.engorde+cons.general, state.settings.currency)}</b><div class="muted">Salidas imputadas por línea</div></div>
+        </div>
+
+        <div class="split">
+          <div>
+            <div class="card" style="min-height:auto">
+              <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap">
+                <div>
+                  <b>Estado de situación (balance)</b>
+                  <div class="muted">Estimado con caja+banco, inventario de insumos, bienes/equipos de finca y activos fijos netos.</div>
+                </div>
+                <span class="tag">${esc(range.to)}</span>
+              </div>
+              <div class="hr"></div>
+              <table>
+                <thead><tr><th>Concepto</th><th class="right">Valor</th></tr></thead>
+                <tbody>
+                  <tr><td>Activos: Caja+Bancos (neto)</td><td class="right mono">${money(bs.cashNet, state.settings.currency)}</td></tr>
+                  <tr><td>Activos: Inventario (valorización)</td><td class="right mono">${money(inv.total, state.settings.currency)}</td></tr>
+                  <tr><td>Activos: Maquinaria/activos fijos (neto)</td><td class="right mono">${money(fa.totalBook, state.settings.currency)}</td></tr>
+                  <tr><td>Activos: Bienes/equipos (inventario finca)</td><td class="right mono">${money(fi.total, state.settings.currency)}</td></tr>
+                  <tr><td><b>Total Activos</b></td><td class="right mono"><b>${money(bs.assets, state.settings.currency)}</b></td></tr>
+                  <tr><td>Pasivos: Cuentas por pagar abiertas</td><td class="right mono">${money(pay.total, state.settings.currency)}</td></tr>
+                  <tr><td><b>Patrimonio estimado</b></td><td class="right mono"><b>${money(bs.equity, state.settings.currency)}</b></td></tr>
+                </tbody>
+              </table>
+              <div class="notice" style="margin-top:10px">
+                Nota: este balance es una aproximación práctica para la finca. Si quieres contabilidad NIIF completa (depreciación por periodos, cuentas detalladas, etc.), lo extendemos.
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="card" style="min-height:auto">
+              <b>Semáforo de pendientes</b>
+              <div class="muted">Cuentas por cobrar y pagar relevantes para caja.</div>
+              <div class="hr"></div>
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <div class="tag warn">CxC lechones: <span class="mono">${money(accr.monta.pending, state.settings.currency)}</span></div>
+                <div class="tag warn">CxC carne: <span class="mono">${money(accr.engorde.pending, state.settings.currency)}</span></div>
+                <div class="tag bad">CxP (proveedores): <span class="mono">${money(pay.total, state.settings.currency)}</span></div>
+              </div>
+              <div class="hr"></div>
+              <button class="btn primary" id="goCx">Ver detalle CxC/CxP</button>
+            </div>
+          </div>
+        </div>
+      `;
+      $("#view").innerHTML = html;
+      mountRangeControls();
+      $("#goCx").onclick=()=>{ current="cx"; renderNav(); render(); };
+    }
+
+    function viewCaja(){
+      setTitle("Caja y Bancos", "Control de entradas/salidas y saldo por cuenta (efectivo y bancos).");
+      const rows = accountsBalances(false);
+      const ledger = txsInRange().slice().sort((a,b)=>String(b.date||"").localeCompare(String(a.date||"")));
+      const opsAcc = (state.accounting?.accounts||[]).map(a=>`<option value="${a.id}">${esc(a.name)} (${esc(a.kind)})</option>`).join("");
+
+      const html = `
+        ${rangeControls()}
+        <div class="cards" style="margin-top:12px">
+          ${rows.slice(0,4).map(r=>`
+            <div class="card">
+              <small>${esc(r.account.name)}</small>
+              <b class="mono">${money(r.net, state.settings.currency)}</b>
+              <div class="muted">In: ${money(r.in, state.settings.currency)} • Out: ${money(r.out, state.settings.currency)}</div>
+            </div>
+          `).join("")}
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="row" style="justify-content:space-between">
+          <b>Libro diario (periodo)</b>
+          <div class="row">
+            <button class="btn" id="btnAddTx">Nueva transacción</button>
+          </div>
+        </div>
+
+        <div class="notice" style="margin:10px 0">
+          Tip: si en la app de granja registras ventas, abonos o compras, aquí aparecen automáticamente.
+        </div>
+
+        <div style="overflow:auto;border:1px solid var(--line);border-radius:14px">
+          <table>
+            <thead><tr>
+              <th>Fecha</th><th>Tipo</th><th>Línea</th><th>Categoría</th><th>Cuenta</th><th>Método</th><th class="right">Valor</th><th>Notas</th>
+            </tr></thead>
+            <tbody>
+              ${ledger.map(tx=>{
+                const a = getAccount(tx.accountId) || {name:"—"};
+                const sign = String(tx.type)==="ingreso" ? "+" : "−";
+                const cls = String(tx.type)==="ingreso" ? "ok" : "bad";
+                return `<tr>
+                  <td class="mono">${esc(String(tx.date||"").slice(0,10))}</td>
+                  <td><span class="tag ${cls}">${esc(tx.type||"")}</span></td>
+                  <td>${esc(tx.line||"general")}</td>
+                  <td>${esc(tx.category||"—")}</td>
+                  <td>${esc(a.name)}</td>
+                  <td>${esc(tx.method||"—")}</td>
+                  <td class="right mono">${sign} ${money(tx.amount, state.settings.currency)}</td>
+                  <td class="muted">${esc(tx.notes||"")}</td>
+                </tr>`;
+              }).join("") || `<tr><td colspan="8" class="muted">Sin movimientos en el rango.</td></tr>`}
+            </tbody>
+          </table>
+        </div>
+      `;
+      $("#view").innerHTML = html;
+      mountRangeControls();
+
+      $("#btnAddTx").onclick=()=>{
+        openModal({
+          title:"Nueva transacción",
+          sub:"Registra una entrada/salida y su cuenta (caja o banco).",
+          body:`
+            <form id="txForm" class="form">
+              <div class="f3"><label>Fecha</label><input type="date" name="date" value="${esc(today())}"></div>
+              <div class="f3"><label>Tipo</label>
+                <select name="type">
+                  <option value="ingreso">Ingreso</option>
+                  <option value="gasto">Gasto</option>
+                </select>
+              </div>
+              <div class="f3"><label>Línea</label>
+                <select name="line">
+                  <option value="general">General</option>
+                  <option value="gestacion">Gestación</option>
+                  <option value="monta">Monta (lechones)</option>
+                  <option value="engorde">Engorde (carne)</option>
+                </select>
+              </div>
+              <div class="f3"><label>Cuenta</label>
+                <select name="accountId">${opsAcc}</select>
+              </div>
+              <div class="f4"><label>Categoría</label><input name="category" placeholder="Ej: Nómina, Servicios, Veterinaria"></div>
+              <div class="f4"><label>Método</label>
+                <select name="method">
+                  <option value="efectivo">Efectivo</option>
+                  <option value="transferencia">Transferencia</option>
+                  <option value="tarjeta">Tarjeta</option>
+                  <option value="otro">Otro</option>
+                </select>
+              </div>
+              <div class="f4"><label>Valor</label><input name="amount" type="number" step="0.01" value="0"></div>
+              <div class="f12"><label>Notas</label><textarea name="notes" placeholder="Detalle"></textarea></div>
+            </form>
+          `,
+          footer:`<button class="btn" id="mClose">Cancelar</button><button class="btn primary" id="ok">Guardar</button>`,
+          onMount: ()=>{
+            $("#ok").onclick=()=>{
+              const fd=new FormData($("#txForm"));
+              const amount = Math.max(0, num(fd.get("amount")));
+              if(amount<=0){ alert("El valor debe ser mayor a 0."); return; }
+              const tx = {
+                id: uid("tx"),
+                date: (fd.get("date")||today()).toString(),
+                type: (fd.get("type")||"gasto").toString(),
+                line: (fd.get("line")||"general").toString(),
+                category: (fd.get("category")||"—").toString().trim() || "—",
+                amount,
+                method: (fd.get("method")||"efectivo").toString(),
+                accountId: (fd.get("accountId")||"acct_cash").toString(),
+                refType:"manual",
+                refId:"",
+                notes: (fd.get("notes")||"").toString().trim()
+              };
+              state.transactions = state.transactions || [];
+              state.transactions.push(tx);
+              scheduleCloudSave();
+              dlg.close();
+              render();
+            };
+          }
+        });
+      };
+    }
+
+    function viewResultados(){
+      setTitle("Resultados", "Utilidad estimada por línea: Ventas (devengado) − consumo de inventario (costos).");
+      const accr = accruedSalesByLine();
+      const cons = consumptionByLine();
+      const currency = state.settings.currency;
+
+      const lineRow = (label, sales, cost)=> {
+        const profit = sales - cost;
+        const tag = profit>=0 ? "ok" : "bad";
+        return `<tr>
+          <td><b>${esc(label)}</b></td>
+          <td class="right mono">${money(sales, currency)}</td>
+          <td class="right mono">${money(cost, currency)}</td>
+          <td class="right mono"><span class="tag ${tag}">${money(profit, currency)}</span></td>
+        </tr>`;
+      };
+
+      const html = `
+        ${rangeControls()}
+        <div class="notice" style="margin-top:12px">
+          Este informe es ideal para gestión: te muestra si la línea de lechones o carne está cubriendo su consumo de insumos.
+          No incluye mano de obra, depreciación ni gastos generales (puedes registrarlos en Caja para completar el panorama).
+        </div>
+
+        <div class="hr"></div>
+
+        <div style="overflow:auto;border:1px solid var(--line);border-radius:14px">
+          <table>
+            <thead><tr><th>Línea</th><th class="right">Ventas</th><th class="right">Costos (consumo)</th><th class="right">Resultado</th></tr></thead>
+            <tbody>
+              ${lineRow("Monta (lechones)", accr.monta.sales, cons.monta)}
+              ${lineRow("Engorde (carne)", accr.engorde.sales, cons.engorde)}
+              ${lineRow("Gestación (centro de costo)", 0, cons.gestacion)}
+              ${lineRow("General", 0, cons.general)}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="cards" style="margin-top:12px">
+          <div class="card"><small>CxC lechones (pendiente)</small><b class="mono">${money(accr.monta.pending, currency)}</b></div>
+          <div class="card"><small>CxC carne (pendiente)</small><b class="mono">${money(accr.engorde.pending, currency)}</b></div>
+          <div class="card"><small>Consumo Gestación</small><b class="mono">${money(cons.gestacion, currency)}</b></div>
+          <div class="card"><small>Consumo Total</small><b class="mono">${money(cons.gestacion+cons.monta+cons.engorde+cons.general, currency)}</b></div>
+        </div>
+      `;
+      $("#view").innerHTML = html;
+      mountRangeControls();
+    }
+
+    function viewInventario(){
+      setTitle("Inventario y Costos", "Valor del inventario actual y consumos por línea en el periodo.");
+      const inv = inventoryValuation();
+      const cons = consumptionByLine();
+      const currency = state.settings.currency;
+
+      const html = `
+        ${rangeControls()}
+        <div class="cards" style="margin-top:12px">
+          <div class="card"><small>Inventario valorizado (actual)</small><b class="mono">${money(inv.total, currency)}</b><div class="muted">${inv.items.length} ítems</div></div>
+          <div class="card"><small>Consumo Monta</small><b class="mono">${money(cons.monta, currency)}</b></div>
+          <div class="card"><small>Consumo Engorde</small><b class="mono">${money(cons.engorde, currency)}</b></div>
+          <div class="card"><small>Consumo Gestación</small><b class="mono">${money(cons.gestacion, currency)}</b></div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="row" style="justify-content:space-between">
+          <b>Inventario (valor por ítem)</b>
+          <div class="muted">Se calcula con Cantidad actual × Costo unitario</div>
+        </div>
+
+        <div style="overflow:auto;border:1px solid var(--line);border-radius:14px;margin-top:10px">
+          <table>
+            <thead><tr><th>Ítem</th><th>Categoría</th><th class="right">Cantidad</th><th>Unidad</th><th class="right">Costo unit</th><th class="right">Valor</th></tr></thead>
+            <tbody>
+              ${inv.items.slice(0,200).map(x=>`
+                <tr>
+                  <td><b>${esc(x.name)}</b></td>
+                  <td class="muted">${esc(x.category||"—")}</td>
+                  <td class="right mono">${esc(x.qty.toFixed(2))}</td>
+                  <td>${esc(x.unit||"und")}</td>
+                  <td class="right mono">${money(x.unitCost, currency)}</td>
+                  <td class="right mono"><b>${money(x.val, currency)}</b></td>
+                </tr>
+              `).join("") || `<tr><td colspan="6" class="muted">No hay inventario.</td></tr>`}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="notice" style="margin-top:10px">
+          Si registras salidas (suministros) desde Cerdas/Engorde, aquí se reflejan como consumo (costos) por línea.
+        </div>
+      `;
+      $("#view").innerHTML = html;
+      mountRangeControls();
+    }
+
+    function viewActivos(){
+      setTitle("Activos fijos", "Maquinaria e inversión: costo, depreciación y valor en libros.");
+      const fa = fixedAssetsSummary();
+      const fi = farmItemsSummary();
+      const currency = state.settings.currency;
+
+      const html = `
+        ${rangeControls()}
+        
+<div class="cards" style="margin-top:12px">
+  <div class="card"><small>Activos fijos: inversión (costo)</small><b class="mono">${money(fa.totalCost, currency)}</b></div>
+  <div class="card"><small>Activos fijos: valor en libros</small><b class="mono">${money(fa.totalBook, currency)}</b></div>
+  <div class="card"><small>Equipos/herramientas (inventario finca)</small><b class="mono">${money(fi.total, currency)}</b><div class="muted">${fi.items.length} ítems</div></div>
+  <div class="card"><small># Activos fijos</small><b class="mono">${esc(fa.assets.length)}</b></div>
+  <div class="card"><small># Ítems inventario finca</small><b class="mono">${esc(fi.items.length)}</b></div>
+  <div class="card"><small>Tip</small><div class="muted">Maquinaria grande en “Activos fijos”. Herramientas/equipos en “Inventario finca”.</div></div>
+</div>
+
+<div class="hr"></div>
+
+        <div class="row" style="justify-content:space-between">
+          <b>Listado de activos</b>
+          <button class="btn primary" id="btnAddAsset">Nuevo activo</button>
+        </div>
+
+        <div style="overflow:auto;border:1px solid var(--line);border-radius:14px;margin-top:10px">
+          <table>
+            <thead><tr>
+              <th>Activo</th><th>Fecha</th><th class="right">Costo</th><th class="right">Salvamento</th><th class="right">Vida (años)</th><th class="right">Dep. acum.</th><th class="right">Libro</th><th></th>
+            </tr></thead>
+            <tbody>
+              ${fa.assets.map(a=>`
+                <tr>
+                  <td><b>${esc(a.name)}</b><div class="muted">${esc(a.notes||"")}</div></td>
+                  <td class="mono">${esc(String(a.date||"").slice(0,10))}</td>
+                  <td class="right mono">${money(a.cost, currency)}</td>
+                  <td class="right mono">${money(a.salvage, currency)}</td>
+                  <td class="right mono">${esc(a.lifeYears)}</td>
+                  <td class="right mono">${money(a.depAcc, currency)}</td>
+                  <td class="right mono"><b>${money(a.book, currency)}</b></td>
+                  <td class="right">
+                    <button class="btn" data-edit="${a.id}">Editar</button>
+                    <button class="btn danger" data-del="${a.id}">Eliminar</button>
+                  </td>
+                </tr>
+              `).join("") || `<tr><td colspan="8" class="muted">Aún no hay activos registrados.</td></tr>`}
+            </tbody>
+          </table>
+        </div>
+
+<div class="hr"></div>
+
+<div class="row" style="justify-content:space-between">
+  <div>
+    <b>Inventario finca (equipos/herramientas)</b>
+    <div class="muted">Ítems no consumibles: herramientas, equipos, repuestos durables, etc. Se valorizan por Cantidad × Costo unitario.</div>
+  </div>
+  <button class="btn primary" id="btnAddFarmItem">Nuevo ítem</button>
+</div>
+
+<div style="overflow:auto;border:1px solid var(--line);border-radius:14px;margin-top:10px">
+  <table>
+    <thead><tr>
+      <th>Ítem</th><th>Proceso</th><th>Categoría</th><th>Fecha</th>
+      <th class="right">Cantidad</th><th>Unidad</th><th class="right">Costo unit</th><th class="right">Valor</th><th></th>
+    </tr></thead>
+    <tbody>
+      ${fi.items.map(it=>`
+        <tr>
+          <td><b>${esc(it.name)}</b><div class="muted">${esc(it.notes||"")}</div></td>
+          <td>${esc(it.line||"general")}</td>
+          <td class="muted">${esc(it.category||"—")}</td>
+          <td class="mono">${esc(String(it.date||"").slice(0,10) || "—")}</td>
+          <td class="right mono">${esc((it.qty||0).toFixed(2))}</td>
+          <td>${esc(it.unit||"und")}</td>
+          <td class="right mono">${money(it.unitCost||0, currency)}</td>
+          <td class="right mono"><b>${money(it.val||0, currency)}</b></td>
+          <td class="right">
+            <button class="btn" data-edit-fi="${it.id}">Editar</button>
+            <button class="btn danger" data-del-fi="${it.id}">Eliminar</button>
+          </td>
+        </tr>
+      `).join("") || `<tr><td colspan="9" class="muted">Aún no hay ítems registrados.</td></tr>`}
+    </tbody>
+  </table>
+</div>
+
+<div class="notice" style="margin-top:10px">
+  Sugerencia: Si este ítem se “consume” (se gasta), regístralo mejor en Inventario (insumos). Si es duradero y se usa por años, puede ir en Activos fijos (depreciación).
+</div>
+      `;
+      $("#view").innerHTML = html;
+      mountRangeControls();
+
+      $("#btnAddAsset").onclick=()=>openAsset();
+      $$("button[data-edit]").forEach(b=> b.onclick=()=>openAsset(b.dataset.edit));
+      $$("button[data-del]").forEach(b=> b.onclick=()=>delAsset(b.dataset.del));
+
+      $("#btnAddFarmItem").onclick=()=>openFarmItem();
+      $$("button[data-edit-fi]").forEach(b=> b.onclick=()=>openFarmItem(b.dataset.editFi));
+      $$("button[data-del-fi]").forEach(b=> b.onclick=()=>delFarmItem(b.dataset.delFi));
+    }
+
+    function openAsset(id){
+      const list = state.accounting.fixedAssets || [];
+      const a = id ? list.find(x=>x.id===id) : null;
+      openModal({
+        title: id ? "Editar activo" : "Nuevo activo",
+        sub: "Maquinaria y equipos de la finca (para inversión total y depreciación).",
+        body: `
+          <form id="assetForm" class="form">
+            <div class="f6"><label>Nombre</label><input name="name" value="${esc(a?.name||"")}"></div>
+            <div class="f3"><label>Fecha compra</label><input type="date" name="date" value="${esc(a?.date||today())}"></div>
+            <div class="f3"><label>Vida útil (años)</label><input type="number" step="1" name="lifeYears" value="${esc(a?.lifeYears||5)}"></div>
+            <div class="f4"><label>Costo (COP)</label><input type="number" step="0.01" name="cost" value="${esc(a?.cost||0)}"></div>
+            <div class="f4"><label>Valor salvamento (COP)</label><input type="number" step="0.01" name="salvage" value="${esc(a?.salvage||0)}"></div>
+            <div class="f4"><label>Categoría</label><input name="category" placeholder="Ej: maquinaria" value="${esc(a?.category||"maquinaria")}"></div>
+            <div class="f12"><label>Notas</label><textarea name="notes">${esc(a?.notes||"")}</textarea></div>
+          </form>
+        `,
+        footer:`<button class="btn" id="mClose">Cancelar</button><button class="btn primary" id="ok">Guardar</button>`,
+        onMount: ()=>{
+          $("#ok").onclick=()=>{
+            const fd=new FormData($("#assetForm"));
+            const name=(fd.get("name")||"").toString().trim();
+            if(!name){ alert("Falta nombre"); return; }
+            const payload = {
+              id: id || uid("asset"),
+              name,
+              date: (fd.get("date")||today()).toString(),
+              lifeYears: Math.max(1, Math.floor(num(fd.get("lifeYears"))||5)),
+              cost: Math.max(0, num(fd.get("cost"))),
+              salvage: Math.max(0, num(fd.get("salvage"))),
+              category: (fd.get("category")||"maquinaria").toString().trim() || "maquinaria",
+              notes: (fd.get("notes")||"").toString().trim()
+            };
+            if(id) state.accounting.fixedAssets = list.map(x=>x.id===id?payload:x);
+            else state.accounting.fixedAssets = [...list, payload];
+            scheduleCloudSave();
+            dlg.close();
+            render();
+          };
+        }
+      });
+    }
+    function delAsset(id){
+      openModal({
+        title:"Eliminar activo",
+        sub:"Se eliminará del listado de activos fijos.",
+        body:`<div class="notice">¿Eliminar este activo? Esta acción no afecta ventas ni inventario, solo el reporte contable.</div>`,
+        footer:`<button class="btn" id="mClose">Cancelar</button><button class="btn danger" id="ok">Eliminar</button>`,
+        onMount: ()=>{
+          $("#ok").onclick=()=>{
+            state.accounting.fixedAssets = (state.accounting.fixedAssets||[]).filter(x=>x.id!==id);
+            scheduleCloudSave();
+            dlg.close();
+            render();
+          };
+        }
+      });
+    }
+
+function openFarmItem(id){
+  const list = state.accounting.farmItems || [];
+  const it = id ? list.find(x=>x.id===id) : null;
+  const lineOpt = (v, label)=>`<option value="${v}" ${String(it?.line||"general")===v?"selected":""}>${label}</option>`;
+  openModal({
+    title: id ? "Editar ítem (inventario finca)" : "Nuevo ítem (inventario finca)",
+    sub: "Equipos, herramientas y bienes durables (NO consumibles). Se valorizan por Cantidad × Costo unitario.",
+    body: `
+      <form id="fiForm" class="form">
+        <div class="f6"><label>Nombre</label><input name="name" value="${esc(it?.name||"")}"></div>
+        <div class="f3"><label>Fecha</label><input type="date" name="date" value="${esc((it?.date||today()).slice(0,10))}"></div>
+        <div class="f3"><label>Proceso / Línea</label>
+          <select name="line">
+            ${lineOpt("gestacion","Gestación")}
+            ${lineOpt("monta","Monta (lechones)")}
+            ${lineOpt("engorde","Engorde (carne)")}
+            ${lineOpt("general","General")}
+          </select>
+        </div>
+
+        <div class="f4"><label>Categoría</label><input name="category" placeholder="Ej: herramienta / equipo / repuesto" value="${esc(it?.category||"equipo")}"></div>
+        <div class="f4"><label>Cantidad</label><input type="number" step="0.01" name="qty" value="${esc(it?.qty??1)}"></div>
+        <div class="f4"><label>Unidad</label><input name="unit" placeholder="und" value="${esc(it?.unit||"und")}"></div>
+
+        <div class="f6"><label>Costo unitario (COP)</label><input type="number" step="0.01" name="unitCost" value="${esc(it?.unitCost||0)}"></div>
+        <div class="f6"><label>Valor total (auto)</label><input id="fiTotal" disabled value="${money((num(it?.qty)||0)*(num(it?.unitCost)||0), state.settings.currency)}"></div>
+
+        <div class="f12"><label>Notas</label><textarea name="notes">${esc(it?.notes||"")}</textarea></div>
+      </form>
+    `,
+    footer:`<button class="btn" id="mClose">Cancelar</button><button class="btn primary" id="ok">Guardar</button>`,
+    onMount: ()=>{
+      const form = $("#fiForm");
+      const updateTotal = ()=>{
+        const fd=new FormData(form);
+        const q=Math.max(0,num(fd.get("qty")));
+        const uc=Math.max(0,num(fd.get("unitCost")));
+        $("#fiTotal").value = money(q*uc, state.settings.currency);
+      };
+      form.querySelector("input[name='qty']").addEventListener("input", updateTotal);
+      form.querySelector("input[name='unitCost']").addEventListener("input", updateTotal);
+
+      $("#ok").onclick=()=>{
+        const fd=new FormData(form);
+        const name=(fd.get("name")||"").toString().trim();
+        if(!name){ alert("Falta nombre"); return; }
+        const payload = {
+          id: id || uid("fi"),
+          name,
+          date: (fd.get("date")||today()).toString(),
+          line: (fd.get("line")||"general").toString(),
+          category: (fd.get("category")||"equipo").toString().trim() || "equipo",
+          qty: Math.max(0, num(fd.get("qty"))),
+          unit: (fd.get("unit")||"und").toString().trim() || "und",
+          unitCost: Math.max(0, num(fd.get("unitCost"))),
+          notes: (fd.get("notes")||"").toString().trim()
+        };
+        if(id) state.accounting.farmItems = list.map(x=>x.id===id?payload:x);
+        else state.accounting.farmItems = [...list, payload];
+        scheduleCloudSave();
+        dlg.close();
+        render();
+      };
+    }
+  });
+}
+
+function delFarmItem(id){
+  openModal({
+    title:"Eliminar ítem (inventario finca)",
+    sub:"Se eliminará del inventario de bienes/equipos.",
+    body:`<div class="notice">¿Eliminar este ítem? Esta acción no afecta ventas ni inventario de insumos.</div>`,
+    footer:`<button class="btn" id="mClose">Cancelar</button><button class="btn danger" id="ok">Eliminar</button>`,
+    onMount: ()=>{
+      $("#ok").onclick=()=>{
+        state.accounting.farmItems = (state.accounting.farmItems||[]).filter(x=>x.id!==id);
+        scheduleCloudSave();
+        dlg.close();
+        render();
+      };
+    }
+  });
+}
+
+
+    function viewCx(){
+      setTitle("CxC / CxP", "Cuentas por cobrar (ventas) y por pagar (proveedores).");
+      const accr = accruedSalesByLine();
+      const pay = payablesOpen();
+      const currency = state.settings.currency;
+
+      const payRows = pay.rows
+        .slice()
+        .sort((a,b)=>String(a.dueDate||"9999-99-99").localeCompare(String(b.dueDate||"9999-99-99")))
+        .map(p=>{
+          const pend = Math.max(0, num(p.total)-num(p.paid));
+          const due = p.dueDate ? String(p.dueDate).slice(0,10) : "—";
+          return `<tr>
+            <td class="mono">${esc(String(p.date||"").slice(0,10))}</td>
+            <td><b>${esc(p.supplier||"Proveedor")}</b><div class="muted">${esc(p.itemName||p.notes||"")}</div></td>
+            <td>${esc(p.line||"general")}</td>
+            <td class="right mono">${money(pend, currency)}</td>
+            <td class="mono">${esc(due)}</td>
+            <td>${esc(p.method||"—")}</td>
+          </tr>`;
+        }).join("");
+
+      const html = `
+        ${rangeControls()}
+        <div class="cards" style="margin-top:12px">
+          <div class="card"><small>CxC lechones</small><b class="mono">${money(accr.monta.pending, currency)}</b><div class="muted">Pendiente por cobrar</div></div>
+          <div class="card"><small>CxC carne</small><b class="mono">${money(accr.engorde.pending, currency)}</b><div class="muted">Pendiente por cobrar</div></div>
+          <div class="card"><small>CxP proveedores</small><b class="mono">${money(pay.total, currency)}</b><div class="muted">Pendiente por pagar</div></div>
+          <div class="card"><small>Tip</small><div class="muted">Crea abonos desde la app de granja para bajar pendientes</div></div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="row" style="justify-content:space-between">
+          <b>Cuentas por pagar (abiertas)</b>
+          <span class="tag warn">${pay.rows.length} cuentas</span>
+        </div>
+
+        <div style="overflow:auto;border:1px solid var(--line);border-radius:14px;margin-top:10px">
+          <table>
+            <thead><tr><th>Fecha</th><th>Concepto</th><th>Línea</th><th class="right">Pendiente</th><th>Vence</th><th>Método</th></tr></thead>
+            <tbody>${payRows || `<tr><td colspan="6" class="muted">No hay cuentas por pagar abiertas.</td></tr>`}</tbody>
+          </table>
+        </div>
+      `;
+      $("#view").innerHTML = html;
+      mountRangeControls();
+    }
+
+    function viewConfig(){
+      setTitle("Configuración", "Cuentas, mapeo de métodos (efectivo/transferencia) y capital.");
+      const acc = state.accounting || {};
+      const currency = state.settings.currency;
+
+      const html = `
+        <div class="notice">
+          Esta configuración vive dentro de la misma base de datos del software de la granja. Así ambos quedan conectados.
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="row" style="justify-content:space-between">
+          <b>Cuentas</b>
+          <button class="btn primary" id="btnAddAcc">Nueva cuenta</button>
+        </div>
+
+        <div style="overflow:auto;border:1px solid var(--line);border-radius:14px;margin-top:10px">
+          <table>
+            <thead><tr><th>Cuenta</th><th>Tipo</th><th class="right">Saldo (histórico)</th><th></th></tr></thead>
+            <tbody>
+              ${accountsBalances(true).map(r=>`
+                <tr>
+                  <td><b>${esc(r.account.name)}</b><div class="muted">${esc(r.account.id)}</div></td>
+                  <td>${esc(r.account.kind||"—")}</td>
+                  <td class="right mono"><b>${money(r.net, currency)}</b></td>
+                  <td class="right">
+                    <button class="btn" data-acc-edit="${r.account.id}">Editar</button>
+                    <button class="btn danger" data-acc-del="${r.account.id}">Eliminar</button>
+                  </td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="hr"></div>
+
+        <b>Mapeo de métodos → cuenta</b>
+        <div class="muted">Así la app sabe si entra a efectivo o a banco.</div>
+
+        <div class="form">
+          ${["efectivo","transferencia","tarjeta","otro"].map(m=>{
+            const cur = (acc.methodMap||{})[m] || "acct_cash";
+            return `
+              <div class="f6">
+                <label>${esc(m)}</label>
+                <select data-map="${esc(m)}">
+                  ${(acc.accounts||[]).map(a=>`<option value="${a.id}" ${a.id===cur?"selected":""}>${esc(a.name)}</option>`).join("")}
+                </select>
+              </div>
+            `;
+          }).join("")}
+          <div class="f12 row" style="justify-content:flex-end">
+            <button class="btn primary" id="btnSaveMap">Guardar mapeo</button>
+          </div>
+        </div>
+
+        <div class="hr"></div>
+
+        <b>Capital inicial (opcional)</b>
+        <div class="muted">Útil si quieres comparar patrimonio estimado vs inversión.</div>
+        <div class="form">
+          <div class="f4"><label>Capital inicial</label><input id="cap0" type="number" step="0.01" value="${esc(acc.owner?.initialCapital||0)}"></div>
+          <div class="f8"><label>Notas</label><input id="capNotes" value="${esc(acc.owner?.notes||"")}"></div>
+          <div class="f12 row" style="justify-content:flex-end">
+            <button class="btn primary" id="btnSaveCap">Guardar</button>
+          </div>
+        </div>
+      `;
+      $("#view").innerHTML = html;
+
+      $("#btnSaveMap").onclick=()=>{
+        const map = state.accounting.methodMap || {};
+        $$("select[data-map]").forEach(sel=>{
+          map[sel.dataset.map] = sel.value;
+        });
+        state.accounting.methodMap = map;
+        ensureAccountIds();
+        scheduleCloudSave();
+        alert("Mapeo guardado.");
+        render();
+      };
+
+      $("#btnSaveCap").onclick=()=>{
+        state.accounting.owner = state.accounting.owner || {};
+        state.accounting.owner.initialCapital = Math.max(0, num($("#cap0").value));
+        state.accounting.owner.notes = ($("#capNotes").value||"").toString();
+        scheduleCloudSave();
+        alert("Guardado.");
+      };
+
+      $("#btnAddAcc").onclick=()=>openAccount();
+      $$("button[data-acc-edit]").forEach(b=> b.onclick=()=>openAccount(b.dataset.accEdit));
+      $$("button[data-acc-del]").forEach(b=> b.onclick=()=>delAccount(b.dataset.accDel));
+    }
+
+    function openAccount(id){
+      const list = state.accounting.accounts || [];
+      const a = id ? list.find(x=>x.id===id) : null;
+      openModal({
+        title: id ? "Editar cuenta" : "Nueva cuenta",
+        sub: "Ej: Banco Davivienda, Bancolombia, Caja menor.",
+        body: `
+          <form id="accForm" class="form">
+            <div class="f6"><label>Nombre</label><input name="name" value="${esc(a?.name||"")}"></div>
+            <div class="f3"><label>Tipo</label>
+              <select name="kind">
+                <option value="cash" ${a?.kind==="cash"?"selected":""}>Efectivo</option>
+                <option value="bank" ${a?.kind==="bank"?"selected":""}>Banco</option>
+                <option value="wallet" ${a?.kind==="wallet"?"selected":""}>Billetera</option>
+                <option value="other" ${a?.kind==="other"?"selected":""}>Otro</option>
+              </select>
+            </div>
+            <div class="f3"><label>ID (opcional)</label><input name="id" placeholder="se genera automático" value="${esc(a?.id||"")}"></div>
+          </form>
+        `,
+        footer:`<button class="btn" id="mClose">Cancelar</button><button class="btn primary" id="ok">Guardar</button>`,
+        onMount: ()=>{
+          $("#ok").onclick=()=>{
+            const fd=new FormData($("#accForm"));
+            const name=(fd.get("name")||"").toString().trim();
+            if(!name){ alert("Falta nombre"); return; }
+            const kind=(fd.get("kind")||"bank").toString();
+            const idNew = (fd.get("id")||"").toString().trim() || (id || uid("acct"));
+            const payload = {id:idNew,name,kind};
+            const exists = list.some(x=>x.id===idNew && (!id || x.id!==id));
+            if(exists){ alert("Ese ID ya existe"); return; }
+            if(id){
+              state.accounting.accounts = list.map(x=>x.id===id?payload:x);
+            } else {
+              state.accounting.accounts = [...list, payload];
+            }
+            scheduleCloudSave();
+            dlg.close();
+            render();
+          };
+        }
+      });
+    }
+    function delAccount(id){
+      if(id==="acct_cash" || id==="acct_bank"){
+        alert("No puedes eliminar cuentas base. Puedes renombrarlas.");
+        return;
+      }
+      openModal({
+        title:"Eliminar cuenta",
+        sub:"Si hay transacciones con esta cuenta, quedarán marcadas como 'desconocida' hasta que reasignes.",
+        body:`<div class="notice">¿Eliminar la cuenta <b>${esc(id)}</b>?</div>`,
+        footer:`<button class="btn" id="mClose">Cancelar</button><button class="btn danger" id="ok">Eliminar</button>`,
+        onMount: ()=>{
+          $("#ok").onclick=()=>{
+            state.accounting.accounts = (state.accounting.accounts||[]).filter(x=>x.id!==id);
+            scheduleCloudSave();
+            dlg.close();
+            render();
+          };
+        }
+      });
+    }
+
+    // ---------- Render ----------
+    function render(){
+      // estado mínimo
+      state = withDefaults(state);
+      ensureAccountIds();
+      $("#farmName").textContent = (state.settings?.farmName || "Granja") + " • Contabilidad";
+      $("#subtitle").textContent = fb.ready ? "Conectado a nube y a la granja" : "Modo local (sin nube)";
+      $("#btnSync").textContent = fb.ready ? "Nube activa" : "Conectar nube";
+      $("#btnLogout").style.display = requireAuth() ? "inline-block" : "none";
+      $("#navHint").textContent = `Rango: ${range.from} → ${range.to}`;
+
+      if(current==="resumen") viewResumen();
+      else if(current==="caja") viewCaja();
+      else if(current==="resultados") viewResultados();
+      else if(current==="inventario") viewInventario();
+      else if(current==="activos") viewActivos();
+      else if(current==="cx") viewCx();
+      else if(current==="config") viewConfig();
+      else viewResumen();
+
+      $("#rangeTag").textContent = `${range.from} → ${range.to}`;
+    }
+
+    // ---------- Header actions ----------
+    $("#btnSync").onclick=()=>{
+      if(fb.ready){ alert("Ya estás conectado a la nube."); return; }
+      if(requireAuth() && !isAuthed()){ showLogin(); return; }
+      alert("Para conectar a la nube, usa 'Ingresar'.");
+      showLogin();
+    };
+
+    $("#btnExport").onclick=()=>{
+      // Exporta un resumen JSON de contabilidad y caja del rango (no reemplaza backup completo de la granja)
+      const payload = {
+        meta:{farm: state.settings?.farmName||"", range, exportedAt: new Date().toISOString()},
+        balance: balanceSheet(false),
+        accruedSales: accruedSalesByLine(),
+        consumption: consumptionByLine(),
+        cashAccounts: accountsBalances(false),
+        inventory: inventoryValuation(),
+        payables: payablesOpen(),
+        fixedAssets: fixedAssetsSummary(),
+        farmItems: farmItemsSummary()
+      };
+      const blob = new Blob([JSON.stringify(payload,null,2)], {type:"application/json"});
+      const a=document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `contabilidad_${range.from}_a_${range.to}.json`;
+      a.click();
+      setTimeout(()=>URL.revokeObjectURL(a.href), 5000);
+    };
+
+    $("#btnLogout").onclick=async ()=>{
+      setAuthed(false);
+      try{ await fb.signOut(); }catch(e){}
+      if(requireAuth()) showLogin();
+      else showApp();
+    };
+
+    // ---------- Login handlers ----------
+    $("#btnLogin").onclick = async (ev)=>{
+      ev.preventDefault();
+      const fd=new FormData($("#loginForm"));
+      const u=(fd.get("user")||"").toString();
+      const p=(fd.get("pass")||"").toString();
+      const ok = await attemptLogin(u,p,true);
+      if(!ok) alert("Credenciales inválidas.");
+    };
+    $("#btnLocal").onclick = async ()=>{
+      const fd=new FormData($("#loginForm"));
+      const u=(fd.get("user")||"").toString();
+      const p=(fd.get("pass")||"").toString();
+      const ok = await attemptLogin(u,p,false);
+      if(!ok) alert("Credenciales inválidas.");
+    };
+
+    // ---------- Start ----------
+    // Si ya hay sesión local (o no requiere login) -> mostrar app, si no -> login.
+    if(requireAuth() && !isAuthed()) showLogin();
+    else showApp();
+
+  </script>
+</body>
+</html>

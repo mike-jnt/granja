@@ -1398,6 +1398,20 @@ button.btn.primary[data-pen] .tag{
 }
 
 
+
+/* ===== Engorde: Tarjetas de cerdos ===== */
+.pigGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-top:10px}
+.pigCard{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:12px;box-shadow:0 8px 24px rgba(0,0,0,.15)}
+.pigTop{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.pigName{font-weight:700;line-height:1.2}
+.pigSub{margin-top:2px;font-size:12px}
+.pigMeta{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px}
+.pigActions{margin-top:10px;display:flex;flex-wrap:wrap;gap:6px}
+.pigActions .btn{padding:6px 10px;font-size:12px}
+.metricRow{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:12px}
+.metric{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:12px}
+.metric .val{font-size:20px;font-weight:700;margin-top:6px}
+
 </style>
 </head>
 <body>
@@ -2400,7 +2414,7 @@ const svgIcon = (name, cls="ico") => `<svg class="${cls}" aria-hidden="true" foc
   }
 
 const defaults = () => ({
-    settings:{farmName:"Granja Porcícola Campo Bello",currency:"COP",gestationDays:114,arrobaKg:12.5,defaultPigKg:100,serviceMethods:["inseminación","monta","otro"],requireLogin:true,authUser:"admin",authPass:"1234"},
+    settings:{farmName:"Granja Porcícola Campo Bello",currency:"COP",gestationDays:114,arrobaKg:12.5,defaultPigKg:100,pigletDaysForMeat:150,serviceMethods:["inseminación","monta","otro"],requireLogin:true,authUser:"admin",authPass:"1234"},
     pens:[
       {id:"pen_gest", name:"Gestación", type:"gestacion"},
       {id:"pen_mat", name:"Maternidad", type:"maternidad"},
@@ -2415,6 +2429,14 @@ const defaults = () => ({
   });
 
   let state = load();
+
+  // Días mínimos sugeridos para considerar una camada "lista" para Carne (referencia)
+  // Se puede ajustar en state.settings.pigletDaysForMeat; default 150.
+  const pigletDaysForMeat = () => {
+    const v = (state?.settings?.pigletDaysForMeat ?? 150);
+    return Math.max(0, num(v));
+  };
+
 
   // Migración rápida: asegurar nombre oficial de la granja (sin romper a quien ya lo cambió)
   try{
@@ -2959,6 +2981,9 @@ if(typeof renderNavBadges==="function") renderNavBadges();
       batchId: meta.batchId ? String(meta.batchId) : "",
       createdAt: String(meta.createdAt || nowISO()),
       status: "activo",
+      sick: !!meta.sick,
+      sickNotes: String(meta.sickNotes||"").trim(),
+
       notes: String(meta.notes||"").trim()
     };
     state.animals.push(a);
@@ -3274,6 +3299,8 @@ function normalizeState(){
       const st = String(a.status || "activo").toLowerCase();
       a.status = (st==="activo"||st==="vendido"||st==="muerto") ? st : "activo";
       a.weightKg = Math.max(0, num(a.weightKg));
+      a.sick = !!a.sick;
+      a.sickNotes = String(a.sickNotes||"").trim();
       if(!a.notes) a.notes = "";
     });
     state.animalEvents = state.animalEvents || [];
@@ -3478,7 +3505,7 @@ return list;
     return (state.batches||[])
       .filter(b=>num(b.countCurrent)>0 && b.birthDate && (b.status||"disponible")!=="cerrado")
       .map(b=>({b, days: daysBetween(b.birthDate, t)}))
-      .filter(x=>x.days!==null && x.days>=PIGLET_DAYS_FOR_MEAT)
+      .filter(x=>x.days!==null && x.days>=pigletDaysForMeat())
       .sort((a,b)=> (b.b.birthDate||"").localeCompare(a.b.birthDate||""));
   }
 
@@ -3683,52 +3710,121 @@ return list;
 
     
     // Animales individuales en el cajón seleccionado (solo engorde)
-    const anInPen = animalsInPen(engPenId);
-    const animalsRows = anInPen.length ? anInPen
+    const anInPen = animalsInPen(engPenId)
       .slice()
-      .sort((a,b)=>(String(a.name||"")).localeCompare(String(b.name||"")))
-      .map(a=>{
-        const nm = a.name ? a.name : "(sin nombre)";
-        const w = Math.max(0, num(a.weightKg));
-        const cost = animalCost(a.id);
-        const rev = animalRevenue(a.id);
-        const net = rev - cost;
-        return `<tr>
-          <td><b>${esc(nm)}</b><div class="muted">${esc(a.id.slice(-8))}</div></td>
-          <td class="mono">${w?fmtNum(w,1):"—"}</td>
-          <td class="mono">${fmtCOP(cost)}</td>
-          <td class="mono">${fmtCOP(rev)}</td>
-          <td class="mono ${net>=0?"good":"bad"}">${fmtCOP(net)}</td>
-          <td class="r">
-            <button class="btn" data-eng-an-act="view" data-id="${a.id}">Ver</button>
-            <button class="btn" data-eng-an-act="weight" data-id="${a.id}">Peso</button>
-            <button class="btn" data-eng-an-act="move" data-id="${a.id}">Mover</button>
-            
+      .sort((a,b)=>(String(a.name||"")).localeCompare(String(b.name||"")));
+
+    const penAnimalIds = new Set(anInPen.map(a=>String(a.id)));
+    const penBatchIds = new Set(inPen.map(x=>String(x.b.id)));
+
+    const mFrom = today().slice(0,7) + "-01";
+    const mTo = today();
+
+    const movs = (state.stockMovements||[]).filter(m=>String(m.type||"").toLowerCase()==="salida" && inRange(m.date, mFrom, mTo));
+
+    const costPenEng = movs.filter(m=>m.linkedType==="engorde" && String(m.linkedId||"")===String(engPenId)).reduce((s,m)=>s+moveCost(m),0);
+    const costPenAnimals = movs.filter(m=>m.linkedType==="animal" && penAnimalIds.has(String(m.linkedId||""))).reduce((s,m)=>s+moveCost(m),0);
+    const costPenBatches = movs.filter(m=>m.linkedType==="batch" && penBatchIds.has(String(m.linkedId||""))).reduce((s,m)=>s+moveCost(m),0);
+    const costPen = costPenEng + costPenAnimals + costPenBatches;
+
+    const revPen = (state.meatSales||[])
+      .filter(s=>inRange(s.date, mFrom, mTo) && String(s.penId||"")===String(engPenId))
+      .reduce((s,x)=>s+Math.max(0,num(x.total||0)),0);
+
+    const costAll = movs.filter(m=>{
+      if(m.linkedType==="engorde") return true; // incluye "all" y por cajón
+      if(m.linkedType==="animal"){
+        const a=get.animal(m.linkedId);
+        const p=getPen(a?.penId);
+        return p && String(p.type||"").toLowerCase()==="engorde";
+      }
+      if(m.linkedType==="batch"){
+        const b=get.batch(m.linkedId);
+        if(!b) return false;
+        const pid = effectiveEngordePenId(b);
+        const p=getPen(pid);
+        return p && String(p.type||"").toLowerCase()==="engorde";
+      }
+      return false;
+    }).reduce((s,m)=>s+moveCost(m),0);
+
+    const revAll = (state.meatSales||[])
+      .filter(s=>inRange(s.date, mFrom, mTo))
+      .reduce((s,x)=>s+Math.max(0,num(x.total||0)),0);
+
+    const pigCards = anInPen.length
+      ? `<div class="pigGrid">` + anInPen.map(a=>{
+          const nm = a.name ? a.name : "(sin nombre)";
+          const w = Math.max(0, num(a.weightKg));
+          const age = a.createdAt ? daysBetween(String(a.createdAt).slice(0,10), today()) : null;
+          const sick = !!a.sick;
+          return `<div class="pigCard">
+            <div class="pigTop">
+              <div>
+                <div class="pigName">${esc(nm)}</div>
+                <div class="pigSub muted">${esc(getPen(a.penId)?.name||"")} • ${age==null?"—":esc(age+" días")}</div>
+              </div>
+              <div style="text-align:right">
+                <span class="tag info">${w?fmtNum(w,1)+" kg":"—"}</span>
+                ${sick?`<span class="tag bad" style="margin-left:6px">Enfermo</span>`:""}
+              </div>
+            </div>
+            <div class="pigMeta">
+              <span class="tag info">Costos: ${fmtCOP(animalCost(a.id))}</span>
+              <span class="tag info">Ingresos: ${fmtCOP(animalRevenue(a.id))}</span>
+              <span class="tag ${ (animalRevenue(a.id)-animalCost(a.id))>=0 ? "ok" : "warn"}">Rend.: ${fmtCOP(animalRevenue(a.id)-animalCost(a.id))}</span>
+            </div>
+            <div class="pigActions">
+              <button class="btn" data-eng-an-act="view" data-id="${a.id}">Ver</button>
+              <button class="btn" data-eng-an-act="weight" data-id="${a.id}">Peso</button>
+              <button class="btn" data-eng-an-act="health" data-id="${a.id}">Salud</button>
+              <button class="btn" data-eng-an-act="supply" data-id="${a.id}">Suministrar</button>
+              <button class="btn" data-eng-an-act="move" data-id="${a.id}">Mover</button>
+              <button class="btn danger" data-eng-an-act="death" data-id="${a.id}">Baja</button>
+            </div>
+          </div>`;
+        }).join("") + `</div>`
+      : `<div class="emptyBig"><b>Sin cerdos individuales</b><div class="muted">Usa <b>Agregar cerdo</b> para registrar cerdos en este cajón.</div></div>`;
+
+    const animalsCard = `
       <div class="card" style="margin-top:12px">
         <div class="cardHd" style="display:flex;justify-content:space-between;align-items:center;gap:12px">
           <div>
-            <b>Cerdos individuales en el cajón</b>
-            <div class="muted">Solo Engorde. Estos cerdos permiten historial, bajas, rendimiento y venta por unidad.</div>
+            <b>Cerdos en el cajón (tarjetas)</b>
+            <div class="muted">Peso, edad, salud, bajas y rendimiento por cerdo (solo Engorde).</div>
           </div>
           <div class="miniRow" style="gap:8px">
             <button class="btn primary" data-eng-an-act="add">Agregar cerdo</button>
-            <button class="btn" data-eng-an-act="move-all" ${animalsInPen(engPenId).length?"" :"disabled"}>Mover todos</button>
+            <button class="btn" data-eng-an-act="move-all" ${anInPen.length?"" :"disabled"}>Mover todos</button>
           </div>
         </div>
-        <div class="wrap">
-          <table>
-            <thead><tr><th>Cerdo</th><th>Peso (kg)</th><th>Costos</th><th>Ingresos</th><th>Rendimiento</th><th class="r">Acciones</th></tr></thead>
-            <tbody>${animalsRows}</tbody>
-          </table>
-        </div>
-      </div>
 
-<button class="btn" data-eng-an-act="supply" data-id="${a.id}">Suministrar</button>
-            <button class="btn danger" data-eng-an-act="death" data-id="${a.id}">Baja</button>
-          </td>
-        </tr>`;
-      }).join("")
-      : `<tr><td colspan="6" class="muted">No hay cerdos registrados individualmente en este cajón. Usa <b>Agregar cerdo</b> para crearlos.</td></tr>`;
+        <div class="metricRow">
+          <div class="metric">
+            <b>Gastos (cajón)</b>
+            <div class="val">${fmtCOP(costPen)}</div>
+            <div class="muted">${esc(mFrom)} a ${esc(mTo)}</div>
+          </div>
+          <div class="metric">
+            <b>Ventas (cajón)</b>
+            <div class="val">${fmtCOP(revPen)}</div>
+            <div class="muted">${esc(mFrom)} a ${esc(mTo)}</div>
+          </div>
+          <div class="metric">
+            <b>Ganancia estimada</b>
+            <div class="val ${ (revPen-costPen)>=0 ? "good" : "bad"}">${fmtCOP(revPen-costPen)}</div>
+            <div class="muted">${esc(mFrom)} a ${esc(mTo)}</div>
+          </div>
+          <div class="metric">
+            <b>Engorde total (ventas - gastos)</b>
+            <div class="val ${ (revAll-costAll)>=0 ? "good" : "bad"}">${fmtCOP(revAll-costAll)}</div>
+            <div class="muted">Incluye “Todo engorde”</div>
+          </div>
+        </div>
+
+        ${pigCards}
+      </div>
+    `;
 const actions = `
       <button class="btn primary" id="engAdd"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-plus" xlink:href="#i-plus"></use></svg><span>Agregar cerdos</span></button>
       <button class="btn" id="engPenAdd"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-plus" xlink:href="#i-plus"></use></svg><span>Nuevo cajón</span></button>
@@ -3757,6 +3853,8 @@ const actions = `
         </div>
       </div>
 
+      ${animalsCard}
+
       <div class="card" style="margin-top:12px">
         <div class="cardHd"><b>Pendientes de asignar cajón de engorde</b><div class="muted">Destetados pero aún no están en un cajón de engorde.</div></div>
         <div class="wrap">
@@ -3771,9 +3869,9 @@ const actions = `
         <div class="helpHd">
           <div>
             <b>Stock para Carne (referencia)</b>
-            <div class="muted">Sugerido por edad: camadas con más de ${PIGLET_DAYS_FOR_MEAT} días. Esto se usa como ayuda para Carne (Kg).</div>
+            <div class="muted">Sugerido por edad: camadas con más de ${pigletDaysForMeat()} días. Esto se usa como ayuda para Carne (Kg).</div>
           </div>
-          <span class="tag info">Referencia: ${fmtNum(PIGLET_DAYS_FOR_MEAT,0)} días</span>
+          <span class="tag info">Referencia: ${fmtNum(pigletDaysForMeat(),0)} días</span>
         </div>
         <div class="kpis" style="margin-top:10px">
           ${kpi("Elegibles por edad", fmtNum(autoHeads,0)+" cabezas", autoHeads>0?"info":"ok")}
@@ -3816,6 +3914,7 @@ const actions = `
         if(act==="move-all"){ openMoveAnimalsInPen(engPenId); return; }
         if(act==="view"){ openAnimalModal(id); return; }
         if(act==="weight"){ openAnimalWeight(id); return; }
+        if(act==="health"){ openAnimalHealth(id); return; }
         if(act==="move"){ openMoveAnimal(id); return; }
         if(act==="supply"){ openSupplyFor("animal", id); return; }
         if(act==="death"){ openAnimalDeath(id); return; }
@@ -3931,6 +4030,7 @@ const actions = `
       if(ev.type==="suministro") extra = `${esc(d.itemName||"")} • ${fmtNum(num(d.qty),2)} ${esc(d.unit||"")}`;
       if(ev.type==="venta") extra = `Venta ${esc(d.saleId||"")}`;
       if(ev.type==="baja") extra = `${esc(d.reason||"")}`;
+      if(ev.type==="salud") extra = `${d.sick?"Enfermo":"Sano"}${d.notes?` • ${esc(d.notes)}`:""}`;
       if(ev.type==="ingreso") extra = `${esc(getPen(d.penId)?.name||"")}`;
       return `<tr><td>${esc(ev.date||"").slice(0,10)}</td><td>${esc(ev.type)}</td><td>${extra||""}</td></tr>`;
     }).join("") : `<tr><td colspan="3" class="muted">Sin eventos.</td></tr>`;
@@ -3961,12 +4061,14 @@ const actions = `
               <button class="btn" id="anSup">Suministrar</button>
               <button class="btn" id="anMv">Mover</button>
               <button class="btn" id="anPeso">Peso</button>
+              <button class="btn" id="anHealth">Salud</button>
               <button class="btn danger" id="anDead">Baja</button>
               <button class="btn primary" id="anSave">Guardar cambios</button>`,
       onMount: ()=>{
         $("#anSup").onclick=()=>{ dlg.close(); openSupplyFor("animal", a.id); };
         $("#anMv").onclick=()=>{ dlg.close(); openMoveAnimal(a.id); };
         $("#anPeso").onclick=()=>{ dlg.close(); openAnimalWeight(a.id); };
+        $("#anHealth").onclick=()=>{ dlg.close(); openAnimalHealth(a.id); };
         $("#anDead").onclick=()=>{ dlg.close(); openAnimalDeath(a.id); };
         $("#anSave").onclick=()=>{
           const nn = ($("#anName").value||"").toString().trim();
@@ -4000,6 +4102,41 @@ const actions = `
       }
     });
   }
+  function openAnimalHealth(animalId){
+    const a=get.animal(animalId); if(!a) return;
+    const isSick = !!a.sick;
+    openModal({
+      title: "Estado de salud",
+      sub: esc(a.name||"(sin nombre)"),
+      body:`<form id="ahF" class="grid2">
+        <div class="f6"><label>Estado</label>
+          <select name="sick">
+            <option value="0" ${isSick?"":"selected"}>Sano</option>
+            <option value="1" ${isSick?"selected":""}>Enfermo</option>
+          </select>
+        </div>
+        <div class="f6"><label>Fecha</label><input name="date" type="date" value="${today()}"/></div>
+        <div class="f12"><label>Notas</label><textarea name="notes" placeholder="Síntomas, tratamiento, observación…">${esc(a.sickNotes||"")}</textarea></div>
+      </form>`,
+      footer:`<button class="btn" id="mClose">Cancelar</button><button class="btn primary" id="okAh">Guardar</button>`,
+      onMount: ()=>{
+        $("#okAh").onclick=()=>{
+          const fd=new FormData($("#ahF"));
+          const sick = (fd.get("sick")||"0").toString()==="1";
+          const date = (fd.get("date")||today()).toString();
+          const notes = (fd.get("notes")||"").toString().trim();
+          a.sick = sick;
+          a.sickNotes = notes;
+          logAnimalEvent(a.id, "salud", {sick, notes, date});
+          save(); dlg.close();
+          toast("ok","Actualizado", sick ? "Marcado como enfermo." : "Marcado como sano.");
+          render();
+        };
+      }
+    });
+  }
+
+
 
   function openMoveAnimal(animalId){
     const a=get.animal(animalId); if(!a) return;
@@ -4782,6 +4919,22 @@ const actions = `
       </table></div>`;
 
     } else if(selType==="engorde"){
+      const penAnimals = animalsInPen(sowsPenId);
+      const anCount = penAnimals.length;
+      const anInv = invested.engorde(sowsPenId) + penAnimals.reduce((s,a)=>s+animalCost(a.id),0);
+      const anRow = anCount ? `<tr>
+            <td class="mono">INDIV</td>
+            <td class="muted">—</td>
+            <td class="muted">—</td>
+            <td><b>Cerdos individuales</b><div class="muted">Registrados manualmente (nombre/peso) • Útil para alimentar el cajón y vender por unidad</div></td>
+            <td class="mono">${fmtNum(anCount,0)}</td>
+            <td class="mono">${fmtCOP(anInv)}</td>
+            <td>
+              <button class="btn" data-act="gotoEngPen" data-id="${sowsPenId}">Ver</button>
+              <button class="btn" data-act="supplyEngPen" data-id="${sowsPenId}">Suministrar</button>
+            </td>
+          </tr>` : "";
+
       const rows = engBatches
         .filter(x=>x.penId===sowsPenId)
         .sort((a,b)=>(b.batch.weaningDate||b.batch.birthDate||"").localeCompare(a.batch.weaningDate||a.batch.birthDate||""))
@@ -4806,7 +4959,7 @@ const actions = `
 
       table = `<div class="wrap"><table>
         <thead><tr><th>Lote</th><th>Cerda</th><th>Nac.</th><th>Destete</th><th>Stock</th><th>Inversión</th><th>Acciones</th></tr></thead>
-        <tbody>${rows || `<tr><td colspan="7" class="muted">Sin lechones en engorde en este cajón.</td></tr>`}</tbody>
+        <tbody>${(anRow || rows) ? (anRow + rows) : `<tr><td colspan="7" class="muted">Sin lechones en engorde en este cajón.</td></tr>`}</tbody>
       </table></div>`;
 
     } else {
@@ -4844,6 +4997,7 @@ const actions = `
        <button class="btn" id="penEdit">Editar cajón</button>
        <button class="btn danger" id="penDel">Eliminar cajón</button>
        <button class="btn" id="sowSupply">Suministrar cerda</button>
+       ${selType==="engorde" ? '<button class="btn" id="penSupply">Suministrar cajón</button>' : ""}
        <button class="btn" id="svc"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-dna" xlink:href="#i-dna"></use></svg><span>Registrar servicio</span></button>`,
       `<div class="miniRow" style="flex-wrap:wrap;gap:8px">${penBtns}</div>
        <div class="muted" style="margin-top:8px">Viendo: <b>${esc(selPen?.name||"Cajón")}</b> • Tipo: <b>${esc(selPen?.type||"—")}</b></div>
@@ -4853,6 +5007,7 @@ const actions = `
 
     $("#add").onclick=()=>openSow();
     const sp=$("#sowSupply"); if(sp) sp.onclick=()=>openSupplySowPicker();
+    const ps=$("#penSupply"); if(ps) ps.onclick=()=>openSupplyFor("engorde", sowsPenId);
     $("#svc").onclick=()=>openBreeding();
     const pa=$("#penAdd"); if(pa) pa.onclick=()=>openPen();
     const pe=$("#penEdit"); if(pe) pe.onclick=()=>openEditPen(sowsPenId);
@@ -4873,6 +5028,9 @@ const actions = `
       if(act==="sellBatch") return openSale(null,{batchId:b.dataset.id});
       if(act==="supplyBatch") return openSupplyFor('batch', b.dataset.id);
       if(act==="moveBatch") return openMoveToPen('batch', b.dataset.id);
+
+      if(act==="gotoEngPen"){ engPenId = b.dataset.id; goTab("engorde"); return; }
+      if(act==="supplyEngPen") return openSupplyFor('engorde', b.dataset.id);
 
       if(act==="movePair") return openMoveToPen('pair', '', {sowId:b.dataset.sow, batchId:b.dataset.batch});
       if(act==="wean") return openWeanToEngorde(b.dataset.sow, b.dataset.batch);

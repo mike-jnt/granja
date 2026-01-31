@@ -30,6 +30,14 @@
   main{padding:0}
   .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:12px}
   .card{grid-column:span 12;border:1px solid var(--line);background:rgba(255,255,255,.03);border-radius:16px;overflow:hidden}
+  /* Card header used in some modules (e.g., Carne "Ventas de carne") */
+  .cardHd{padding:14px 16px 10px}
+  .cardHd b{display:block;font-weight:700;font-size:18px;line-height:1.15;margin:0}
+  .cardHd .muted{margin-top:6px}
+  /* Give inner content breathing room from card edges */
+  .card> .wrap{margin:0 16px 16px}
+  .card> .wrap:first-child{margin-top:16px}
+
   .hd{padding:12px 12px 10px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
   .hd h2{margin:0;font-size:14px} .hd p{margin:4px 0 0;color:var(--muted);font-size:12px}
   .bd{padding:12px}
@@ -1411,6 +1419,179 @@ button.btn.primary[data-pen] .tag{
 .metricRow{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:12px}
 .metric{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:12px}
 .metric .val{font-size:20px;font-weight:700;margin-top:6px}
+
+
+
+/* =========================================================
+   PATCH v20 — Responsive refinado (márgenes, safe-area, tablets)
+   - Evita que textos/elementos queden pegados a los bordes
+   - Centra el contenido en pantallas grandes
+   - Mejora scroll horizontal en tablas/navegación
+   ========================================================= */
+html{ -webkit-text-size-adjust: 100%; }
+body{ overflow-x: hidden; }
+
+/* “Gutter” adaptable y contenedor máximo (mejor en pantallas grandes) */
+:root{
+  --gutter: 14px;
+  --maxw: 1480px;
+}
+
+/* Header: mantiene fondo full-width, pero contenido centrado con padding seguro */
+header .bar{
+  max-width: var(--maxw);
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding-left: calc(var(--gutter) + env(safe-area-inset-left)) !important;
+  padding-right: calc(var(--gutter) + env(safe-area-inset-right)) !important;
+}
+
+/* App: mismo contenedor para sidebar + contenido */
+.layout{
+  max-width: var(--maxw);
+  margin-left: auto !important;
+  margin-right: auto !important;
+  width: 100%;
+  padding-left: calc(var(--gutter) + env(safe-area-inset-left)) !important;
+  padding-right: calc(var(--gutter) + env(safe-area-inset-right)) !important;
+}
+
+/* Evita “empujes” raros en flex/grid en pantallas chicas */
+main.content{ min-width: 0; }
+#view{ padding-bottom: 28px; }
+
+/* Cortes limpios en textos largos (códigos, nombres, etc.) */
+#view, .card, .pigCard, .metric, .kpi, .wrap, dialog, .modal{
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* Scroll horizontal más suave donde aplique */
+.wrap{
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* Tablets: un poco menos de “gutter” */
+@media (max-width: 900px){
+  :root{ --gutter: 12px; --maxw: 100%; }
+}
+
+/* Teléfonos */
+@media (max-width: 560px){
+  :root{ --gutter: 10px; --maxw: 100%; }
+
+  /* Reduce un toque padding interno para que respire sin pegarse */
+  .card .hd, .card .bd{ padding-left: 14px !important; padding-right: 14px !important; }
+
+  /* Tablas: lectura mejor sin pegarse */
+  th,td{ padding: 10px 10px !important; }
+}
+
+/* Muy pequeño */
+@media (max-width: 390px){
+  :root{ --gutter: 8px; --maxw: 100%; }
+}
+
+
+/* =========================================================
+   PATCH — Tablas: padding interno para que el texto
+   NO quede pegado a los bordes (desktop + mobile)
+   ========================================================= */
+.wrap table,
+.card table{
+  width:100%;
+  border-collapse:separate !important;
+  border-spacing:0 !important;
+}
+.wrap table th, .wrap table td,
+.card table th, .card table td{
+  padding:12px 16px !important;
+}
+.wrap table th:first-child, .wrap table td:first-child,
+.card table th:first-child, .card table td:first-child{
+  padding-left:22px !important;
+}
+.wrap table th:last-child, .wrap table td:last-child,
+.card table th:last-child, .card table td:last-child{
+  padding-right:22px !important;
+}
+
+/*
+  IMPORTANTE: algunas tablas en el app no están dentro de .wrap/.card
+  (por ejemplo, tablas renderizadas directamente dentro de módulos).
+  Estas reglas aseguran padding lateral consistente en TODAS las tablas.
+*/
+.tablewrap table,
+.helpCard table,
+table{
+  border-collapse:separate !important;
+  border-spacing:0 !important;
+}
+
+.tablewrap th, .tablewrap td,
+.helpCard th, .helpCard td,
+table th, table td{
+  padding:12px 16px !important;
+}
+
+.tablewrap th:first-child, .tablewrap td:first-child,
+.helpCard th:first-child, .helpCard td:first-child,
+table th:first-child, table td:first-child{
+  padding-left:22px !important;
+}
+
+.tablewrap th:last-child, .tablewrap td:last-child,
+.helpCard th:last-child, .helpCard td:last-child,
+table th:last-child, table td:last-child{
+  padding-right:22px !important;
+}
+
+/* Mensajes de tablas (filas colspan) */
+.wrap table td[colspan],
+.card table td[colspan]{
+  padding:16px 22px !important;
+}
+
+/* Colspan también para tablas fuera de .wrap/.card */
+.tablewrap table td[colspan],
+.helpCard table td[colspan],
+table td[colspan]{
+  padding:16px 22px !important;
+}
+
+/* En pantallas pequeñas, un poco más compacto */
+@media (max-width: 680px){
+  .wrap table th, .wrap table td,
+  .card table th, .card table td{
+    padding:10px 14px !important;
+  }
+  .wrap table th:first-child, .wrap table td:first-child,
+  .card table th:first-child, .card table td:first-child{
+    padding-left:16px !important;
+  }
+  .wrap table th:last-child, .wrap table td:last-child,
+  .card table th:last-child, .card table td:last-child{
+    padding-right:16px !important;
+  }
+
+  /* Compacto también para tablas fuera de .wrap/.card */
+  .tablewrap th, .tablewrap td,
+  .helpCard th, .helpCard td,
+  table th, table td{
+    padding:10px 14px !important;
+  }
+  .tablewrap th:first-child, .tablewrap td:first-child,
+  .helpCard th:first-child, .helpCard td:first-child,
+  table th:first-child, table td:first-child{
+    padding-left:16px !important;
+  }
+  .tablewrap th:last-child, .tablewrap td:last-child,
+  .helpCard th:last-child, .helpCard td:last-child,
+  table th:last-child, table td:last-child{
+    padding-right:16px !important;
+  }
+}
 
 </style>
 </head>
@@ -8974,15 +9155,22 @@ if(!inRange(tx?.date, from, to)) return;
 $("#newSale").onclick=()=>openSale();
 const acct=$("#acctBtn");
 if(acct) acct.onclick=()=>{
-  // Abre el módulo contable en una nueva pestaña (misma carpeta / mismo dominio)
-  const url = "contabilida.html";
+  // Abre Contabilidad en otra pestaña y deja la granja abierta
+  const url = "contabilidad.html";
+  let w = null;
   try{
-    const w = window.open(url, "_blank", "noopener");
-    if(!w) location.href = url; // fallback si el navegador bloquea popups
-  }catch(e){
-    location.href = url;
+    w = window.open(url, "_blank", "noopener,noreferrer");
+  }catch(e){}
+  if(!w){
+    // Si el navegador bloquea popups, NO navegamos esta pestaña: mostramos un enlace.
+    openAlert({
+      title:"Abrir contabilidad",
+      kind:"warn",
+      message:'Tu navegador bloqueó abrir una nueva pestaña. Toca aquí: <a href="'+url+'" target="_blank" rel="noopener noreferrer">Abrir Contabilidad</a>'
+    });
   }
 };
+
   const hb=$("#helpBtn"); if(hb) hb.onclick=()=>openHelp();
 
   // ------- Init -------

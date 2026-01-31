@@ -1815,6 +1815,7 @@ button.btn.primary[data-pen] .tag{
     enabled: true,
     ready: false,
     uid: null,
+    hasSession(){ try{ return !!auth.currentUser; }catch(e){ return false; } },
     unsub: null,
     async loadNow(){
       if(!this.uid) return null;
@@ -2506,12 +2507,24 @@ const defaults = () => ({
     if(b){ b.disabled=true; b.textContent="Entrando…"; }
 
     try{
-      // 0) Si Firebase ya está autenticado (sesión persistida), no fuerces credenciales
-      if(window.firebaseCloud && window.firebaseCloud.ready && window.firebaseCloud.uid){
-        setAuthed(true);
-        toast("ok","Bienvenido","Sesión restaurada.");
-        enforceAuth();
-        return;
+      // 0) Si Firebase ya tiene sesión persistida, no fuerces credenciales.
+      // A veces onAuthStateChanged tarda unos ms en marcar ready/uid.
+      if(window.firebaseCloud && window.firebaseCloud.enabled){
+        const wait = (ms)=>new Promise(r=>setTimeout(r,ms));
+        for(let i=0;i<8;i++){
+          const has = (window.firebaseCloud.ready && window.firebaseCloud.uid) ||
+                      (window.firebaseCloud.hasSession && window.firebaseCloud.hasSession());
+          if(has) break;
+          await wait(80);
+        }
+        const has = (window.firebaseCloud.ready && window.firebaseCloud.uid) ||
+                    (window.firebaseCloud.hasSession && window.firebaseCloud.hasSession());
+        if(has){
+          setAuthed(true);
+          toast("ok","Bienvenido","Sesión restaurada.");
+          enforceAuth();
+          return;
+        }
       }
 
       if(!u || !p){
@@ -2547,6 +2560,21 @@ const defaults = () => ({
     }catch(e){
       console.warn("Login error:", e);
       const msg = (e && (e.code || e.message || "")) ? String(e.code || e.message) : "";
+
+      // Si Firebase terminó restaurando sesión mientras se intentaba login, continúa sin error.
+      try{
+        if(window.firebaseCloud && window.firebaseCloud.enabled){
+          const has = (window.firebaseCloud.ready && window.firebaseCloud.uid) ||
+                      (window.firebaseCloud.hasSession && window.firebaseCloud.hasSession());
+          if(has){
+            setAuthed(true);
+            toast("ok","Bienvenido","Sesión restaurada.");
+            enforceAuth();
+            return;
+          }
+        }
+      }catch(_){}
+
 
       if(msg.includes("invalid-user")){
         toast("bad","Usuario inválido","Usa el usuario configurado en Ajustes.");

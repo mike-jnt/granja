@@ -1973,6 +1973,7 @@ button.btn.primary[data-pen] .tag{
 
 const uid = (p="id") => p + "_" + Math.random().toString(16).slice(2) + "_" + Date.now().toString(16);
   const today = () => new Date().toISOString().slice(0,10);
+  const nowISO = () => new Date().toISOString();
   const num = (v) => {
     let s = String(v??"").trim();
     if(!s) return 0;
@@ -2406,6 +2407,7 @@ const defaults = () => ({
     ],
     sows:[], breedings:[], farrowings:[], batches:[],
     inventory:[], stockMovements:[],
+    animals:[], animalEvents:[],
     clients:[], sales:[], payments:[],
     meat:{stockKg:0,headsForSale:0,movements:[]}, meatSales:[], meatPayments:[],
     transactions:[], payables:[], tasks:[]
@@ -2880,12 +2882,125 @@ if(typeof renderNavBadges==="function") renderNavBadges();
     sow:(id)=>state.sows.find(x=>x.id===id)||null,
     breeding:(id)=>state.breedings.find(x=>x.id===id)||null,
     batch:(id)=>state.batches.find(x=>x.id===id)||null,
+    animal:(id)=>(state.animals||[]).find(x=>x.id===id)||null,
     inv:(id)=>state.inventory.find(x=>x.id===id)||null,
     client:(id)=>state.clients.find(x=>x.id===id)||null,
     sale:(id)=>state.sales.find(x=>x.id===id)||null,
     meatSale:(id)=> (state.meatSales||[]).find(x=>x.id===id)||null,
     payable:(id)=> (state.payables||[]).find(x=>x.id===id)||null
-  };
+  
+
+  
+};
+
+  // ------- Animales (solo Engorde) -------
+  function ensureAnimals(){
+    state.animals = state.animals || [];
+    state.animalEvents = state.animalEvents || [];
+  }
+  function animalStatus(a){ return String(a?.status||"activo").toLowerCase(); }
+  function isAnimalActive(a){ return animalStatus(a)==="activo"; }
+  function animalsInPen(penId){
+    const pid = String(penId||"");
+    if(!pid) return [];
+    return (state.animals||[]).filter(a=>String(a.penId||"")===pid && isAnimalActive(a));
+  }
+  function countAnimalsInPen(penId){ return animalsInPen(penId).length; }
+
+  function logAnimalEvent(animalId, type, data){
+    ensureAnimals();
+    const ev = {
+      id: uid("aev"),
+      animalId: String(animalId||""),
+      date: nowISO(),
+      type: String(type||"").trim(),
+      data: data || {}
+    };
+    state.animalEvents.push(ev);
+    return ev;
+  }
+
+  function createAnimal(penId, name, weightKg, meta){
+    ensureAnimals();
+    meta = meta || {};
+    const a = {
+      id: uid("ani"),
+      name: String(name||"").trim(),
+      weightKg: Math.max(0, num(weightKg)),
+      penId: String(penId||""),
+      batchId: meta.batchId ? String(meta.batchId) : "",
+      createdAt: String(meta.createdAt || nowISO()),
+      status: "activo",
+      notes: String(meta.notes||"").trim()
+    };
+    state.animals.push(a);
+    logAnimalEvent(a.id, "ingreso", {penId:a.penId, name:a.name, weightKg:a.weightKg, notes:a.notes, batchId:a.batchId});
+    return a;
+  }
+
+  function takeAnimalsFromPen(penId, want, preferredIds){
+    ensureAnimals();
+    const pid = String(penId||"");
+    const n = Math.max(0, Math.floor(num(want)));
+    const preferred = (preferredIds||[]).map(String).filter(Boolean);
+    const chosen = [];
+    const used = new Set();
+
+    // 1) tomar preferidos primero
+    preferred.forEach(id=>{
+      const a = get.animal(id);
+      if(!a) return;
+      if(!isAnimalActive(a)) return;
+      if(String(a.penId||"")!==pid) return;
+      if(used.has(a.id)) return;
+      chosen.push(a.id);
+      used.add(a.id);
+    });
+
+    // 2) completar FIFO por createdAt
+    const pool = animalsInPen(pid)
+      .slice()
+      .sort((a,b)=>String(a.createdAt||"").localeCompare(String(b.createdAt||"")));
+    for(const a of pool){
+      if(chosen.length>=n) break;
+      if(used.has(a.id)) continue;
+      chosen.push(a.id);
+      used.add(a.id);
+    }
+    return chosen.slice(0,n);
+  }
+
+  function restoreAnimalFromDeduction(d){
+    const a = get.animal(d.animalId);
+    if(!a) return;
+    a.status = String(d.prevStatus||"activo");
+    a.penId = String(d.prevPenId||a.penId||"");
+    if(d.prevSaleId!==undefined) a.saleId = d.prevSaleId || "";
+    if(a.status==="activo"){ delete a.soldAt; delete a.saleId; }
+  }
+
+  function animalCost(animalId){
+    const id = String(animalId||"");
+    return (state.stockMovements||[])
+      .filter(m=>String(m.type||"").toLowerCase()==="salida" && String(m.linkedType||"")==="animal" && String(m.linkedId||"")===id)
+      .reduce((s,m)=>{
+        const tc = num(m.totalCost);
+        const uc = Math.max(0, num(m.unitCost));
+        const q = Math.abs(num(m.qty));
+        return s + (tc>0?tc:(q*uc));
+      },0);
+  }
+  function animalRevenue(animalId){
+    const id = String(animalId||"");
+    return (state.meatSales||[])
+      .filter(s=>Array.isArray(s.animalIds) && s.animalIds.map(String).includes(id))
+      .reduce((sum,s)=>{
+        const n = (s.animalIds||[]).length || 1;
+        return sum + (Math.max(0, num(s.total))/n);
+      },0);
+  }
+  function animalNet(animalId){ return animalRevenue(animalId) - animalCost(animalId); }
+
 
   // ------- Auditoría / normalización del estado (evita errores) -------
   
@@ -2954,6 +3069,8 @@ function normalizeState(){
     state.engorde = state.engorde || {manual:[], movements:[]};
     state.engorde.manual = state.engorde.manual || [];
     state.engorde.movements = state.engorde.movements || [];
+    state.animals = state.animals || [];
+    state.animalEvents = state.animalEvents || [];
 
     // Cajones / corrales
     state.pens = state.pens || [];
@@ -3117,6 +3234,29 @@ function normalizeState(){
       if(Math.abs(q) < 1e-9) q = 0;
       m.qty = q;
     });
+
+    // Animales (solo Engorde)
+    state.animals = state.animals || [];
+    state.animals.forEach(a=>{
+      a.id = String(a.id || uid("ani"));
+      a.name = String(a.name || "").trim();
+      a.penId = String(a.penId || "");
+      a.batchId = String(a.batchId || "");
+      a.createdAt = String(a.createdAt || nowISO());
+      const st = String(a.status || "activo").toLowerCase();
+      a.status = (st==="activo"||st==="vendido"||st==="muerto") ? st : "activo";
+      a.weightKg = Math.max(0, num(a.weightKg));
+      if(!a.notes) a.notes = "";
+    });
+    state.animalEvents = state.animalEvents || [];
+    state.animalEvents.forEach(ev=>{
+      ev.id = String(ev.id || uid("aev"));
+      ev.animalId = String(ev.animalId || "");
+      ev.date = String(ev.date || nowISO());
+      ev.type = String(ev.type || "");
+      if(!ev.data) ev.data = {};
+    });
+
 
     // Carne / ventas (conectada a Engorde)
     state.meat = state.meat || {stockKg:0,headsForSale:0,movements:[]};
@@ -3420,6 +3560,18 @@ return list;
       const c = counts.get(x.penId);
       c.lots += 1;
       c.heads += Math.max(0,num(x.b.countCurrent));
+    // Sumar animales individuales (solo engorde)
+    (state.animals||[]).forEach(a=>{
+      if(!isAnimalActive(a)) return;
+      const pid = String(a.penId||"");
+      if(!pid) return;
+      const p = getPen(pid);
+      if(!p || String(p.type||"").toLowerCase()!=="engorde") return;
+      if(!counts.has(pid)) counts.set(pid,{lots:0,heads:0});
+      const c = counts.get(pid);
+      c.heads += 1;
+    });
+
     });
 
     const penBtns = engPens.length
@@ -3501,7 +3653,55 @@ return list;
         </td>
       </tr>`).join("") || `<tr><td colspan="5" class="muted">Aún no has agregado cerdos manuales.</td></tr>`;
 
-    const actions = `
+    
+    // Animales individuales en el cajón seleccionado (solo engorde)
+    const anInPen = animalsInPen(engPenId);
+    const animalsRows = anInPen.length ? anInPen
+      .slice()
+      .sort((a,b)=>(String(a.name||"")).localeCompare(String(b.name||"")))
+      .map(a=>{
+        const nm = a.name ? a.name : "(sin nombre)";
+        const w = Math.max(0, num(a.weightKg));
+        const cost = animalCost(a.id);
+        const rev = animalRevenue(a.id);
+        const net = rev - cost;
+        return `<tr>
+          <td><b>${esc(nm)}</b><div class="muted">${esc(a.id.slice(-8))}</div></td>
+          <td class="mono">${w?fmtNum(w,1):"—"}</td>
+          <td class="mono">${fmtCOP(cost)}</td>
+          <td class="mono">${fmtCOP(rev)}</td>
+          <td class="mono ${net>=0?"good":"bad"}">${fmtCOP(net)}</td>
+          <td class="r">
+            <button class="btn" data-eng-an-act="view" data-id="${a.id}">Ver</button>
+            <button class="btn" data-eng-an-act="weight" data-id="${a.id}">Peso</button>
+            <button class="btn" data-eng-an-act="move" data-id="${a.id}">Mover</button>
+            
+      <div class="card" style="margin-top:12px">
+        <div class="cardHd" style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+          <div>
+            <b>Cerdos individuales en el cajón</b>
+            <div class="muted">Solo Engorde. Estos cerdos permiten historial, bajas, rendimiento y venta por unidad.</div>
+          </div>
+          <div class="miniRow" style="gap:8px">
+            <button class="btn primary" data-eng-an-act="add">Agregar cerdo</button>
+            <button class="btn" data-eng-an-act="move-all" ${animalsInPen(engPenId).length?"" :"disabled"}>Mover todos</button>
+          </div>
+        </div>
+        <div class="wrap">
+          <table>
+            <thead><tr><th>Cerdo</th><th>Peso (kg)</th><th>Costos</th><th>Ingresos</th><th>Rendimiento</th><th class="r">Acciones</th></tr></thead>
+            <tbody>${animalsRows}</tbody>
+          </table>
+        </div>
+      </div>
+
+<button class="btn" data-eng-an-act="supply" data-id="${a.id}">Suministrar</button>
+            <button class="btn danger" data-eng-an-act="death" data-id="${a.id}">Baja</button>
+          </td>
+        </tr>`;
+      }).join("")
+      : `<tr><td colspan="6" class="muted">No hay cerdos registrados individualmente en este cajón. Usa <b>Agregar cerdo</b> para crearlos.</td></tr>`;
+const actions = `
       <button class="btn primary" id="engAdd"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-plus" xlink:href="#i-plus"></use></svg><span>Agregar cerdos</span></button>
       <button class="btn" id="engPenAdd"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-plus" xlink:href="#i-plus"></use></svg><span>Nuevo cajón</span></button>
       <button class="btn" id="engSupAll"><svg class="ico" aria-hidden="true" focusable="false"><use xlink:href="#i-box"></use></svg><span>Suministrar a engorde</span></button>
@@ -3580,6 +3780,20 @@ return list;
       const pb=e.target.closest("button[data-eng-pen]");
       if(pb){ engPenId = pb.dataset.engPen; render(); return; }
 
+      const an = e.target.closest("button[data-eng-an-act]");
+      if(an){
+        const act = an.dataset.engAnAct;
+        const id = an.dataset.id;
+        if(act==="add"){ openAddEngordeAnimal(engPenId); return; }
+        if(act==="move-all"){ openMoveAnimalsInPen(engPenId); return; }
+        if(act==="view"){ openAnimalModal(id); return; }
+        if(act==="weight"){ openAnimalWeight(id); return; }
+        if(act==="move"){ openMoveAnimal(id); return; }
+        if(act==="supply"){ openSupplyFor("animal", id); return; }
+        if(act==="death"){ openAnimalDeath(id); return; }
+      }
+
+
       const b=e.target.closest("button[data-eng-act]"); if(!b) return;
       const id=b.dataset.id, act=b.dataset.engAct;
 
@@ -3625,28 +3839,217 @@ return list;
 
 
   function openEngordeAdd(){
-    openModal({
-      title:"Agregar cerdos a engorde",
-      sub:"Estos cerdos se sumarán al stock manual de carne (cabezas).",
-      body:`<form id="engAddForm" class="grid2">
-        <div class="f4"><label>Fecha</label><input type="date" name="date" value="${today()}"/></div>
-        <div class="f4"><label>Cabezas *</label><input type="number" name="heads" min="1" value="1" required/></div>
-        <div class="f12"><label>Notas</label><textarea name="notes" placeholder="Ej: compra, rescate, traslado…"></textarea></div>
-      </form>`,
-      footer:`<button class="btn" id="mClose">Cancelar</button><button class="btn primary" id="save">Guardar</button>`,
-      onMount: ()=>{
-        $("#save").onclick=()=>{
-          const fd=new FormData($("#engAddForm"));
-          const date=(fd.get("date")||today()).toString();
-          const heads=Math.max(0, num(fd.get("heads")));
-          if(heads<=0){ toast("bad","Cantidad inválida","Debe ser > 0."); return; }
-          const notes=(fd.get("notes")||"").toString().trim();
-          const entry={id:uid("eng"),date,heads,notes};
-          state.engorde = state.engorde || {manual:[], movements:[]};
-          state.engorde.manual = state.engorde.manual || [];
-          state.engorde.manual.push(entry);
+    // Atajo: agrega un cerdo individual al cajón seleccionado (solo engorde)
+    openAddEngordeAnimal(engPenId || ((state.pens||[]).find(p=>String(p.type||"").toLowerCase()==="engorde")?.id || ""));
+  }
 
-          save(); dlg.close(); toast("ok","Guardado",`+${heads} cabeza(s) agregadas a Engorde.`); render();
+  function openAddEngordeAnimal(penId){
+    const pens = (state.pens||[]).filter(p=>String(p.type||"").toLowerCase()==="engorde" && penAcceptsBatch(p));
+    if(!pens.length){
+      toast("warn","Sin cajones","Crea un cajón de engorde primero.");
+      openPen({type:"engorde"});
+      return;
+    }
+    const pid = penId && pens.some(p=>p.id===penId) ? penId : pens[0].id;
+    const ops = pens.map(p=>`<option value="${p.id}" ${p.id===pid?"selected":""}>${esc(p.name)}</option>`).join("");
+    openModal({
+      title:"Agregar cerdo a engorde",
+      sub:"Registro individual (nombre manual) para historial, rendimiento y venta por unidad.",
+      body:`<form id="anAddForm" class="grid2">
+        <div class="f6"><label>Cajón *</label><select name="penId" required>${ops}</select></div>
+        <div class="f6"><label>Nombre / ID *</label><input name="name" required placeholder="Ej: Cerdo #12 / LoteB-3" /></div>
+        <div class="f6"><label>Peso inicial (kg)</label><input name="weightKg" type="number" step="0.1" min="0" value="0"/></div>
+        <div class="f6"><label>Fecha de ingreso</label><input name="date" type="date" value="${today()}"/></div>
+        <div class="f12"><label>Notas</label><textarea name="notes" placeholder="Opcional"></textarea></div>
+      </form>`,
+      footer:`<button class="btn" id="mClose">Cancelar</button><button class="btn primary" id="saveAn">Guardar</button>`,
+      onMount: ()=>{
+        $("#saveAn").onclick=()=>{
+          const fd=new FormData($("#anAddForm"));
+          const penId=(fd.get("penId")||"").toString();
+          const name=(fd.get("name")||"").toString().trim();
+          const w=Math.max(0, num(fd.get("weightKg")));
+          const date=(fd.get("date")||today()).toString();
+          const notes=(fd.get("notes")||"").toString().trim();
+          if(!penId || !name){
+            toast("bad","Faltan datos","Debes indicar cajón y nombre.");
+            return;
+          }
+          const a = createAnimal(penId, name, w, {createdAt: date ? (date + "T00:00:00.000Z") : nowISO(), notes});
+          // si el usuario puso peso, registra evento peso explícito
+          if(w>0) logAnimalEvent(a.id, "peso", {weightKg:w});
+          save(); dlg.close(); toast("ok","Agregado",`${esc(name)} en ${esc(getPen(penId)?.name||"engorde")}.`); render();
+        };
+      }
+    });
+  }
+
+  function openAnimalModal(animalId){
+    const a = get.animal(animalId);
+    if(!a){ toast("warn","No encontrado","El cerdo no existe."); return; }
+    const pen = getPen(a.penId);
+    const cost = animalCost(a.id);
+    const rev = animalRevenue(a.id);
+    const net = rev - cost;
+    const evs = (state.animalEvents||[])
+      .filter(e=>String(e.animalId||"")===String(a.id))
+      .slice()
+      .sort((x,y)=>String(y.date||"").localeCompare(String(x.date||"")));
+    const rows = evs.length ? evs.map(ev=>{
+      const d = ev.data||{};
+      let extra = "";
+      if(ev.type==="mover") extra = `De ${esc(getPen(d.fromPenId)?.name||"")} a ${esc(getPen(d.toPenId)?.name||"")}`;
+      if(ev.type==="peso") extra = `${fmtNum(num(d.weightKg),1)} kg`;
+      if(ev.type==="suministro") extra = `${esc(d.itemName||"")} • ${fmtNum(num(d.qty),2)} ${esc(d.unit||"")}`;
+      if(ev.type==="venta") extra = `Venta ${esc(d.saleId||"")}`;
+      if(ev.type==="baja") extra = `${esc(d.reason||"")}`;
+      if(ev.type==="ingreso") extra = `${esc(getPen(d.penId)?.name||"")}`;
+      return `<tr><td>${esc(ev.date||"").slice(0,10)}</td><td>${esc(ev.type)}</td><td>${extra||""}</td></tr>`;
+    }).join("") : `<tr><td colspan="3" class="muted">Sin eventos.</td></tr>`;
+
+    openModal({
+      title:`Cerdo: ${esc(a.name||"(sin nombre)")}`,
+      sub:`Cajón: ${esc(pen?.name||"—")} • Estado: ${esc(a.status||"activo")}`,
+      body:`<div class="grid2">
+        <div class="f6"><label>Nombre / ID</label><input id="anName" value="${esc(a.name||"")}" /></div>
+        <div class="f6"><label>Peso (kg)</label><input id="anW" type="number" step="0.1" min="0" value="${esc(a.weightKg||0)}"/></div>
+        <div class="f12"><div class="miniRow" style="gap:8px;margin-top:6px;flex-wrap:wrap">
+          <span class="tag info">Costos: ${fmtCOP(cost)}</span>
+          <span class="tag info">Ingresos: ${fmtCOP(rev)}</span>
+          <span class="tag ${net>=0?"ok":"warn"}">Rendimiento: ${fmtCOP(net)}</span>
+        </div></div>
+
+        <div class="f12" style="margin-top:10px">
+          <div class="cardHd" style="padding:0"><b>Historial</b><div class="muted">Eventos del cerdo</div></div>
+          <div class="wrap">
+            <table>
+              <thead><tr><th>Fecha</th><th>Tipo</th><th>Detalle</th></tr></thead>
+              <tbody>${rows}</tbody>
+            </table>
+          </div>
+        </div>
+      </div>`,
+      footer:`<button class="btn" id="mClose">Cerrar</button>
+              <button class="btn" id="anSup">Suministrar</button>
+              <button class="btn" id="anMv">Mover</button>
+              <button class="btn" id="anPeso">Peso</button>
+              <button class="btn danger" id="anDead">Baja</button>
+              <button class="btn primary" id="anSave">Guardar cambios</button>`,
+      onMount: ()=>{
+        $("#anSup").onclick=()=>{ dlg.close(); openSupplyFor("animal", a.id); };
+        $("#anMv").onclick=()=>{ dlg.close(); openMoveAnimal(a.id); };
+        $("#anPeso").onclick=()=>{ dlg.close(); openAnimalWeight(a.id); };
+        $("#anDead").onclick=()=>{ dlg.close(); openAnimalDeath(a.id); };
+        $("#anSave").onclick=()=>{
+          const nn = ($("#anName").value||"").toString().trim();
+          const ww = Math.max(0, num($("#anW").value));
+          a.name = nn;
+          a.weightKg = ww;
+          logAnimalEvent(a.id, "editar", {name:nn, weightKg:ww});
+          save(); dlg.close(); toast("ok","Actualizado","Guardado."); render();
+        };
+      }
+    });
+  }
+
+  function openAnimalWeight(animalId){
+    const a=get.animal(animalId); if(!a) return;
+    openModal({
+      title:"Registrar peso",
+      sub: esc(a.name||"(sin nombre)"),
+      body:`<form id="awF" class="grid2">
+        <div class="f12"><label>Peso (kg) *</label><input name="w" type="number" step="0.1" min="0" value="${esc(a.weightKg||0)}" required/></div>
+      </form>`,
+      footer:`<button class="btn" id="mClose">Cancelar</button><button class="btn primary" id="okAw">Guardar</button>`,
+      onMount: ()=>{
+        $("#okAw").onclick=()=>{
+          const fd=new FormData($("#awF"));
+          const w=Math.max(0, num(fd.get("w")));
+          a.weightKg = w;
+          logAnimalEvent(a.id, "peso", {weightKg:w});
+          save(); dlg.close(); toast("ok","Guardado","Peso actualizado."); render();
+        };
+      }
+    });
+  }
+
+  function openMoveAnimal(animalId){
+    const a=get.animal(animalId); if(!a) return;
+    const pens = (state.pens||[]).filter(p=>String(p.type||"").toLowerCase()==="engorde" && penAcceptsBatch(p));
+    const ops = pens.map(p=>`<option value="${p.id}" ${String(p.id)===String(a.penId)?"selected":""}>${esc(p.name)}</option>`).join("");
+    openModal({
+      title:"Mover cerdo de cajón",
+      sub: esc(a.name||"(sin nombre)"),
+      body:`<form id="amF" class="grid2">
+        <div class="f12"><label>Cajón destino *</label><select name="penId" required>${ops}</select></div>
+      </form>`,
+      footer:`<button class="btn" id="mClose">Cancelar</button><button class="btn primary" id="okAm">Mover</button>`,
+      onMount: ()=>{
+        $("#okAm").onclick=()=>{
+          const fd=new FormData($("#amF"));
+          const to=(fd.get("penId")||"").toString();
+          const from=a.penId;
+          if(!to){ toast("bad","Falta cajón","Selecciona un cajón."); return; }
+          a.penId = to;
+          logAnimalEvent(a.id, "mover", {fromPenId:from, toPenId:to});
+          save(); dlg.close(); toast("ok","Movido","Actualizado."); render();
+        };
+      }
+    });
+  }
+
+  function openMoveAnimalsInPen(penId){
+    const pid=String(penId||"");
+    const list = animalsInPen(pid);
+    if(!list.length){ toast("warn","Sin cerdos","No hay cerdos activos para mover."); return; }
+    const pens = (state.pens||[]).filter(p=>String(p.type||"").toLowerCase()==="engorde" && penAcceptsBatch(p) && String(p.id)!==pid);
+    if(!pens.length){ toast("warn","Sin destino","No hay otro cajón de engorde disponible."); return; }
+    const ops = pens.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join("");
+    openModal({
+      title:"Mover todos los cerdos del cajón",
+      sub:`Se moverán ${fmtNum(list.length,0)} cerdos activos.`,
+      body:`<form id="amAllF" class="grid2">
+        <div class="f12"><label>Cajón destino *</label><select name="penId" required>${ops}</select></div>
+      </form>`,
+      footer:`<button class="btn" id="mClose">Cancelar</button><button class="btn primary" id="okAll">Mover</button>`,
+      onMount: ()=>{
+        $("#okAll").onclick=()=>{
+          const fd=new FormData($("#amAllF"));
+          const to=(fd.get("penId")||"").toString();
+          if(!to){ toast("bad","Falta cajón","Selecciona un cajón."); return; }
+          list.forEach(a=>{
+            const from=a.penId;
+            a.penId = to;
+            logAnimalEvent(a.id, "mover", {fromPenId:from, toPenId:to, bulk:true});
+          });
+          save(); dlg.close(); toast("ok","Movidos",`Se movieron ${fmtNum(list.length,0)} cerdos.`); render();
+        };
+      }
+    });
+  }
+
+  function openAnimalDeath(animalId){
+    const a=get.animal(animalId); if(!a) return;
+    openModal({
+      title:"Registrar baja",
+      sub: esc(a.name||"(sin nombre)"),
+      body:`<form id="adF" class="grid2">
+        <div class="f12"><label>Motivo *</label><input name="reason" required placeholder="Ej: enfermedad, accidente…"/></div>
+        <div class="f12"><label>Notas</label><textarea name="notes"></textarea></div>
+      </form>`,
+      footer:`<button class="btn" id="mClose">Cancelar</button><button class="btn danger" id="okAd">Registrar baja</button>`,
+      onMount: ()=>{
+        $("#okAd").onclick=()=>{
+          const fd=new FormData($("#adF"));
+          const r=(fd.get("reason")||"").toString().trim();
+          const notes=(fd.get("notes")||"").toString().trim();
+          if(!r){ toast("bad","Falta motivo","Escribe el motivo."); return; }
+          a.status="muerto";
+          a.deadAt = nowISO();
+          a.deadReason = r;
+          if(notes) a.notes = (a.notes? (a.notes+"\n"):"") + notes;
+          logAnimalEvent(a.id, "baja", {reason:r, notes});
+          save(); dlg.close(); toast("ok","Registrado","Baja guardada."); render();
         };
       }
     });
@@ -3963,7 +4366,7 @@ return list;
           capLbl.textContent = lbl;
           initLbl.textContent = (t==="engorde") ? "Cabezas iniciales (opcional)" : (t==="maternidad" ? "Madres iniciales (opcional)" : "Cerdas iniciales (opcional)");
           hint.innerHTML = (t==="engorde")
-            ? 'La capacidad es opcional. Si agregas <b>cabezas iniciales</b>, el sistema creará un <b>lote manual</b> dentro de este cajón para que cuente en Engorde y Carne.'
+            ? 'La capacidad es opcional. Si agregas <b>cabezas iniciales</b>, el sistema creará cerdos en <b>engorde</b> para que el conteo y el stock se mantengan consistentes. Luego podrás editarlos (nombre/peso) desde el cajón.'
             : 'La capacidad y la <b>cantidad inicial</b> son opcionales. La cantidad inicial sirve para reflejar animales <b>no registrados</b> (solo afecta el conteo del cajón).';
         };
         typeSel.addEventListener('change', refresh);
@@ -3986,23 +4389,15 @@ return list;
           const pen={id:uid("pen"), name, type, capacity: (cap!=null && cap>0)?cap:null, initialCount: (type==="engorde") ? 0 : initCount};
           state.pens.push(pen);
 
-          // Si es engorde y el usuario puso cabezas, crear un lote manual en ese cajón
+          // Si es engorde y el usuario puso cabezas, crear cerdos individuales en ese cajón
           if(type==="engorde" && initCount>0){
-            state.batches = state.batches || [];
-            state.batches.push({
-              id: uid("batch"),
-              origin: "engorde_manual",
-              manualPenId: pen.id,
-              sowId: "",
-              birthDate: "",
-              weaningDate: today(),
-              countBorn: initCount,
-              countWeaned: initCount,
-              countCurrent: initCount,
-              status: "disponible",
-              penId: pen.id,
-              notes: "Ingreso manual al cajón (creación)"
-            });
+            ensureAnimals();
+            for(let k=0;k<initCount;k++){
+              // Nombre vacío (puedes editarlo luego); peso opcional
+              const a = createAnimal(pen.id, "", 0, {notes:"Ingreso inicial al crear cajón"});
+              // Marca visible para que el usuario los identifique
+              if(!a.name) a.name = `Cerdo ${k+1}`;
+            }
           }
 
           save(); dlg.close(); toast("ok","Creado","Cajón agregado.");
@@ -4216,6 +4611,13 @@ return list;
             const s=get.sow(id); if(!s) return; s.penId=penId;
           }else if(kind==="batch"){
             const b=get.batch(id); if(!b) return; b.penId=penId;
+            // Si existen cerdos individualizados del lote, muévelos también
+            try{
+              (state.animals||[]).forEach(a=>{
+                if(!isAnimalActive(a)) return;
+                if(String(a.batchId||"")===String(id||"")) a.penId = penId;
+              });
+            }catch(e){}
           }else{
             const b=get.batch(batchId); if(b) b.penId=penId;
           }
@@ -5342,7 +5744,7 @@ return list;
       openInvItem();
       return;
     }
-    const title = type==="sow" ? "Suministrar a cerda" : (type==="engorde" ? "Suministrar a engorde" : "Suministrar a camada");
+    const title = type==="sow" ? "Suministrar a cerda" : (type==="animal" ? "Suministrar a cerdo" : (type==="engorde" ? "Suministrar a engorde" : "Suministrar a camada"));
     const ops = state.inventory.slice().sort((a,b)=>(a.name||"").localeCompare(b.name||""))
       .map(i=>`<option value="${i.id}">${esc(i.name)} • ${esc(i.category||"insumo")} • ${esc(i.qty||0)} ${esc(i.unit||"")}</option>`)
       .join("");
@@ -5460,7 +5862,7 @@ return list;
         `:""}
         <div class="f6"><label>Relacionado con (opcional)</label>
           <select name="linkedType" id="lt">
-            <option value="">—</option><option value="sow">Cerda</option><option value="batch">Camada</option><option value="engorde">Engorde</option>
+            <option value="">—</option><option value="sow">Cerda</option><option value="batch">Camada</option><option value="engorde">Engorde</option><option value="animal">Cerdo (engorde)</option>
           </select>
         </div>
         <div class="f6"><label>Seleccionar</label><select name="linkedId" id="lid" disabled><option value="">—</option></select></div>
@@ -5517,6 +5919,16 @@ return list;
               .slice()
               .sort((a,b)=>(a.name||"").localeCompare(b.name||""));
             lid.innerHTML += `<option value="all">Todo engorde</option>` + pens.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join("");
+          } else if(lt.value==="animal"){
+            const animals = (state.animals||[])
+              .filter(a=>isAnimalActive(a))
+              .slice()
+              .sort((a,b)=>(String(a.name||"(sin nombre)")).localeCompare(String(b.name||"(sin nombre)")));
+            lid.innerHTML += animals.map(a=>{
+              const pen = getPen(a.penId);
+              const nm = a.name ? a.name : "(sin nombre)";
+              return `<option value="${a.id}">${esc(nm)} • ${esc(pen?.name||"")}</option>`;
+            }).join("");
           } else {
             lid.innerHTML+=state.batches.slice().sort((a,b)=>(b.birthDate||"").localeCompare(a.birthDate||"")).map(b=>`<option value="${b.id}">${esc(b.id.slice(-8))} • ${esc(get.sow(b.sowId)?.tag||"cerda")}</option>`).join("");
           }
@@ -5593,6 +6005,20 @@ return list;
             method:(fd.get("method")||"").toString(),
             dueDate:(fd.get("dueDate")||"").toString()
           });
+
+          // Si es salida y está ligada a un cerdo, registrar evento para historial/rendimiento
+          try{
+            const lt2 = (fd.get("linkedType")||"").toString();
+            const lid2 = (fd.get("linkedId")||"").toString();
+            if(mode==="salida" && lt2==="animal" && lid2){
+              logAnimalEvent(lid2, "suministro", {
+                itemId: i.id, itemName: i.name,
+                qty: Math.max(0, appliedQty),
+                unit: i.unit,
+                totalCost: movTotalCost
+              });
+            }
+          }catch(e){}
 
           if(mode==="entrada" && $("#asExp")?.checked){
             const totalCost=totalCostIn;
@@ -6396,6 +6822,20 @@ return list;
       x.heads += cur;
       x.batches.push(b);
     });
+    // Animales individuales (solo engorde): suman como cabezas del cajón
+    (state.animals||[]).forEach(a=>{
+      if(!isAnimalActive(a)) return;
+      const pid = String(a.penId||"");
+      if(!pid) return;
+      const p = getPen(pid);
+      if(!p || String(p.type||"").toLowerCase()!=="engorde") return;
+      if(!by.has(pid)) by.set(pid, {pen:p, lots:0, heads:0, batches:[]});
+      const x = by.get(pid);
+      x.heads += 1;
+      x.animals = (x.animals||0) + 1;
+    });
+
+
 
     const arr = [...by.values()].sort((a,b)=>(a.pen?.name||"").localeCompare(b.pen?.name||""));
     arr.forEach(x=>{
@@ -6419,9 +6859,11 @@ return list;
   function penHeadsAvailable(penId){
     const pid = String(penId||"");
     if(!pid) return 0;
-    return (state.batches||[])
+    const fromBatches = (state.batches||[])
       .filter(b=>String(b.penId||"")===pid && (b.status||"disponible")!=="cerrado")
       .reduce((s,b)=>s + Math.max(0,num(b.countCurrent)), 0);
+    const fromAnimals = countAnimalsInPen(pid);
+    return fromBatches + fromAnimals;
   }
 
   function takeHeadsFromPen(penId, heads){
@@ -6467,6 +6909,11 @@ return list;
 
   function revertHeadsDeductions(deds){
     (deds||[]).forEach(d=>{
+      if(d.animalId){
+        // Restaurar cerdo individual
+        try{ restoreAnimalFromDeduction(d); }catch(e){}
+        return;
+      }
       const b = get.batch(d.batchId);
       if(!b) return;
       b.countCurrent = Math.max(0, num(b.countCurrent) + Math.max(0, num(d.heads)));
@@ -6474,7 +6921,26 @@ return list;
     });
   }
 
-  function meatKgFromSale(s){
+  function applyHeadsDeductions(deds, saleId){
+    (deds||[]).forEach(d=>{
+      if(d.animalId){
+        const a = get.animal(d.animalId);
+        if(!a) return;
+        a.status = "vendido";
+        a.soldAt = nowISO();
+        a.saleId = String(saleId||"");
+        return;
+      }
+      const b = get.batch(d.batchId);
+      if(!b) return;
+      const cur = Math.max(0, num(b.countCurrent));
+      const take = Math.max(0, num(d.heads));
+      b.countCurrent = Math.max(0, cur - take);
+      if(b.countCurrent===0) b.status = "cerrado";
+    });
+  }
+
+    function meatKgFromSale(s){
     const unit = String(s?.unit||"kg").toLowerCase();
     const q = Math.max(0, num(s?.qty));
     const arrobaKg = Math.max(0, num(state.settings?.arrobaKg) || 12.5);
@@ -6706,6 +7172,44 @@ return list;
         const eq=$("#mEq");
         const headsWrap=$("#headsWrap");
 
+        const animalWrap = $("#animalPickWrap");
+        const animalList = $("#animalPickList");
+
+        const renderAnimalPick = ()=>{
+          if(!animalWrap || !animalList) return;
+          const penId = String(penSel.value||defPenId);
+          const u = String(unitSel.value||"kg");
+          if(u!=="completo"){ animalWrap.style.display="none"; animalList.innerHTML=""; return; }
+          animalWrap.style.display="block";
+          const list = animalsInPen(penId).slice().sort((a,b)=>(String(a.name||"")).localeCompare(String(b.name||"")));
+          if(!list.length){
+            animalList.innerHTML = `<div class="f12 muted">No hay cerdos individuales en este cajón. Puedes agregarlos en <b>Engorde</b>.</div>`;
+            return;
+          }
+          const pre = (s && Array.isArray(s.animalIds)) ? s.animalIds.map(String) : [];
+          animalList.innerHTML = list.map(a=>{
+            const nm = a.name ? a.name : "(sin nombre)";
+            const w = Math.max(0, num(a.weightKg));
+            const checked = pre.includes(String(a.id)) ? "checked" : "";
+            return `<label class="chip" style="display:flex;gap:10px;align-items:center;cursor:pointer;padding:8px;border:1px solid var(--bd);border-radius:12px">
+              <input type="checkbox" class="anPick" value="${a.id}" ${checked}/>
+              <span><b>${esc(nm)}</b> <span class="muted">${w?fmtNum(w,1)+" kg":"—"}</span></span>
+            </label>`;
+          }).join("");
+          // listeners
+          animalList.querySelectorAll("input.anPick").forEach(ch=>{
+            ch.onchange=()=>{
+              const n = animalList.querySelectorAll("input.anPick:checked").length;
+              if(n>0){
+                qtyI.value = String(n);
+                headsI.value = String(n);
+              }
+              recalc();
+            };
+          });
+        };
+
+
         const syncUnitUI=()=>{
           const u=String(unitSel.value||"kg");
           if(u==="kg"){ lblQty.textContent="Cantidad (kg) *"; lblUP.textContent="Precio por kg (COP) *"; hint.textContent=""; headsWrap.style.display="block"; }
@@ -6753,12 +7257,13 @@ return list;
           }
         };
 
-        unitSel.onchange=()=>{ syncUnitUI(); recalc(); };
-        penSel.onchange=()=>{ recalc(); };
+        unitSel.onchange=()=>{ syncUnitUI(); renderAnimalPick(); recalc(); };
+        penSel.onchange=()=>{ renderAnimalPick(); recalc(); };
         qtyI.oninput=recalc; upI.oninput=recalc; avgI.oninput=recalc;
         if(!s._lockPay){ stSel.onchange=recalc; paidI.oninput=recalc; }
 
         syncUnitUI();
+        renderAnimalPick();
         recalc();
 
         $("#ok").onclick=()=>saveMeatSale(id);
@@ -6791,6 +7296,14 @@ return list;
           <option value="arroba" ${String(s.unit)==="arroba"?"selected":""}>Por arroba</option>
           <option value="completo" ${String(s.unit)==="completo"?"selected":""}>Completo (cerdo)</option>
         </select>
+      </div>
+
+      <div class="f12" id="animalPickWrap" style="display:none">
+        <label>Seleccionar cerdos (opcional)</label>
+        <div class="wrap" style="max-height:180px;overflow:auto;border:1px solid var(--bd);border-radius:12px;padding:10px">
+          <div id="animalPickList" class="grid2" style="gap:8px"></div>
+        </div>
+        <div class="muted" style="margin-top:6px">Si seleccionas cerdos, la venta quedará asociada a esos animales (historial y rendimiento).</div>
       </div>
 
       <div class="f4"><label id="lblQty">Cantidad</label><input id="mQty" name="qty" data-qty="1" step="0.01" required value="${esc(String(num(s.qty)||""))}"/></div>
@@ -6833,6 +7346,12 @@ return list;
     const clientId=(fd.get("clientId")||"").toString();
     const penId=(fd.get("penId")||"").toString();
     const unit=String(fd.get("unit")||"kg").toLowerCase();
+
+    // Cerdos seleccionados (solo aplica a venta "completo")
+    let animalIdsPicked = [];
+    try{
+      animalIdsPicked = Array.from(document.querySelectorAll("#animalPickList input.anPick:checked")).map(x=>x.value);
+    }catch(e){}
 
     let qty=Math.max(0, num(fd.get("qty")));
     const unitPrice=Math.max(0, num(fd.get("unitPrice")));
@@ -6901,20 +7420,67 @@ return list;
       revertHeadsDeductions(existing.deductions);
     }
 
-    // Aplicar deducción nueva
-    const take = takeHeadsFromPen(penId, headsUsed);
+    // Aplicar deducción nueva (cerdos individuales + lotes)
+    // 1) elegir animales (solo engorde)
+    const prefer = (unit==="completo") ? animalIdsPicked : [];
+    let chosenAnimalIds = takeAnimalsFromPen(penId, headsUsed, prefer);
+
+    // Si el usuario seleccionó animales en "completo", usamos EXACTAMENTE esos (si son válidos)
+    if(unit==="completo" && prefer.length){
+      // validar que todos estén activos y en el cajón
+      const bad = prefer.find(id=>{
+        const a=get.animal(id);
+        return !a || !isAnimalActive(a) || String(a.penId||"")!==String(penId||"");
+      });
+      if(bad){
+        openAlert({title:"Selección inválida", message:"Hay cerdos seleccionados que ya no están disponibles en ese cajón.", kind:"bad"});
+        return;
+      }
+      chosenAnimalIds = prefer.slice();
+      // fuerza qty/headsUsed a la selección
+      qty = chosenAnimalIds.length;
+      headsUsed = chosenAnimalIds.length;
+      kgEq = headsUsed * avgKg;
+    }
+
+    // 2) marcar animales como vendidos y preparar deducciones
+    const animalDeds = [];
+    chosenAnimalIds.forEach(aid=>{
+      const a = get.animal(aid);
+      if(!a) return;
+      animalDeds.push({animalId: a.id, prevStatus: a.status, prevPenId: a.penId, prevSaleId: a.saleId||""});
+      a.status = "vendido";
+      a.soldAt = nowISO();
+      a.saleId = id;
+    });
+
+    // 3) descontar faltante desde lotes (batches)
+    const remainingHeads = Math.max(0, headsUsed - chosenAnimalIds.length);
+    const take = takeHeadsFromPen(penId, remainingHeads);
+
     if(take.remaining>0){
-      // revertir lo tomado y lo revertido
+      // revertir lo tomado (lotes) y los animales marcados
       revertHeadsDeductions(take.deductions);
+      animalDeds.forEach(d=>restoreAnimalFromDeduction(d));
+
+      // volver a aplicar la deducción vieja (por seguridad)
       if(existing && Array.isArray(existing.deductions) && existing.deductions.length){
-        // volver a aplicar la deducción vieja (por seguridad)
-        takeHeadsFromPen(existing.penId, meatHeadsFromSale(existing));
+        applyHeadsDeductions(existing.deductions, existing.id);
       }
       openAlert({title:"No fue posible descontar", message:"No se pudo descontar el stock completo desde el cajón.", kind:"bad"});
       return;
     }
 
-    const payload={
+    // evento por animal (venta)
+    try{
+      chosenAnimalIds.forEach(aid=>{
+        logAnimalEvent(aid, "venta", {saleId:id, penId, total, unit, qty});
+      });
+    }catch(e){}
+
+    const allDeds = [...take.deductions, ...animalDeds];
+
+const payload={
       id,
       date, clientId, penId,
       unit,
@@ -6926,12 +7492,28 @@ return list;
       paidAmount: paid,
       dueDate,
       notes,
-      deductions: take.deductions
+      animalIds: chosenAnimalIds,
+      deductions: allDeds
     };
 
     const idx = state.meatSales.findIndex(x=>x.id===id);
     if(idx>=0) state.meatSales[idx]=payload;
     else state.meatSales.push(payload);
+
+    // Registrar movimiento de engorde (salida total)
+    try{
+      state.engorde = state.engorde || {manual:[], movements:[]};
+      state.engorde.movements = state.engorde.movements || [];
+      state.engorde.movements.push({
+        id:uid("engmov"),
+        date: today(),
+        type:"salida",
+        heads: Math.max(0, Math.floor(num(headsUsed))),
+        before: null,
+        after: null,
+        reason:`Venta carne (total ${fmtNum(headsUsed,0)} cabeza(s))`
+      });
+    }catch(e){}
 
     // Finanzas: ingreso inicial (solo si NO hay pagos previos)
     state.transactions = state.transactions.filter(tx=>!(tx.refType==="meatSale" && tx.refId===id && String(tx.notes||"").startsWith("Venta carne")));
@@ -7930,7 +8512,7 @@ return list;
       <div class="f4"><label>Prioridad</label><select name="priority">${["alta","media","baja"].map(x=>`<option ${t.priority===x?"selected":""} value="${x}">${x}</option>`).join("")}</select></div>
       <div class="f4"><label>Estado</label><select name="status"><option value="pendiente" ${t.status!=="hecha"?"selected":""}>Pendiente</option><option value="hecha" ${t.status==="hecha"?"selected":""}>Hecha</option></select></div>
       <div class="f6"><label>Relacionado</label><select name="relatedType" id="rt">
-        <option value="">—</option><option value="sow">Cerda</option><option value="batch">Camada</option><option value="engorde">Engorde</option><option value="sale">Venta</option><option value="inventory">Insumo</option>
+        <option value="">—</option><option value="sow">Cerda</option><option value="batch">Camada</option><option value="engorde">Engorde</option><option value="animal">Cerdo (engorde)</option><option value="sale">Venta</option><option value="inventory">Insumo</option>
       </select></div>
       <div class="f6"><label>Seleccionar</label><select name="relatedId" id="rid" disabled><option value="">—</option></select></div>
       <div class="f12"><label>Notas</label><textarea name="notes">${esc(t.notes)}</textarea></div>

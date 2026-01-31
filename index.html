@@ -2533,11 +2533,11 @@ const defaults = () => ({
       // A veces onAuthStateChanged tarda unos ms en marcar ready/uid.
       if(window.firebaseCloud && window.firebaseCloud.enabled){
         const wait = (ms)=>new Promise(r=>setTimeout(r,ms));
-        for(let i=0;i<8;i++){
+        for(let i=0;i<20;i++){
           const has = (window.firebaseCloud.ready && window.firebaseCloud.uid) ||
                       (window.firebaseCloud.hasSession && window.firebaseCloud.hasSession());
           if(has) break;
-          await wait(80);
+          await wait(100);
         }
         const has = (window.firebaseCloud.ready && window.firebaseCloud.uid) ||
                     (window.firebaseCloud.hasSession && window.firebaseCloud.hasSession());
@@ -2568,6 +2568,24 @@ const defaults = () => ({
         return;
       }
 
+      
+      // 1.5) Si Firebase está restaurando sesión, espera un poco antes de forzar signIn.
+      if(window.firebaseCloud && window.firebaseCloud.enabled){
+        const wait2 = (ms)=>new Promise(r=>setTimeout(r,ms));
+        for(let i=0;i<20;i++){
+          const has = (window.firebaseCloud.ready && window.firebaseCloud.uid) ||
+                      (window.firebaseCloud.hasSession && window.firebaseCloud.hasSession());
+          if(has){
+            setAuthed(true);
+            toast("ok","Bienvenido","Sesión restaurada.");
+            enforceAuth();
+            return;
+          }
+          await wait2(100);
+        }
+      }
+
+
       // 2) Si no coincide local, intenta credenciales de nube
       if(window.firebaseCloud && typeof window.firebaseCloud.signIn==="function"){
         window.__setFBStatus && window.__setFBStatus(false,"autenticando…");
@@ -2583,20 +2601,23 @@ const defaults = () => ({
       console.warn("Login error:", e);
       const msg = (e && (e.code || e.message || "")) ? String(e.code || e.message) : "";
 
-      // Si Firebase terminó restaurando sesión mientras se intentaba login, continúa sin error.
+      // Si Firebase está restaurando sesión, espera un momento antes de mostrar error.
       try{
         if(window.firebaseCloud && window.firebaseCloud.enabled){
-          const has = (window.firebaseCloud.ready && window.firebaseCloud.uid) ||
-                      (window.firebaseCloud.hasSession && window.firebaseCloud.hasSession());
-          if(has){
-            setAuthed(true);
-            toast("ok","Bienvenido","Sesión restaurada.");
-            enforceAuth();
-            return;
+          const wait3 = (ms)=>new Promise(r=>setTimeout(r,ms));
+          for(let i=0;i<20;i++){
+            const has = (window.firebaseCloud.ready && window.firebaseCloud.uid) ||
+                        (window.firebaseCloud.hasSession && window.firebaseCloud.hasSession());
+            if(has){
+              setAuthed(true);
+              toast("ok","Bienvenido","Sesión restaurada.");
+              enforceAuth();
+              return;
+            }
+            await wait3(100);
           }
         }
       }catch(_){}
-
 
       if(msg.includes("invalid-user")){
         toast("bad","Usuario inválido","Usa el usuario configurado en Ajustes.");

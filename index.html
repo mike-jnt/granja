@@ -5801,8 +5801,9 @@ const actions = `
 
             if(reg?.checked && q>0){
               // Movimiento de entrada inicial (historial)
-              state.stockMovements.push({
-                id:uid("mov"),
+              const movId = uid("mov");
+          state.stockMovements.push({
+            id: movId,
                 itemId:payload.id,
                 type:"entrada",
                 date,
@@ -6180,17 +6181,66 @@ const actions = `
             ? (totalCostIn>0 ? totalCostIn : Math.max(0, appliedQty*unitCost))
             : Math.max(0, appliedQty*unitCost);
 
-          state.stockMovements.push({
-            id:uid("mov"), itemId:i.id, type:mode, date, qty:delta, unitCost,
-            linkedType:(fd.get("linkedType")||"").toString(),
-            linkedId:(fd.get("linkedId")||"").toString(),
-            notes:(fd.get("notes")||"").toString().trim(),
-            totalCost: movTotalCost,
-            payStatus:(fd.get("payStatus")||"").toString(),
-            paidNow:num(fd.get("paidNow")),
-            method:(fd.get("method")||"").toString(),
-            dueDate:(fd.get("dueDate")||"").toString()
-          });
+          const movId = uid("mov");
+const ltSaved = (fd.get("linkedType")||"").toString();
+const lidSaved = (fd.get("linkedId")||"").toString();
+
+state.stockMovements.push({
+  id: movId,
+  itemId: i.id,
+  type: mode,
+  date,
+  qty: delta,
+  unitCost,
+  linkedType: ltSaved,
+  linkedId: lidSaved,
+  notes: (fd.get("notes")||"").toString().trim(),
+  totalCost: movTotalCost,
+  payStatus: (fd.get("payStatus")||"").toString(),
+  paidNow: num(fd.get("paidNow")),
+  method: (fd.get("method")||"").toString(),
+  dueDate: (fd.get("dueDate")||"").toString()
+});
+
+// Si es salida: también registra un gasto contable por consumo de inventario (no salida de caja).
+// Esto permite ver el gasto en Finanzas y sumarlo en "Gastos" sin afectar Caja/Bancos.
+if(mode==="salida"){
+  const line = inferLineFromMov({linkedType: ltSaved, linkedId: lidSaved, date});
+  const relTxt = (()=>{
+    try{
+      if(ltSaved==="engorde"){
+        if(lidSaved==="all") return "Todo engorde";
+        const p=getPen(lidSaved); return p?`Cajón: ${p.name}`:"Engorde";
+      }
+      if(ltSaved==="animal"){
+        const a=getAnimal(lidSaved);
+        const p=getPen(a?.penId);
+        return a?`Cerdo: ${a.name||"(sin nombre)"}${p?` • ${p.name}`:""}`:"Cerdo";
+      }
+      if(ltSaved==="batch") return `Camada: ${(lidSaved||"").slice(-8)}`;
+      if(ltSaved==="sow"){ const so=get.sow(lidSaved); return `Cerda: ${so?.tag||so?.name||"(sin)"}`; }
+    }catch(e){}
+    return "—";
+  })();
+  const qtyAbs = Math.max(0, appliedQty);
+  const notes = `Consumo: ${i.name} (${fmtNum(qtyAbs,2)} ${i.unit}) • ${relTxt}`;
+  const exists = (state.transactions||[]).some(t=>t.refType==="mov" && t.refId===movId && t.type==="gasto");
+  if(!exists && movTotalCost>0){
+    state.transactions.push({
+      id:uid("tx"),
+      date,
+      type:"gasto",
+      line: line || "general",
+      category:"Consumo inventario",
+      amount: movTotalCost,
+      method:"consumo",
+      nonCash:true,
+      refType:"mov",
+      refId:movId,
+      notes
+    });
+  }
+}
 
           // Si es salida y está ligada a un cerdo, registrar evento para historial/rendimiento
           try{
@@ -7968,7 +8018,8 @@ const payload={
   function cashLineReport(from, to){
     const out = {monta:{in:0,out:0}, engorde:{in:0,out:0}, gestacion:{in:0,out:0}, general:{in:0,out:0}};
     (state.transactions||[]).forEach(tx=>{
-      if(!inRange(tx?.date, from, to)) return;
+            if(tx?.nonCash) return;
+if(!inRange(tx?.date, from, to)) return;
       const line = inferLineFromTx(tx);
       if(!(line in out)) out[line] = {in:0,out:0};
       if(tx.type==="ingreso") out[line].in += Math.max(0, num(tx.amount));
@@ -8034,7 +8085,7 @@ const payload={
     const t = (to||"").toString();
 
     const txs = (state.transactions||[])
-      .filter(tx=>inRange(tx?.date, f, t) && inferLineFromTx(tx)===line)
+      .filter(tx=>!tx?.nonCash && inRange(tx?.date, f, t) && inferLineFromTx(tx)===line)
       .slice()
       .sort((a,b)=>(b.date||"").localeCompare(a.date||""));
 
@@ -8357,15 +8408,16 @@ const payload={
       .sort((a,b)=>(b.date||"").localeCompare(a.date||""))
       .map(t=>{
         const line = inferLineFromTx(t);
+        const nonCashTag = t.nonCash ? `<span class="tag info">No caja</span>` : ``;
         const tag = line==="monta"?"info":(line==="engorde"?"ok":(line==="gestacion"?"warn":""));
         return `<tr>
           <td class="mono">${esc(t.date||"—")}</td>
           <td>${t.type==="ingreso"?`<span class="tag ok">Ingreso</span>`:`<span class="tag bad">Gasto</span>`}</td>
           <td>${tag?`<span class="tag ${tag}">${esc(line)}</span>`:`<span class="tag">${esc(line)}</span>`}</td>
-          <td><b>${esc(t.category||"—")}</b><div class="muted">${esc(t.method||"")}</div></td>
+          <td><b>${esc(t.category||"—")}</b> ${nonCashTag}<div class="muted">${esc(t.method||"")}</div></td>
           <td class="mono">${esc(fmtCOP(t.amount))}</td>
           <td class="muted">${esc(t.notes||"")}</td>
-          <td><button class="btn danger" data-act="del" data-id="${t.id}">Eliminar</button></td>
+          <td>${t.nonCash?`<span class="muted">—</span>`:`<button class="btn danger" data-act="del" data-id="${t.id}">Eliminar</button>`}</td>
         </tr>`;
       }).join("");
 

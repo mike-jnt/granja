@@ -4693,7 +4693,42 @@ const actions = `
     return firstPenIdByType("engorde") || bid || "";
   }
 
-  function openPen(opts={}){
+  
+  // Ocupación de un cajón (útil para el selector de maternidad en Partos)
+  // Devuelve: { sows: <n cerdas>, batches: <n camadas activas> }
+  function penOccupancy(penId){
+    const pid = String(penId||"");
+    if(!pid) return {sows:0, batches:0};
+    const pen = getPen(pid);
+    const t = String(pen?.type||"").toLowerCase();
+
+    let batches = 0;
+    const sowIds = new Set();
+
+    (state.batches||[]).forEach(b=>{
+      if(String(b?.penId||"") !== pid) return;
+      if((b.status||"disponible") === "cerrado") return;
+      if(num(b.countCurrent) <= 0) return;
+
+      // En maternidad solo contar lactancia (antes del destete; fallback 35 días si no hay destete)
+      if(t === "maternidad"){
+        const wean = String(b.weaningDate||"");
+        if(wean){
+          if(today() >= wean) return; // ya destetado -> no cuenta como ocupación de maternidad
+        } else {
+          const age = b.birthDate ? daysBetween(b.birthDate, today()) : null;
+          if(age == null || age < 0 || age > 35) return;
+        }
+      }
+
+      batches += 1;
+      if(b.sowId) sowIds.add(String(b.sowId));
+    });
+
+    return {sows: sowIds.size, batches};
+  }
+
+function openPen(opts={}){
     opts = opts || {};
     const defType = String(opts.type||"gestacion").toLowerCase();
 

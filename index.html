@@ -1593,6 +1593,50 @@ table td[colspan]{
   }
 }
 
+
+/* =========================================================
+   Ajustes solicitados (Header 1 línea + Selects más elegantes + Modales con más aire)
+   ========================================================= */
+
+/* Header: mantener todo en una sola línea (desktop) y permitir que el buscador se reduzca antes de saltar */
+@media (min-width: 901px){
+  header .bar{flex-wrap:nowrap !important}
+  header .right{flex-wrap:nowrap !important; flex:1 1 auto; min-width:0}
+  header .brand{flex:0 0 auto; min-width:0}
+  header .search{
+    flex:1 1 auto;
+    min-width:200px !important;
+    width:clamp(220px, 30vw, 420px) !important;
+    max-width:520px;
+  }
+}
+header .right .btn, header .right button{white-space:nowrap}
+header .brand .logo{
+  box-shadow:0 10px 24px rgba(2,6,23,.14);
+  border:1px solid rgba(15,23,42,.10);
+  background-color:rgba(255,255,255,.85);
+}
+
+/* Selects: más espacio para la flecha y sin texto “pegado” */
+select{
+  -webkit-appearance:none;
+  -moz-appearance:none;
+  appearance:none;
+  padding-right:44px !important;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none'%3E%3Cpath d='M6 8l4 4 4-4' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right 14px center;
+  background-size:16px 16px;
+}
+select::-ms-expand{display:none}
+
+/* Modales: más aire entre títulos y campos */
+dialog .dlgHd{padding:14px 16px !important}
+dialog .dlgBd{padding:16px !important}
+dialog form.grid2{gap:14px !important}
+dialog label{margin-bottom:8px !important}
+dialog .dlgFt{padding:14px 16px !important}
+
 </style>
 </head>
 <body>
@@ -9242,7 +9286,7 @@ $("#newSale").onclick=()=>openSale();
 const acct=$("#acctBtn");
 if(acct) acct.onclick=()=>{
   // Abre Contabilidad en otra pestaña y deja la granja abierta
-  const url = "contabilida.html";
+  const url = "contabilidad.html";
   let w = null;
   try{
     w = window.open(url, "_blank", "noopener,noreferrer");

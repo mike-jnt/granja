@@ -2141,7 +2141,28 @@ table td[colspan]{
   "use strict";
   const $ = (s, el=document) => el.querySelector(s);
   const $$ = (s, el=document) => Array.from(el.querySelectorAll(s));
-  const KEY = "granja_porcina_v1_compact";
+  
+  // Métodos de pago estandarizados (Finanzas + Contabilidad)
+  const PAY_METHODS = [
+    {id:"efectivo", label:"Efectivo"},
+    {id:"transferencia", label:"Transferencia"},
+    {id:"pse", label:"PSE"},
+    {id:"consignacion", label:"Consignación"},
+    {id:"tarjeta", label:"Tarjeta"},
+    {id:"nequi", label:"Nequi"},
+    {id:"daviplata", label:"Daviplata"},
+    {id:"qr", label:"QR"},
+    {id:"otro", label:"Otro"},
+    {id:"consumo", label:"Consumo (no caja)"}
+  ];
+  const normPayMethod = (m)=> (m||"").toString().toLowerCase().trim();
+
+  function payMethodOptions(selected="efectivo", includeConsumo=false){
+    const sel = normPayMethod(selected) || "efectivo";
+    const list = includeConsumo ? PAY_METHODS : PAY_METHODS.filter(x=>x.id!=="consumo");
+    return list.map(x=>`<option value="${x.id}" ${x.id===sel?"selected":""}>${x.label}</option>`).join("");
+  }
+const KEY = "granja_porcina_v1_compact";
   
   const storage = (()=> {
     const testKey="__st";
@@ -2606,7 +2627,33 @@ const defaults = () => ({
     animals:[], animalEvents:[],
     clients:[], sales:[], payments:[],
     meat:{stockKg:0,headsForSale:0,movements:[]}, meatSales:[], meatPayments:[],
-    transactions:[], payables:[], tasks:[]
+    transactions:[], payables:[], tasks:[],
+    accounting:{
+      accounts:[
+        {id:"acct_cash", name:"Caja", kind:"cash"},
+        {id:"acct_bank", name:"Banco", kind:"bank"},
+        {id:"acct_nequi", name:"Nequi", kind:"wallet"},
+        {id:"acct_daviplata", name:"Daviplata", kind:"wallet"},
+        {id:"acct_wallet", name:"Billeteras / QR", kind:"wallet"},
+        {id:"acct_nocash", name:"No caja (consumo)", kind:"other"}
+      ],
+      methodMap:{
+        "efectivo":"acct_cash",
+        "transferencia":"acct_bank",
+        "pse":"acct_bank",
+        "consignacion":"acct_bank",
+        "tarjeta":"acct_bank",
+        "nequi":"acct_nequi",
+        "daviplata":"acct_daviplata",
+        "qr":"acct_wallet",
+        "otro":"acct_cash",
+        "consumo":"acct_nocash",
+        "nequi/daviplata":"acct_wallet"
+      },
+      owner:{initialCapital:0, notes:""},
+      fixedAssets:[],
+      farmItems:[]
+    }
   });
 
   let state = load();
@@ -5935,10 +5982,7 @@ function openPen(opts={}){
 
       <div class="f4"><label>Método</label>
         <select id="invMethod" name="method">
-          <option value="efectivo">Efectivo</option>
-          <option value="transferencia">Transferencia</option>
-          <option value="tarjeta">Tarjeta</option>
-          <option value="otro">Otro</option>
+          ${payMethodOptions("efectivo")}
         </select>
       </div>
       <div class="f4"><label>Vence (si hay crédito)</label><input id="invDue" type="date" name="dueDate" value=""/></div>
@@ -6276,10 +6320,7 @@ function openPen(opts={}){
         <div class="f4"><label>Pagado hoy (COP)</label><input type="number" step="0.01" name="paidNow" id="paidNow" value="0"/></div>
         <div class="f4"><label>Método</label>
           <select name="method" id="method">
-            <option value="efectivo">Efectivo</option>
-            <option value="transferencia">Transferencia</option>
-            <option value="tarjeta">Tarjeta</option>
-            <option value="otro">Otro</option>
+            ${payMethodOptions("efectivo")}
           </select>
         </div>
         <div class="f4"><label>Vence (si hay crédito)</label><input type="date" name="dueDate" id="dueDate" value=""/></div>
@@ -6835,14 +6876,21 @@ if(mode==="salida"){
       <div class="f4"><label>Precio unitario (COP) *</label><input type="number" name="unitPrice" id="su" required min="0" value="${esc(s.unitPrice)}"/></div>
       <div class="f4"><label>Total (auto)</label><input type="number" name="total" id="st" readonly value="${esc(s.total)}"/></div>
 
-      <div class="f4"><label>Estado</label>
+      <div class="f3"><label>Estado</label>
         <select name="status" id="ss">
           ${["pagado","parcial","credito"].map(x=>`<option value="${x}" ${s.status===x?"selected":""}>${x}</option>`).join("")}
         </select>
       </div>
 
-      <div class="f4"><label>Pagado hoy (COP)</label><input type="number" name="paidAmount" id="sp" min="0" value="${esc(s.paidAmount)}"/></div>
-      <div class="f4"><label>Vence</label><input type="date" name="dueDate" value="${esc(s.dueDate)}"/></div>
+      <div class="f3"><label>Pagado hoy (COP)</label><input type="number" name="paidAmount" id="sp" min="0" value="${esc(s.paidAmount)}"/></div>
+
+      <div class="f3"><label>Método (pagado hoy)</label>
+        <select name="paidMethod" id="spm">
+          ${payMethodOptions("efectivo")}
+        </select>
+      </div>
+
+      <div class="f3"><label>Vence</label><input type="date" name="dueDate" value="${esc(s.dueDate)}"/></div>
 
       <div class="f12"><label>Notas</label><textarea name="notes">${esc(s.notes||"")}</textarea></div>
     </form>`;
@@ -6932,6 +6980,7 @@ if(mode==="salida"){
     const total=Math.max(0, qty*unitPrice);
     let paid=Math.max(0, num(fd.get("paidAmount")));
     let status=(fd.get("status")||"credito").toString();
+    const paidMethod = normPayMethod(fd.get("paidMethod")) || "efectivo";
     if(!date||!clientId||!batchId||qty<=0){ openAlert({title:"Faltan datos", message:"Debes seleccionar fecha, cliente, cerda, camada y cantidad.", kind:"bad"}); return; }
     const batch=get.batch(batchId); if(!batch){ openAlert({title:"Camada inválida", message:"Selecciona una camada válida.", kind:"bad"}); return; }
     const sowIdFinal = sowId || (batch?.sowId||"");
@@ -7043,8 +7092,8 @@ if(mode==="salida"){
     if(num(batch.countCurrent)===0) batch.status="cerrado";
 
     if(paid>0){
-      state.payments.push({id:uid("pay"),saleId:payload.id,date,amount:paid,method:"efectivo",notes:"Abono inicial"});
-      state.transactions.push({id:uid("tx"),date,type:"ingreso",line:"monta",category:"Venta de lechones",amount:paid,method:"efectivo",refType:"sale",refId:payload.id,notes:`Venta ${payload.id.slice(-6)} • ${qty} und`});
+      state.payments.push({id:uid("pay"),saleId:payload.id,date,amount:paid,method:paidMethod,notes:"Abono inicial"});
+      state.transactions.push({id:uid("tx"),date,type:"ingreso",line:"monta",category:"Venta de lechones",amount:paid,method:paidMethod,refType:"sale",refId:payload.id,notes:`Venta ${payload.id.slice(-6)} • ${qty} und`});
     }
     const pending=Math.max(0,total-paid);
     if(pending>0){
@@ -7082,11 +7131,7 @@ if(mode==="salida"){
           <div class="f4"><label>Fecha</label><input type="date" name="date" value="${today()}"/></div>
           <div class="f4"><label>Método</label>
             <select name="method">
-              <option value="efectivo">Efectivo</option>
-              <option value="transferencia">Transferencia</option>
-              <option value="tarjeta">Tarjeta</option>
-              <option value="nequi">Nequi/Daviplata</option>
-              <option value="otro">Otro</option>
+              ${payMethodOptions("efectivo")}
             </select>
           </div>
 
@@ -7798,13 +7843,21 @@ if(mode==="salida"){
 
       <div class="f12"><span class="tag info">Equivalencia: <b class="mono" id="mEq">0 kg</b></span></div>
 
-      <div class="f4"><label>Estado</label>
+      <div class="f3"><label>Estado</label>
         <select name="status" id="mStatus" ${s._lockPay?"disabled":""}>
           ${["pagado","parcial","credito"].map(x=>`<option value="${x}" ${s.status===x?"selected":""}>${x}</option>`).join("")}
         </select>
       </div>
-      <div class="f4"><label>Pagado hoy (COP)</label><input id="mPaid" name="paidAmount" data-money="1" ${s._lockPay?"disabled":""} value="${fmtNum(num(s.paidAmount),0)}"/></div>
-      <div class="f4"><label>Vence</label><input type="date" name="dueDate" value="${esc(s.dueDate||"")}"/></div>
+
+      <div class="f3"><label>Pagado hoy (COP)</label><input id="mPaid" name="paidAmount" data-money="1" ${s._lockPay?"disabled":""} value="${fmtNum(num(s.paidAmount),0)}"/></div>
+
+      <div class="f3"><label>Método (pagado hoy)</label>
+        <select name="paidMethod" id="mPaidMethod" ${s._lockPay?"disabled":""}>
+          ${payMethodOptions("efectivo")}
+        </select>
+      </div>
+
+      <div class="f3"><label>Vence</label><input type="date" name="dueDate" value="${esc(s.dueDate||"")}"/></div>
 
       ${s._lockPay?`<div class="f12"><span class="tag info">Esta venta ya tiene abonos. Para registrar más pagos usa el botón <b>Abonar</b>.</span></div>`:""}
 
@@ -7847,6 +7900,7 @@ if(mode==="salida"){
 
     let status=(fd.get("status")||"credito").toString();
     let paid=num(fd.get("paidAmount"));
+    const paidMethod = normPayMethod(fd.get("paidMethod")) || "efectivo";
     const dueDate=(fd.get("dueDate")||"").toString();
     const notes=(fd.get("notes")||"").toString().trim();
 
@@ -7992,6 +8046,10 @@ const payload={
     state.transactions = state.transactions.filter(tx=>!(tx.refType==="meatSale" && tx.refId===id && String(tx.notes||"").startsWith("Venta carne")));
     if(!hasPays && paid>0){
       const label = unit==="kg"?`${fmtNum(qty,2)} kg`:unit==="arroba"?`${fmtNum(qty,2)} arrobas`:`${fmtNum(qty,0)} cerdos`;
+
+      // Registrar abono inicial (detalle) + movimiento en caja
+      state.meatPayments.push({id:uid("mpay"),saleId:id,date,amount:paid,method:paidMethod,notes:"Abono inicial"});
+
       state.transactions.push({
         id:uid("tx"),
         date,
@@ -7999,7 +8057,7 @@ const payload={
         line:"engorde",
         category:"Ventas / carne",
         amount:paid,
-        method:"",
+        method:paidMethod,
         refType:"meatSale",
         refId:id,
         notes:`Venta carne (${label})`
@@ -8086,11 +8144,7 @@ const payload={
           <div class="f4"><label>Fecha</label><input type="date" name="date" value="${today()}"/></div>
           <div class="f4"><label>Método</label>
             <select name="method">
-              <option value="efectivo">Efectivo</option>
-              <option value="transferencia">Transferencia</option>
-              <option value="tarjeta">Tarjeta</option>
-              <option value="nequi">Nequi/Daviplata</option>
-              <option value="otro">Otro</option>
+              ${payMethodOptions("efectivo")}
             </select>
           </div>
 
@@ -8725,7 +8779,7 @@ if(!inRange(tx?.date, from, to)) return;
     return `<form id="txForm" class="grid2">
       <div class="f4"><label>Fecha</label><input type="date" name="date" value="${t.date}"/></div>
       <div class="f4"><label>Tipo</label><select name="type"><option value="ingreso" ${type==="ingreso"?"selected":""}>Ingreso</option><option value="gasto" ${type==="gasto"?"selected":""}>Gasto</option></select></div>
-      <div class="f4"><label>Método</label><select name="method">${["efectivo","transferencia","nequi/daviplata","tarjeta","otro"].map(x=>`<option value="${x}">${x}</option>`).join("")}</select></div>
+      <div class="f4"><label>Método</label><select name="method">${payMethodOptions(t.method)}</select></div>
       <div class="f4"><label>Línea</label>
         <select name="line">
           <option value="general" selected>General</option>
@@ -8790,10 +8844,7 @@ if(!inRange(tx?.date, from, to)) return;
           <div class="f4"><label>Fecha</label><input type="date" name="date" value="${today()}"/></div>
           <div class="f4"><label>Método</label>
             <select name="method">
-              <option value="efectivo">Efectivo</option>
-              <option value="transferencia">Transferencia</option>
-              <option value="tarjeta">Tarjeta</option>
-              <option value="otro">Otro</option>
+              ${payMethodOptions("efectivo")}
             </select>
           </div>
 

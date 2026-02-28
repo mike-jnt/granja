@@ -503,7 +503,38 @@ header .btn.danger:hover{background: rgba(255,255,255,.18);border-color: rgba(25
       Object.keys(_defMap).forEach(k=>{
         if(!acc.methodMap[k]) acc.methodMap[k]=_defMap[k];
       });
-      acc.fixedAssets = Array.isArray(acc.fixedAssets) ? acc.fixedAssets : [];
+      
+      // --- Contabilidad avanzada (PUC + comprobantes) ---
+      acc.puc = Array.isArray(acc.puc) ? acc.puc : [];
+      const _defPUC = [
+        {code:"1105", name:"Caja General", class:"ACTIVO", nature:"DEBITO", parent:"11", active:true},
+        {code:"1110", name:"Bancos", class:"ACTIVO", nature:"DEBITO", parent:"11", active:true},
+        {code:"1305", name:"Cuentas por cobrar (Clientes)", class:"ACTIVO", nature:"DEBITO", parent:"13", active:true},
+        {code:"2205", name:"Proveedores por pagar", class:"PASIVO", nature:"CREDITO", parent:"22", active:true},
+        {code:"2305", name:"Préstamos por pagar", class:"PASIVO", nature:"CREDITO", parent:"23", active:true},
+        {code:"3105", name:"Capital / Aportes", class:"PATRIMONIO", nature:"CREDITO", parent:"31", active:true},
+        {code:"4135", name:"Ingresos por ventas", class:"INGRESO", nature:"CREDITO", parent:"41", active:true},
+        {code:"5105", name:"Costos de producción", class:"COSTO", nature:"DEBITO", parent:"51", active:true},
+        {code:"5205", name:"Gastos administrativos", class:"GASTO", nature:"DEBITO", parent:"52", active:true}
+      ];
+      _defPUC.forEach(a=>{
+        if(!(acc.puc||[]).some(x=>String(x.code)===String(a.code))) (acc.puc||[]).push(a);
+      });
+
+      acc.costCenters = Array.isArray(acc.costCenters) ? acc.costCenters : [{id:"cc_general", name:"General", active:true}];
+      acc.thirdParties = Array.isArray(acc.thirdParties) ? acc.thirdParties : [];
+      acc.vouchers = Array.isArray(acc.vouchers) ? acc.vouchers : [];
+      acc.voucherSeq = acc.voucherSeq && typeof acc.voucherSeq==="object" ? acc.voucherSeq : {};
+      ["INGRESO","EGRESO","DIARIO"].forEach(t=>{
+        if(!Number.isFinite(Number(acc.voucherSeq[t]))) acc.voucherSeq[t]=0;
+      });
+      // Mapa: cuenta operativa (caja/banco/billeteras) → cuenta PUC
+      acc.pucMap = acc.pucMap && typeof acc.pucMap==="object" ? acc.pucMap : {};
+      const _defPucMap = {"acct_cash":"1105","acct_bank":"1110","acct_nequi":"1110","acct_daviplata":"1110","acct_wallet":"1110"};
+      Object.keys(_defPucMap).forEach(k=>{ if(!acc.pucMap[k]) acc.pucMap[k]=_defPucMap[k]; });
+
+      acc.advanced = acc.advanced && typeof acc.advanced==="object" ? acc.advanced : {autoMirrorToTransactions:false};
+acc.fixedAssets = Array.isArray(acc.fixedAssets) ? acc.fixedAssets : [];
       acc.farmItems = Array.isArray(acc.farmItems) ? acc.farmItems : [];
       acc.owner = acc.owner && typeof acc.owner==="object" ? acc.owner : {initialCapital:0, notes:""};
       acc.meta = acc.meta && typeof acc.meta==="object" ? acc.meta : {updatedAt:""};
@@ -745,7 +776,9 @@ header .btn.danger:hover{background: rgba(255,255,255,.18);border-color: rgba(25
     const tabs = [
       {id:"resumen", label:"Resumen"},
       {id:"caja", label:"Caja y Bancos"},
-      {id:"resultados", label:"Resultados"},
+      {id:"puc", label:"Plan de cuentas (PUC)"},
+      {id:"comprobantes", label:"Comprobantes"},
+      {id:"resultados", label:"Reportes contables"},
       {id:"inventario", label:"Inventario y Costos"},
       {id:"activos", label:"Activos fijos"},
       {id:"cx", label:"CxC / CxP"},
@@ -1030,6 +1063,11 @@ function balanceSheet(allTime=true){
       `;
       $("#view").innerHTML = html;
       mountRangeControls();
+      const __go=$("#btnGoVouchers"); if(__go) __go.onclick=()=>{ current="comprobantes"; renderNav(); render(); };
+      const __exp=$("#btnExportTB"); if(__exp) __exp.onclick=()=>{
+        const data = tbPUC.rows.map(r=>[r.account.code,r.account.name,r.debit,r.credit,r.balance]);
+        exportCSV("balance_prueba.csv",[["code","name","debit","credit","balance"],...data]);
+      };
       $("#goCx").onclick=()=>{ current="cx"; renderNav(); render(); };
     }
 
@@ -1176,11 +1214,585 @@ function balanceSheet(allTime=true){
       };
     }
 
-    function viewResultados(){
-      setTitle("Resultados", "Utilidad estimada por línea: Ventas (devengado) − consumo de inventario (costos).");
+    
+    // ---------- PUC + Comprobantes (Contabilidad avanzada) ----------
+    function pucSorted(){
+      return (state.accounting?.puc||[]).slice().sort((a,b)=>String(a.code).localeCompare(String(b.code)));
+    }
+    function getPUC(code){
+      return (state.accounting?.puc||[]).find(a=>String(a.code)===String(code)) || null;
+    }
+    function pucLabel(code){
+      const a=getPUC(code);
+      return a ? `${a.code} • ${a.name}` : String(code||"—");
+    }
+    function activePUC(){
+      return pucSorted().filter(a=>a.active!==false);
+    }
+
+    function vouchersAll(){ return (state.accounting?.vouchers||[]); }
+    function vouchersInRange(all=false){
+      return vouchersAll().filter(v=>{
+        if(String(v.status||"").toUpperCase()!=="APPROVED") return false;
+        if(all) return true;
+        return inRange(v?.date, range.from, range.to);
+      });
+    }
+    function voucherTotals(v){
+      const lines = Array.isArray(v?.lines) ? v.lines : [];
+      let d=0,c=0;
+      lines.forEach(l=>{ d+=Math.max(0,num(l.debit)); c+=Math.max(0,num(l.credit)); });
+      return {debit:d, credit:c};
+    }
+    function accountBalance(nature, debit, credit){
+      const nat = String(nature||"").toUpperCase();
+      return nat==="CREDITO" ? (credit - debit) : (debit - credit);
+    }
+    function pucBalances(all=false){
+      // Map code -> {account,debit,credit,balance}
+      const out=new Map();
+      (state.accounting?.puc||[]).forEach(a=>{
+        out.set(String(a.code), {account:a, debit:0, credit:0, balance:0});
+      });
+      const vs = vouchersInRange(all);
+      vs.forEach(v=>{
+        (v.lines||[]).forEach(l=>{
+          const code=String(l.account||"");
+          if(!code) return;
+          if(!out.has(code)){
+            const phantom={code, name:"Cuenta (no registrada)", class:"OTRO", nature:"DEBITO", active:true};
+            out.set(code,{account:phantom,debit:0,credit:0,balance:0});
+          }
+          const r=out.get(code);
+          r.debit += Math.max(0,num(l.debit));
+          r.credit += Math.max(0,num(l.credit));
+        });
+      });
+      out.forEach(r=>{
+        r.balance = accountBalance(r.account.nature, r.debit, r.credit);
+      });
+      return Array.from(out.values()).sort((a,b)=>String(a.account.code).localeCompare(String(b.account.code)));
+    }
+
+    function trialBalance(all=false){
+      const rows=pucBalances(all).filter(r=>r.debit||r.credit||r.balance);
+      const totals = rows.reduce((acc,r)=>{acc.debit+=r.debit; acc.credit+=r.credit; acc.balance+=r.balance; return acc;},{debit:0,credit:0,balance:0});
+      return {rows, totals};
+    }
+
+    function incomeStatement(all=false){
+      const rows=pucBalances(all).filter(r=>["INGRESO","COSTO","GASTO"].includes(String(r.account.class||"").toUpperCase()));
+      let ingresos=0,costos=0,gastos=0;
+      rows.forEach(r=>{
+        const cls=String(r.account.class||"").toUpperCase();
+        if(cls==="INGRESO") ingresos += r.balance;
+        else if(cls==="COSTO") costos += r.balance;
+        else if(cls==="GASTO") gastos += r.balance;
+      });
+      const utilidad = ingresos - costos - gastos;
+      return {rows, ingresos, costos, gastos, utilidad};
+    }
+
+    function balanceSheetPUC(all=false){
+      const rows=pucBalances(all).filter(r=>["ACTIVO","PASIVO","PATRIMONIO"].includes(String(r.account.class||"").toUpperCase()));
+      let activos=0,pasivos=0,patrimonio=0;
+      rows.forEach(r=>{
+        const cls=String(r.account.class||"").toUpperCase();
+        if(cls==="ACTIVO") activos += r.balance;
+        else if(cls==="PASIVO") pasivos += r.balance;
+        else if(cls==="PATRIMONIO") patrimonio += r.balance;
+      });
+      // Patrimonio calculado puede no cuadrar si faltan asientos; lo mostramos como referencia.
+      return {rows, activos, pasivos, patrimonio, eq:(activos - pasivos)};
+    }
+
+    function exportCSV(filename, rows){
+      const csv = rows.map(r=>r.map(x=>{
+        const s=String(x??"");
+        if(/[",\n]/.test(s)) return `"${s.replace(/"/g,'""')}"`;
+        return s;
+      }).join(",")).join("\n");
+      const blob = new Blob([csv], {type:"text/csv;charset=utf-8;"});
+      const a=document.createElement("a");
+      a.href=URL.createObjectURL(blob);
+      a.download=filename;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(()=>URL.revokeObjectURL(a.href), 1500);
+    }
+
+    
+    function removeVoucherMirrors(vId){
+      state.transactions = (state.transactions||[]).filter(tx=>!(String(tx?.linkedType||"")==="voucher" && String(tx?.linkedId||"")===String(vId)));
+    }
+    function mirrorVoucherToTransactions(v){
+      const acc = state.accounting || {};
+      if(!acc.pucMap) return;
+      removeVoucherMirrors(v.id);
+
+      const nets = {};
+      Object.keys(acc.pucMap||{}).forEach(opId=> nets[opId]=0);
+
+      const lines = Array.isArray(v?.lines) ? v.lines : [];
+      lines.forEach(l=>{
+        const code = String(l.account||"");
+        const deb = Math.max(0,num(l.debit));
+        const cre = Math.max(0,num(l.credit));
+        Object.entries(acc.pucMap||{}).forEach(([opId,pucCode])=>{
+          if(String(pucCode)===code){
+            // Para caja/bancos asumimos naturaleza Débito: saldo = Débito − Crédito
+            nets[opId] += (deb - cre);
+          }
+        });
+      });
+
+      const methodByOp = {
+        "acct_cash":"efectivo",
+        "acct_bank":"transferencia",
+        "acct_nequi":"nequi",
+        "acct_daviplata":"daviplata",
+        "acct_wallet":"otro"
+      };
+
+      Object.entries(nets).forEach(([opId,net])=>{
+        const amt = Math.round(num(net));
+        if(!amt) return;
+        const ccName = (acc.costCenters||[]).find(c=>c.id===v.costCenterId)?.name || "general";
+        const tx = {
+          id: uid("tx"),
+          date: v.date,
+          type: amt>0 ? "ingreso" : "egreso",
+          amount: Math.abs(amt),
+          method: methodByOp[opId] || "efectivo",
+          category: "contabilidad",
+          line: ccName,
+          notes: `Comprobante ${v.number||v.id}: ${v.concept||""}`.trim(),
+          accountId: opId,
+          linkedType: "voucher",
+          linkedId: v.id
+        };
+        state.transactions = Array.isArray(state.transactions) ? state.transactions : [];
+        state.transactions.push(tx);
+      });
+    }
+
+function viewPUC(){
+      setTitle("Plan de cuentas (PUC)", "Crea tus cuentas contables (1105, 1110, etc.) y su naturaleza (Débito/Crédito).");
+      const rows=pucSorted();
+      const html = `
+        <div class="notice">
+          Este PUC vive en <span class="mono">state.accounting.puc</span> y se guarda en la misma base de datos (Firebase) que el resto del software. 
+          Puedes adaptarlo a tu operación (NIIF/PUC Colombia) sin romper la app. 
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="row" style="justify-content:space-between">
+          <b>Cuentas contables</b>
+          <button class="btn primary" id="btnAddPUC">Nueva cuenta</button>
+        </div>
+
+        <div style="overflow:auto;border:1px solid var(--line);border-radius:14px;margin-top:10px">
+          <table>
+            <thead><tr>
+              <th>Código</th><th>Nombre</th><th>Clase</th><th>Naturaleza</th><th>Padre</th><th>Activa</th><th></th>
+            </tr></thead>
+            <tbody>
+              ${rows.map(a=>`
+                <tr>
+                  <td class="mono">${esc(a.code)}</td>
+                  <td>${esc(a.name)}</td>
+                  <td><span class="tag">${esc(a.class||"")}</span></td>
+                  <td><span class="tag">${esc(a.nature||"")}</span></td>
+                  <td class="mono muted">${esc(a.parent||"")}</td>
+                  <td>${a.active===false?'<span class="tag bad">No</span>':'<span class="tag ok">Sí</span>'}</td>
+                  <td class="right">
+                    <button class="btn" data-edit="${esc(a.code)}">Editar</button>
+                    <button class="btn danger" data-del="${esc(a.code)}">Eliminar</button>
+                  </td>
+                </tr>
+              `).join("") || `<tr><td colspan="7" class="muted">Aún no hay cuentas. Crea la primera.</td></tr>`}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="hr"></div>
+        <div class="row" style="gap:10px;flex-wrap:wrap">
+          <button class="btn" id="btnExportPUC">Exportar PUC (CSV)</button>
+          <button class="btn" id="btnGoComps">Ir a Comprobantes</button>
+        </div>
+      `;
+      $("#view").innerHTML = html;
+
+      $("#btnAddPUC").onclick=()=>openPUCModal(null);
+      $$("#view [data-edit]").forEach(b=> b.onclick=()=>openPUCModal(b.dataset.edit));
+      $$("#view [data-del]").forEach(b=> b.onclick=()=>deletePUC(b.dataset.del));
+      $("#btnExportPUC").onclick=()=>{
+        const data = pucSorted().map(a=>[a.code,a.name,a.class,a.nature,a.parent,a.active===false?"0":"1"]);
+        exportCSV("puc.csv",[["code","name","class","nature","parent","active"],...data]);
+      };
+      $("#btnGoComps").onclick=()=>{ current="comprobantes"; renderNav(); render(); };
+    }
+
+    function openPUCModal(code){
+      const acc = state.accounting;
+      const existing = code ? getPUC(code) : null;
+      const isEdit = !!existing;
+      const body = `
+        <div class="grid2">
+          <label>Código<input id="p_code" value="${esc(existing?.code||"")}" ${isEdit?'disabled':''} placeholder="1105"/></label>
+          <label>Nombre<input id="p_name" value="${esc(existing?.name||"")}" placeholder="Caja General"/></label>
+          <label>Clase
+            <select id="p_class">
+              ${["ACTIVO","PASIVO","PATRIMONIO","INGRESO","COSTO","GASTO","OTRO"].map(x=>`<option ${String(existing?.class||"ACTIVO")===x?"selected":""}>${x}</option>`).join("")}
+            </select>
+          </label>
+          <label>Naturaleza
+            <select id="p_nature">
+              ${["DEBITO","CREDITO"].map(x=>`<option ${String(existing?.nature||"DEBITO")===x?"selected":""}>${x}</option>`).join("")}
+            </select>
+          </label>
+          <label>Padre (opcional)<input id="p_parent" value="${esc(existing?.parent||"")}" placeholder="11"/></label>
+          <label>Activa
+            <select id="p_active">
+              <option value="1" ${existing?.active===false?"":"selected"}>Sí</option>
+              <option value="0" ${existing?.active===false?"selected":""}>No</option>
+            </select>
+          </label>
+        </div>
+      `;
+      const footer = `
+        <button class="btn" id="p_cancel">Cancelar</button>
+        <button class="btn primary" id="p_save">${isEdit?"Guardar":"Crear"}</button>
+      `;
+      openModal({
+        title: isEdit?`Editar cuenta ${existing.code}`:"Nueva cuenta PUC",
+        sub: "Define clase y naturaleza para reportes contables.",
+        body, footer,
+        onMount: ()=>{
+          $("#p_cancel").onclick=()=>dlg.close();
+          $("#p_save").onclick=()=>{
+            const c=$("#p_code").value.trim();
+            const n=$("#p_name").value.trim();
+            if(!c || !n) return alert("Código y nombre son obligatorios.");
+            const obj = {
+              code: c,
+              name: n,
+              class: $("#p_class").value,
+              nature: $("#p_nature").value,
+              parent: $("#p_parent").value.trim(),
+              active: $("#p_active").value==="1"
+            };
+            acc.puc = Array.isArray(acc.puc) ? acc.puc : [];
+            const ix = acc.puc.findIndex(x=>String(x.code)===String(c));
+            if(ix>=0) acc.puc[ix]=Object.assign({}, acc.puc[ix], obj);
+            else acc.puc.push(obj);
+            acc.meta.updatedAt = new Date().toISOString();
+            scheduleCloudSave();
+            dlg.close();
+            render();
+          };
+        }
+      });
+    }
+
+    function deletePUC(code){
+      if(!code) return;
+      if(!confirm(`¿Eliminar la cuenta ${code}?`)) return;
+      const acc=state.accounting;
+      acc.puc = (acc.puc||[]).filter(a=>String(a.code)!==String(code));
+      // Si existen comprobantes con esa cuenta, no los tocamos; solo quedará como "no registrada".
+      scheduleCloudSave();
+      render();
+    }
+
+    function viewComprobantes(){
+      setTitle("Comprobantes", "Comprobantes de ingreso/egreso/diario con partida doble (Débito = Crédito).");
+      const acc = state.accounting;
+      const list = (acc.vouchers||[]).slice().sort((a,b)=>String(b.date||"").localeCompare(String(a.date||"")));
+      const html = `
+        ${rangeControls()}
+        <div class="row" style="justify-content:space-between;margin-top:10px">
+          <div>
+            <b>Listado</b>
+            <div class="muted">Se guardan en <span class="mono">state.accounting.vouchers</span>.</div>
+          </div>
+          <button class="btn primary" id="btnNewVoucher">Nuevo comprobante</button>
+        </div>
+
+        <div style="overflow:auto;border:1px solid var(--line);border-radius:14px;margin-top:10px">
+          <table>
+            <thead><tr>
+              <th>Fecha</th><th>Tipo</th><th>#</th><th>Tercero</th><th>Centro</th><th>Concepto</th><th>Estado</th><th class="right">Débito</th><th class="right">Crédito</th><th></th>
+            </tr></thead>
+            <tbody>
+              ${list.filter(v=>inRange(v?.date, range.from, range.to)).map(v=>{
+                const t=voucherTotals(v);
+                const st=String(v.status||"DRAFT").toUpperCase();
+                const tag = st==="APPROVED"?"ok":(st==="VOID"?"bad":"warn");
+                return `<tr>
+                  <td class="mono">${esc(String(v.date||"").slice(0,10))}</td>
+                  <td><span class="tag">${esc(v.type||"")}</span></td>
+                  <td class="mono">${esc(v.number||"—")}</td>
+                  <td>${esc(v.thirdParty||"—")}</td>
+                  <td>${esc((acc.costCenters||[]).find(c=>c.id===v.costCenterId)?.name || "General")}</td>
+                  <td>${esc(v.concept||"")}</td>
+                  <td><span class="tag ${tag}">${esc(st)}</span></td>
+                  <td class="right mono">${money(t.debit, state.settings.currency)}</td>
+                  <td class="right mono">${money(t.credit, state.settings.currency)}</td>
+                  <td class="right"><button class="btn" data-open="${esc(v.id)}">Abrir</button></td>
+                </tr>`;
+              }).join("") || `<tr><td colspan="10" class="muted">No hay comprobantes en el rango.</td></tr>`}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="hr"></div>
+        <div class="row" style="gap:10px;flex-wrap:wrap">
+          <button class="btn" id="btnGoPUC">Ir al PUC</button>
+          <button class="btn" id="btnGoReports">Ver reportes</button>
+        </div>
+      `;
+      $("#view").innerHTML = html;
+      mountRangeControls();
+
+      $("#btnNewVoucher").onclick=()=>openVoucherModal(null);
+      $$("#view [data-open]").forEach(b=> b.onclick=()=>openVoucherModal(b.dataset.open));
+      $("#btnGoPUC").onclick=()=>{ current="puc"; renderNav(); render(); };
+      $("#btnGoReports").onclick=()=>{ current="resultados"; renderNav(); render(); };
+    }
+
+    function openVoucherModal(id){
+      const acc = state.accounting;
+      acc.vouchers = Array.isArray(acc.vouchers) ? acc.vouchers : [];
+      const existing = id ? acc.vouchers.find(x=>x.id===id) : null;
+      const isEdit = !!existing;
+      const v = existing ? JSON.parse(JSON.stringify(existing)) : {
+        id: uid("vch"),
+        date: today(),
+        type: "DIARIO",
+        number: "",
+        thirdParty: "",
+        costCenterId: "cc_general",
+        concept: "",
+        status: "DRAFT",
+        lines: [
+          {account:"1105", desc:"", debit:0, credit:0},
+          {account:"4135", desc:"", debit:0, credit:0}
+        ]
+      };
+
+      const ccOpts = (acc.costCenters||[]).filter(c=>c.active!==false).map(c=>`<option value="${esc(c.id)}" ${v.costCenterId===c.id?"selected":""}>${esc(c.name)}</option>`).join("");
+      const acctOpts = activePUC().map(a=>`<option value="${esc(a.code)}">${esc(a.code)} • ${esc(a.name)}</option>`).join("");
+
+      const lineRow = (i,l)=>`
+        <tr>
+          <td style="min-width:240px">
+            <select data-line-acct="${i}">
+              ${acctOpts.replace(`value="${esc(l.account)}"`,`value="${esc(l.account)}" selected`)}
+            </select>
+          </td>
+          <td><input data-line-desc="${i}" value="${esc(l.desc||"")}" placeholder="Detalle"/></td>
+          <td class="right"><input data-line-deb="${i}" value="${esc(l.debit||0)}" inputmode="numeric"/></td>
+          <td class="right"><input data-line-cre="${i}" value="${esc(l.credit||0)}" inputmode="numeric"/></td>
+          <td class="right"><button class="btn danger" data-line-del="${i}">✕</button></td>
+        </tr>
+      `;
+
+      const body = `
+        <div class="grid2">
+          <label>Fecha<input id="v_date" type="date" value="${esc(v.date)}"/></label>
+          <label>Tipo
+            <select id="v_type">
+              ${["INGRESO","EGRESO","DIARIO"].map(x=>`<option ${v.type===x?"selected":""}>${x}</option>`).join("")}
+            </select>
+          </label>
+          <label>Tercero (texto o nombre)<input id="v_third" value="${esc(v.thirdParty||"")}" placeholder="Seba / Proveedor / Cliente"/></label>
+          <label>Centro de costo
+            <select id="v_cc">${ccOpts}</select>
+          </label>
+          <label style="grid-column:1/-1">Concepto<input id="v_concept" value="${esc(v.concept||"")}" placeholder="Compra de alimento • Préstamo • Venta"/></label>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="row" style="justify-content:space-between">
+          <b>Partidas</b>
+          <button class="btn" id="v_addLine">Agregar línea</button>
+        </div>
+
+        <div style="overflow:auto;border:1px solid var(--line);border-radius:14px;margin-top:10px">
+          <table>
+            <thead><tr><th>Cuenta</th><th>Detalle</th><th class="right">Débito</th><th class="right">Crédito</th><th></th></tr></thead>
+            <tbody id="v_lines">
+              ${(v.lines||[]).map((l,i)=>lineRow(i,l)).join("")}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="2" class="right"><b>Total</b></td>
+                <td class="right mono" id="v_tDeb">—</td>
+                <td class="right mono" id="v_tCre">—</td>
+                <td></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <div class="notice" style="margin-top:10px">
+          Reglas: para aprobar, el total Débito debe ser igual al total Crédito. 
+        </div>
+      `;
+
+      const footer = `
+        <button class="btn" id="v_cancel">Cerrar</button>
+        <button class="btn" id="v_saveDraft">Guardar borrador</button>
+        <button class="btn primary" id="v_approve">Aprobar</button>
+        ${isEdit?'<button class="btn danger" id="v_delete">Eliminar</button>':''}
+      `;
+
+      function readLines(){
+        const lines=[];
+        const rows=$("#v_lines").querySelectorAll("tr");
+        rows.forEach((tr,idx)=>{
+          const acct = tr.querySelector(`[data-line-acct="${idx}"]`)?.value || "";
+          const desc = tr.querySelector(`[data-line-desc="${idx}"]`)?.value || "";
+          const deb = num(tr.querySelector(`[data-line-deb="${idx}"]`)?.value || 0);
+          const cre = num(tr.querySelector(`[data-line-cre="${idx}"]`)?.value || 0);
+          if(!acct) return;
+          lines.push({account:acct, desc, debit:Math.max(0,deb), credit:Math.max(0,cre)});
+        });
+        return lines;
+      }
+
+      function refreshTotals(){
+        const lines=readLines();
+        let d=0,c=0;
+        lines.forEach(l=>{ d+=Math.max(0,num(l.debit)); c+=Math.max(0,num(l.credit)); });
+        $("#v_tDeb").textContent = money(d, state.settings.currency);
+        $("#v_tCre").textContent = money(c, state.settings.currency);
+        return {d,c,lines};
+      }
+
+      openModal({
+        title: isEdit?`Comprobante ${existing.number||existing.id}`:"Nuevo comprobante",
+        sub: "Partida doble (PUC).",
+        body, footer,
+        onMount: ()=>{
+          const recalc=()=>refreshTotals();
+          recalc();
+          $("#v_cancel").onclick=()=>dlg.close();
+
+          $("#v_addLine").onclick=()=>{
+            v.lines = readLines();
+            v.lines.push({account:"1105", desc:"", debit:0, credit:0});
+            // re-render tbody
+            $("#v_lines").innerHTML = v.lines.map((l,i)=>lineRow(i,l)).join("");
+            // bind deletes
+            bindLineActions();
+            recalc();
+          };
+
+          function bindLineActions(){
+            $$("#v_lines [data-line-del]").forEach(btn=>{
+              btn.onclick=()=>{
+                const i = Number(btn.dataset.lineDel);
+                v.lines = readLines();
+                v.lines.splice(i,1);
+                $("#v_lines").innerHTML = v.lines.map((l,ix)=>lineRow(ix,l)).join("");
+                bindLineActions();
+                recalc();
+              };
+            });
+            $$("#v_lines input, #v_lines select").forEach(el=> el.oninput=recalc);
+          }
+          bindLineActions();
+
+          function upsertVoucher(newStatus){
+            const {d,c,lines} = refreshTotals();
+            const date=$("#v_date").value || today();
+            const type=$("#v_type").value;
+            const third=$("#v_third").value.trim();
+            const cc=$("#v_cc").value;
+            const concept=$("#v_concept").value.trim();
+
+            const obj = Object.assign({}, existing||{}, {
+              id: v.id,
+              date,
+              type,
+              thirdParty: third,
+              costCenterId: cc,
+              concept,
+              status: newStatus || (existing?.status||"DRAFT"),
+              lines
+            });
+
+            if(newStatus==="APPROVED"){
+              if(d<=0 || c<=0) throw new Error("empty");
+              if(Math.round(d)!==Math.round(c)) throw new Error("unbalanced");
+              // consecutivo
+              const seq = state.accounting.voucherSeq;
+              seq[type] = Number(seq[type]||0) + 1;
+              obj.number = `${type}-${String(seq[type]).padStart(5,"0")}`;
+              obj.approvedAt = new Date().toISOString();
+            }
+
+            const ix = acc.vouchers.findIndex(x=>x.id===obj.id);
+            if(ix>=0) acc.vouchers[ix]=obj;
+            else acc.vouchers.push(obj);
+            state.accounting.meta.updatedAt = new Date().toISOString();
+            // Opcional: reflejar comprobantes en "Caja y Bancos" (state.transactions)
+            try{
+              if(String(obj.status).toUpperCase()==="APPROVED" && state.accounting?.advanced?.autoMirrorToTransactions){
+                mirrorVoucherToTransactions(obj);
+              }else{
+                removeVoucherMirrors(obj.id);
+              }
+            }catch(e){}
+            scheduleCloudSave();
+            return obj;
+          }
+
+          $("#v_saveDraft").onclick=()=>{
+            try{
+              upsertVoucher("DRAFT");
+              dlg.close(); render();
+            }catch(e){ alert("No se pudo guardar: revisa los datos."); }
+          };
+
+          $("#v_approve").onclick=()=>{
+            try{
+              upsertVoucher("APPROVED");
+              dlg.close(); render();
+            }catch(e){
+              if(String(e.message)==="unbalanced") return alert("Débito y Crédito deben ser iguales para aprobar.");
+              if(String(e.message)==="empty") return alert("Agrega valores en las partidas.");
+              alert("No se pudo aprobar. Revisa el comprobante.");
+            }
+          };
+
+          const delBtn=$("#v_delete");
+          if(delBtn){
+            delBtn.onclick=()=>{
+              if(!confirm("¿Eliminar este comprobante?")) return;
+              acc.vouchers = acc.vouchers.filter(x=>x.id!==existing.id);
+              try{ removeVoucherMirrors(existing.id); }catch(e){}
+              scheduleCloudSave();
+              dlg.close(); render();
+            };
+          }
+        }
+      });
+    }
+
+function viewResultados(){
+      setTitle("Reportes contables", "Estado de resultados y balance general (PUC) + estimaciones prácticas de la finca.");
       const accr = accruedSalesByLine();
       const cons = consumptionByLine();
       const currency = state.settings.currency;
+      const hasPUCVouchers = vouchersInRange(false).length>0;
+      const tbPUC = trialBalance(false);
+      const isPUC = incomeStatement(false);
+      const bsPUC = balanceSheetPUC(false);
+
 
       const lineRow = (label, sales, cost)=> {
         const profit = sales - cost;
@@ -1219,6 +1831,103 @@ function balanceSheet(allTime=true){
           <div class="card"><small>CxC carne (pendiente)</small><b class="mono">${money(accr.engorde.pending, currency)}</b></div>
           <div class="card"><small>Consumo Gestación</small><b class="mono">${money(cons.gestacion, currency)}</b></div>
           <div class="card"><small>Consumo Total</small><b class="mono">${money(cons.gestacion+cons.monta+cons.engorde+cons.general, currency)}</b></div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="card" style="min-height:auto">
+          <b>Reportes PUC (partida doble)</b>
+          <div class="muted">Basado en comprobantes <span class="mono">APPROVED</span> del rango seleccionado.</div>
+          <div class="hr"></div>
+
+          ${!hasPUCVouchers ? `
+            <div class="notice warn">
+              Aún no hay comprobantes aprobados en este rango. Ve a <b>Comprobantes</b> y aprueba uno para ver Balance y Estado de Resultados.
+            </div>
+          ` : ``}
+
+          <div class="cards" style="margin-top:10px">
+            <div class="card">
+              <small>Activos</small>
+              <b class="mono">${money(bsPUC.activos, currency)}</b>
+            </div>
+            <div class="card">
+              <small>Pasivos</small>
+              <b class="mono">${money(bsPUC.pasivos, currency)}</b>
+            </div>
+            <div class="card">
+              <small>Patrimonio (calculado)</small>
+              <b class="mono">${money(bsPUC.eq, currency)}</b>
+              <div class="muted">Activos − Pasivos</div>
+            </div>
+          </div>
+
+          <div class="hr"></div>
+
+          <div class="cards">
+            <div class="card">
+              <small>Ingresos</small>
+              <b class="mono">${money(isPUC.ingresos, currency)}</b>
+            </div>
+            <div class="card">
+              <small>Costos</small>
+              <b class="mono">${money(isPUC.costos, currency)}</b>
+            </div>
+            <div class="card">
+              <small>Gastos</small>
+              <b class="mono">${money(isPUC.gastos, currency)}</b>
+            </div>
+            <div class="card">
+              <small>Utilidad (PUC)</small>
+              <b class="mono"><span class="tag ${isPUC.utilidad>=0?'ok':'bad'}">${money(isPUC.utilidad, currency)}</span></b>
+            </div>
+          </div>
+
+          <div class="hr"></div>
+
+          <div class="row" style="justify-content:space-between;align-items:flex-end">
+            <div>
+              <b>Balance de prueba</b>
+              <div class="muted">Débitos y créditos por cuenta en el rango.</div>
+            </div>
+            <div class="row">
+              <button class="btn" id="btnGoVouchers">Comprobantes</button>
+              <button class="btn" id="btnExportTB">Exportar CSV</button>
+            </div>
+          </div>
+
+          <div style="overflow:auto;border:1px solid var(--line);border-radius:14px;margin-top:10px">
+            <table>
+              <thead><tr>
+                <th>Cuenta</th><th>Nombre</th>
+                <th class="right">Débito</th><th class="right">Crédito</th><th class="right">Saldo</th>
+              </tr></thead>
+              <tbody>
+                ${tbPUC.rows.map(r=>`
+                  <tr>
+                    <td class="mono">${esc(r.account.code)}</td>
+                    <td>${esc(r.account.name||"")}</td>
+                    <td class="right mono">${money(r.debit, currency)}</td>
+                    <td class="right mono">${money(r.credit, currency)}</td>
+                    <td class="right mono">${money(r.balance, currency)}</td>
+                  </tr>
+                `).join("") || `<tr><td colspan="5" class="muted">Sin movimientos PUC en el rango.</td></tr>`}
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td colspan="2" class="right"><b>Totales</b></td>
+                  <td class="right mono"><b>${money(tbPUC.totals.debit, currency)}</b></td>
+                  <td class="right mono"><b>${money(tbPUC.totals.credit, currency)}</b></td>
+                  <td class="right mono"><b>${money(bsPUC.eq, currency)}</b></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+
+          <div class="notice" style="margin-top:10px">
+            Nota: si el balance no cuadra o el patrimonio no tiene sentido, faltan asientos (por ejemplo, capital inicial, depreciación, etc.). 
+            El PUC está listo para crecer a NIIF/PUC completo cuando lo necesites.
+          </div>
         </div>
       `;
       $("#view").innerHTML = html;
@@ -1525,6 +2234,8 @@ function delFarmItem(id){
       const accr = accruedSalesByLine();
       const pay = payablesOpen();
       const currency = state.settings.currency;
+      const pucList = activePUC();
+
 
       const payRows = pay.rows
         .slice()
@@ -1607,7 +2318,43 @@ function delFarmItem(id){
 
         <div class="hr"></div>
 
-        <b>Mapeo de métodos de pago → cuenta</b>
+        
+        <b>Contabilidad avanzada (PUC)</b>
+        <div class="muted">Relaciona tus cuentas operativas (Caja/Banco/Nequi) con cuentas PUC para que los comprobantes impacten "Caja y Bancos".</div>
+
+        <div class="hr"></div>
+
+        <div class="grid2">
+          <label>Reflejar comprobantes en Caja y Bancos
+            <select id="cfgMirror">
+              <option value="0" ${acc.advanced?.autoMirrorToTransactions?"" :"selected"}>No</option>
+              <option value="1" ${acc.advanced?.autoMirrorToTransactions?"selected":""}>Sí</option>
+            </select>
+            <div class="muted">Si está activo, al aprobar un comprobante se crean movimientos en <span class="mono">state.transactions</span> (vinculados al comprobante).</div>
+          </label>
+        </div>
+
+        <div style="overflow:auto;border:1px solid var(--line);border-radius:14px;margin-top:10px">
+          <table>
+            <thead><tr><th>Cuenta operativa</th><th>Tipo</th><th>Cuenta PUC asociada</th></tr></thead>
+            <tbody>
+              ${(acc.accounts||[]).map(op=>`
+                <tr>
+                  <td><b>${esc(op.name)}</b><div class="muted">${esc(op.id)}</div></td>
+                  <td>${esc(op.kind||"—")}</td>
+                  <td style="min-width:280px">
+                    <select data-op2puc="${esc(op.id)}">
+                      ${pucList.map(p=>`<option value="${esc(p.code)}" ${String(acc.pucMap?.[op.id]||"")===String(p.code)?"selected":""}>${esc(p.code)} • ${esc(p.name)}</option>`).join("")}
+                    </select>
+                  </td>
+                </tr>
+              `).join("") || `<tr><td colspan="3" class="muted">No hay cuentas operativas.</td></tr>`}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="hr"></div>
+<b>Mapeo de métodos de pago → cuenta</b>
         <div class="muted">Así la app sabe si entra a efectivo o a banco.</div>
 
         <div class="form">
@@ -1660,6 +2407,23 @@ function delFarmItem(id){
         scheduleCloudSave();
         alert("Guardado.");
       };
+
+      // Contabilidad avanzada: mapeo operativa → PUC y espejo a Caja
+      const __mir=$("#cfgMirror");
+      if(__mir){
+        __mir.onchange=()=>{
+          state.accounting.advanced = state.accounting.advanced || {};
+          state.accounting.advanced.autoMirrorToTransactions = __mir.value==="1";
+          scheduleCloudSave();
+        };
+      }
+      $$("select[data-op2puc]").forEach(sel=>{
+        sel.onchange=()=>{
+          state.accounting.pucMap = state.accounting.pucMap || {};
+          state.accounting.pucMap[sel.dataset.op2puc] = sel.value;
+          scheduleCloudSave();
+        };
+      });
 
       $("#btnAddAcc").onclick=()=>openAccount();
       $$("button[data-acc-edit]").forEach(b=> b.onclick=()=>openAccount(b.dataset.accEdit));
@@ -1744,6 +2508,8 @@ function delFarmItem(id){
 
       if(current==="resumen") viewResumen();
       else if(current==="caja") viewCaja();
+      else if(current==="puc") viewPUC();
+      else if(current==="comprobantes") viewComprobantes();
       else if(current==="resultados") viewResultados();
       else if(current==="inventario") viewInventario();
       else if(current==="activos") viewActivos();

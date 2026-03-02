@@ -2260,6 +2260,27 @@ const uid = (p="id") => p + "_" + Math.random().toString(16).slice(2) + "_" + Da
   };
   const addDays = (iso, d) => { const x = new Date(iso+"T00:00:00"); x.setDate(x.getDate()+d); return x.toISOString().slice(0,10); };
   const daysBetween = (a,b) => Math.round((new Date(b+"T00:00:00") - new Date(a+"T00:00:00"))/(1000*60*60*24));
+  // ------- Helpers de periodos (histórico mensual) -------
+  const monthKey = (iso)=> String(iso||"").slice(0,7); // YYYY-MM
+  const monthStartISO = (m)=> (m && /^\d{4}-\d{2}$/.test(String(m))) ? (String(m) + "-01") : "";
+  const monthEndISO = (m)=>{
+    const s = String(m||"");
+    if(!/^\d{4}-\d{2}$/.test(s)) return "";
+    const y = Number(s.slice(0,4));
+    const mo = Number(s.slice(5,7)); // 1..12
+    const d = new Date(Date.UTC(y, mo, 0)); // día 0 del mes siguiente = último del mes
+    return d.toISOString().slice(0,10);
+  };
+  const addMonthsKey = (m, delta)=>{
+    const s = String(m||"");
+    if(!/^\d{4}-\d{2}$/.test(s)) return today().slice(0,7);
+    const y = Number(s.slice(0,4));
+    const mo = Number(s.slice(5,7)); // 1..12
+    const d = new Date(Date.UTC(y, mo-1, 1));
+    d.setUTCMonth(d.getUTCMonth() + (delta|0));
+    return d.toISOString().slice(0,7);
+  };
+
   const esc = (s) => String(s??"").replace(/[<>&]/g, ch => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[ch]));
 const svgIcon = (name, cls="ico") => `<svg class="${cls}" aria-hidden="true" focusable="false"><use href="#i-${name}" xlink:href="#i-${name}"></use></svg>`;
   const btnLabel = (iconName, text, cls="ico") => `${svgIcon(iconName, cls)}<span>${text}</span>`;
@@ -2660,7 +2681,7 @@ const svgIcon = (name, cls="ico") => `<svg class="${cls}" aria-hidden="true" foc
   }
 
 const defaults = () => ({
-    settings:{farmName:"Granja Porcícola Campo Bello",currency:"COP",gestationDays:114,arrobaKg:12.5,defaultPigKg:100,pigletDaysForMeat:150,serviceMethods:["inseminación","monta","otro"],requireLogin:true,authUser:"admin",authPass:"1234"},
+    settings:{farmName:"Granja Porcícola Campo Bello",currency:"COP",gestationDays:114,arrobaKg:12.5,defaultPigKg:100,pigletDaysForMeat:150,serviceMethods:["inseminación","monta","otro"],requireLogin:true,authUser:"admin",authPass:"1234",logoUrl:"",logoData:""},
     pens:[
       {id:"pen_gest", name:"Gestación", type:"gestacion"},
       {id:"pen_mat", name:"Maternidad", type:"maternidad"},
@@ -2701,6 +2722,40 @@ const defaults = () => ({
   });
 
   let state = load();
+
+  // ------- Histórico / Periodos -------
+  // Dashboard: mes que se está visualizando (YYYY-MM)
+  let dashMonth = "";
+  // Finanzas: "" = mes actual, "__all__" = todo el historial, "YYYY-MM" = mes específico
+  let financePeriod = "";
+  // Finanzas: año para la tabla de histórico
+  let financeHistYear = "";
+
+  function getAvailableMonths(){
+    const set = new Set();
+    const add = (d)=>{
+      const m = monthKey(d);
+      if(/^\d{4}-\d{2}$/.test(m)) set.add(m);
+    };
+    (state.transactions||[]).forEach(t=>add(t.date));
+    (state.sales||[]).forEach(s=>add(s.date));
+    (state.meatSales||[]).forEach(s=>add(s.date));
+    (state.stockMovements||[]).forEach(mv=>add(mv.date));
+    (state.payables||[]).forEach(p=>add(p.date));
+    if(!set.size) set.add(today().slice(0,7));
+    return Array.from(set).sort((a,b)=>b.localeCompare(a));
+  }
+
+  // Suma transacciones por tipo (ingreso/gasto). Si mKey es "YYYY-MM" filtra por mes; si no, suma todo.
+  function sumTx(type, mKey){
+    let list = (state.transactions||[]).filter(t=>t.type===type);
+    if(mKey && /^\d{4}-\d{2}$/.test(String(mKey))){
+      const mk = String(mKey);
+      list = list.filter(t=>monthKey(t.date)===mk);
+    }
+    return list.reduce((s,t)=>s+num(t.amount),0);
+  }
+
 
   // Días mínimos sugeridos para considerar una camada "lista" para Carne (referencia)
   // Se puede ajustar en state.settings.pigletDaysForMeat; default 150.
@@ -3769,6 +3824,9 @@ return list;
     const fn = $("#farmName"); if(fn) fn.textContent = nm;
     const ln = $("#loginAppName"); if(ln) ln.textContent = nm;
     try{ document.title = nm + " - Gestión"; }catch(e){}
+
+    // Aplicar logo desde Ajustes (si existe)
+    applyLogoFromSettings();
   }
   // Auditoría inicial (ya existe 'get')
   auditState();
@@ -3785,9 +3843,9 @@ return list;
   function receivables(){
     return state.sales.map(s=>({s,pending:Math.max(0,num(s.total)-num(s.paidAmount))})).filter(x=>x.pending>0);
   }
-  function sumMonth(type){
-    const m=today().slice(0,7);
-    return state.transactions.filter(t=>t.type===type && String(t.date||"").slice(0,7)===m).reduce((s,t)=>s+num(t.amount),0);
+  function sumMonth(type, mKey){
+    const m = (mKey && /^\d{4}-\d{2}$/.test(String(mKey))) ? String(mKey) : today().slice(0,7);
+    return sumTx(type, m);
   }
 
   
@@ -4606,17 +4664,41 @@ const actions = `
     const upcoming=preg.map(b=>({b,s:get.sow(b.sowId),inDays:b.expectedFarrowing?daysBetween(today(),b.expectedFarrowing):null}))
       .filter(x=>x.s && x.inDays!==null && x.inDays>=0 && x.inDays<=14).sort((a,b)=>a.inDays-b.inDays);
 
-    const inc=sumMonth("ingreso"), exp=sumMonth("gasto"), net=inc-exp;
+        const months = getAvailableMonths();
+    const curM = today().slice(0,7);
+    if(!dashMonth) dashMonth = curM;
+    if(dashMonth && !months.includes(dashMonth)) months.unshift(dashMonth);
+    const monthSel = dashMonth || curM;
+
+    const inc=sumTx("ingreso", monthSel), exp=sumTx("gasto", monthSel), net=inc-exp;
     const alerts=[];
     upcoming.forEach(x=>alerts.push({t:"warn",a:"Parto cercano",d:`${x.s.tag||x.s.name||"cerda"} • ${x.b.expectedFarrowing} (${x.inDays} días)`}));
     lowStock().slice(0,6).forEach(i=>alerts.push({t:"bad",a:"Stock bajo",d:`${i.name} • ${i.qty} ${i.unit} (mín ${i.minQty||0})`}));
     receivables().slice(0,6).forEach(x=>alerts.push({t:"warn",a:"Cobro pendiente",d:`${get.client(x.s.clientId)?.name||"cliente"} • ${fmtCOP(x.pending)} • ${x.s.date}`}));
 
+
+    const monthOps = months.map(mm=>`<option value="${esc(mm)}" ${mm===monthSel?"selected":""}>${esc(mm)}</option>`).join("");
+    const periodCard = `
+      <div class="helpCard" style="margin-top:12px">
+        <div class="helpHd">
+          <div>
+            <b>Histórico por mes</b>
+            <div class="muted">Cambia el mes para ver información de meses/años anteriores (no se borra nada).</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <button class="btn" id="dashPrevM" type="button">◀</button>
+            <select id="dashMonthSel" style="min-width:140px">${monthOps}</select>
+            <button class="btn" id="dashNextM" type="button">▶</button>
+            <button class="btn" id="dashGoHist" type="button">${svgIcon("cash","ico")}<span>Ver en Finanzas</span></button>
+          </div>
+        </div>
+      </div>
+    `;
     const kpis = `<div class="kpis">
       <div class="kpi"><small>Cerdas</small><b>${state.sows.length}</b><div class="muted mono">Registro maestro</div></div>
       <div class="kpi"><small>Gestaciones abiertas</small><b>${preg.length}</b><div class="muted mono">Servicios sin parto</div></div>
       <div class="kpi"><small>Lechones disponibles</small><b>${pigletsAvailable()}</b><div class="muted mono">Suma camadas</div></div>
-      <div class="kpi"><small>Flujo del mes</small><b>${fmtCOP(net)}</b><div class="muted mono">${fmtCOP(inc)} - ${fmtCOP(exp)}</div></div>
+      <div class="kpi"><small>Flujo (${esc(monthSel)})</small><b>${fmtCOP(net)}</b><div class="muted mono">${fmtCOP(inc)} - ${fmtCOP(exp)}</div></div>
     </div>`;
 
     const alertsHTML = alerts.length ? `<div class="wrap" style="margin-top:12px">
@@ -4635,10 +4717,10 @@ const actions = `
     const wp = renderWarningsPanel();
 
 
-    // Resumen por línea (mes actual)
-    const month = today().slice(0,7);
+    // Resumen por línea (periodo seleccionado)
+    const month = monthSel;
     const mFrom = month + "-01";
-    const mTo = today();
+    const mTo = (month===curM) ? today() : monthEndISO(month);
     const lineLbl = (id)=>({monta:"Monta / Lechones", engorde:"Engorde / Carne", gestacion:"Cerdas (gestación)"}[id]||id);
     const mCash = cashLineReport(mFrom, mTo);
     const mProd = productionLineReport(mFrom, mTo);
@@ -4663,7 +4745,7 @@ const actions = `
       <div class="helpCard" style="margin-top:12px">
         <div class="helpHd">
           <div>
-            <b>Resumen por línea (mes actual)</b>
+            <b>Resumen por línea (${esc(month)})</b>
             <div class="muted">Rango: <span class="mono">${esc(mFrom)}</span> → <span class="mono">${esc(mTo)}</span></div>
           </div>
           <button class="btn" id="dashLineReport">Ver informe</button>
@@ -4688,10 +4770,24 @@ const actions = `
        <button class="btn" id="addBreeding"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-dna" xlink:href="#i-dna"></use></svg><span>Servicio</span></button>
        <button class="btn" id="addFarrowing"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-users" xlink:href="#i-users"></use></svg><span>Parto</span></button>
        <button class="btn" id="startGuide"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-book" xlink:href="#i-book"></use></svg><span>Primeros pasos</span></button>`,
-      gs + wp + kpis + lineCard + alertsHTML
+      gs + wp + periodCard + kpis + lineCard + alertsHTML
     );
 
-    const dl=$("#dashLineReport"); if(dl) dl.onclick=()=>{ lineFrom=mFrom; lineTo=mTo; goTab("finance"); };
+    const dl=$("#dashLineReport"); if(dl) dl.onclick=()=>{ financePeriod = monthSel; lineFrom=mFrom; lineTo=mTo; goTab("finance"); };
+
+    const dm = $("#dashMonthSel");
+    if(dm) dm.onchange=()=>{ dashMonth = dm.value; render(); };
+    const dPrev = $("#dashPrevM");
+    if(dPrev) dPrev.onclick=()=>{ dashMonth = addMonthsKey(monthSel, -1); render(); };
+    const dNext = $("#dashNextM");
+    if(dNext) dNext.onclick=()=>{
+      const nxt = addMonthsKey(monthSel, 1);
+      dashMonth = (nxt.localeCompare(curM)>0) ? curM : nxt;
+      render();
+    };
+    const gh = $("#dashGoHist");
+    if(gh) gh.onclick=()=>{ financePeriod = monthSel; lineFrom=mFrom; lineTo=mTo; goTab("finance"); };
+
 
     const fs=$("#dashFeedSows"); if(fs) fs.onclick=()=>openSupplySowPicker();
     const fb=$("#dashFeedBatches"); if(fb) fb.onclick=()=>openSupplyBatchPicker();
@@ -8606,13 +8702,23 @@ if(!inRange(tx?.date, from, to)) return;
 
 // ------- Finanzas -------
   function renderFinance(){
-    const m=today().slice(0,7);
-    const income=sumMonth("ingreso"), expense=sumMonth("gasto");
+    const curM = today().slice(0,7);
+
+    // Periodo: "" = mes actual, "__all__" = todo, "YYYY-MM" = mes
+    const monthsAll = getAvailableMonths();
+    if(financePeriod && financePeriod!=="__all__" && /^\d{4}-\d{2}$/.test(financePeriod) && !monthsAll.includes(financePeriod)){
+      monthsAll.unshift(financePeriod);
+    }
+    const periodMonth = (financePeriod==="" ? curM : (financePeriod==="__all__" ? null : financePeriod));
+    const label = periodMonth ? periodMonth : "Histórico";
+
+    const income = sumTx("ingreso", periodMonth||"");
+    const expense = sumTx("gasto", periodMonth||"");
     const payOpen=(state.payables||[]).filter(p=>(p.status||"abierto")!=="cerrado");
     const payPending=payOpen.reduce((s,p)=>s+Math.max(0,num(p.total)-num(p.paid)),0);
 
     // --- Informe por línea (rango) ---
-    if(!lineFrom) lineFrom = m + "-01";
+    if(!lineFrom) lineFrom = curM + "-01";
     if(!lineTo) lineTo = today();
 
     const cash = cashLineReport(lineFrom, lineTo);
@@ -8739,7 +8845,7 @@ if(!inRange(tx?.date, from, to)) return;
     `;
 
     const rows=state.transactions
-      .filter(t=>matchQ(t.date,t.type,t.category,t.method,t.notes,t.line))
+      .filter(t=>matchQ(t.date,t.type,t.category,t.method,t.notes,t.line) && (financePeriod==="__all__" ? true : monthKey(t.date)===(periodMonth||curM)))
       .sort((a,b)=>(b.date||"").localeCompare(a.date||""))
       .map(t=>{
         const line = inferLineFromTx(t);
@@ -8778,19 +8884,108 @@ if(!inRange(tx?.date, from, to)) return;
         </tr>`;
       }).join("");
 
-    view.innerHTML = shell(
+    
+    // Selector de periodo (mes / todo)
+    const monthOptList = monthsAll.filter(x=>x!==curM);
+    const monthOps = monthOptList.map(mm=>`<option value="${mm}" ${financePeriod===mm?"selected":""}>${mm}</option>`).join("");
+    const periodOptions = `
+      <option value="" ${financePeriod===""?"selected":""}>Mes actual (${curM})</option>
+      <option value="__all__" ${financePeriod==="__all__"?"selected":""}>Todo el historial</option>
+      ${monthOps}
+    `;
+    const periodBar = `
+      <div class="helpCard" style="margin-bottom:12px">
+        <div class="helpHd">
+          <div>
+            <b>Periodo / Histórico</b>
+            <div class="muted">Elige un mes para ver años pasados. Usa “Todo” para ver todo el historial.</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <button class="btn" id="finPrevM" type="button">◀</button>
+            <select id="finMonthSel" style="min-width:220px">${periodOptions}</select>
+            <button class="btn" id="finNextM" type="button">▶</button>
+            <span class="tag info">${financePeriod==="__all__"?"Todo el historial":esc(label)}</span>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Tabla de histórico mensual (por año)
+    const years = Array.from(new Set(monthsAll.map(x=>String(x).slice(0,4)))).sort((a,b)=>b.localeCompare(a));
+    if(!financeHistYear) financeHistYear = curM.slice(0,4);
+    if(years.length && !years.includes(financeHistYear)) financeHistYear = years[0] || curM.slice(0,4);
+    const yearOps = years.map(y=>`<option value="${y}" ${y===financeHistYear?"selected":""}>${y}</option>`).join("");
+    const monthsYear = monthsAll
+      .filter(x=>String(x).startsWith(financeHistYear + "-"))
+      .sort((a,b)=>String(b).localeCompare(String(a)));
+
+    const histRows = monthsYear.map(mm=>{
+      const from = mm + "-01";
+      const to = (mm===curM) ? today() : monthEndISO(mm);
+      const incM = sumTx("ingreso", mm);
+      const expM = sumTx("gasto", mm);
+      const netM = incM - expM;
+
+      const prodM = productionLineReport(from, to);
+
+      const pigQty = Math.max(0, num(prodM.monta?.qty));
+      const pigSold = Math.max(0, num(prodM.monta?.sold));
+      const meatKg = Math.max(0, num(prodM.engorde?.kg));
+      const meatSold = Math.max(0, num(prodM.engorde?.sold));
+
+      const ins = Math.max(0, num(prodM.monta?.consumed)) + Math.max(0, num(prodM.engorde?.consumed)) + Math.max(0, num(prodM.gestacion?.consumed));
+      const est = (Math.max(0,num(prodM.monta?.sold)) - Math.max(0,num(prodM.monta?.consumed)))
+                + (Math.max(0,num(prodM.engorde?.sold)) - Math.max(0,num(prodM.engorde?.consumed)))
+                - (Math.max(0,num(prodM.gestacion?.consumed)));
+
+      return `<tr>
+        <td class="mono"><b>${esc(mm)}</b><div class="muted">${esc(from)} → ${esc(to)}</div></td>
+        <td class="mono">${fmtCOP(incM)}</td>
+        <td class="mono">${fmtCOP(expM)}</td>
+        <td class="mono">${fmtCOP(netM)}</td>
+        <td class="mono">${fmtNum(pigQty,0)} <span class="muted">lech.</span><div class="muted">${fmtCOP(pigSold)}</div></td>
+        <td class="mono">${fmtNum(meatKg,2)} <span class="muted">kg</span><div class="muted">${fmtCOP(meatSold)}</div></td>
+        <td class="mono">${fmtCOP(ins)}</td>
+        <td class="mono">${fmtCOP(est)}</td>
+        <td><button class="btn" data-act="openMonth" data-month="${esc(mm)}">Ver</button></td>
+      </tr>`;
+    }).join("");
+
+    const histCard = `
+      <div class="helpCard" style="margin-top:12px">
+        <div class="helpHd">
+          <div>
+            <b>Histórico mensual</b>
+            <div class="muted">Resumen por mes (ingresos, gastos y producción).</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <span class="muted">Año</span>
+            <select id="histYear" style="min-width:110px">${yearOps}</select>
+            <span class="tag info">${monthsYear.length} mes(es)</span>
+          </div>
+        </div>
+        <div class="wrap" style="margin-top:10px"><table>
+          <thead><tr><th>Mes</th><th>Ingresos</th><th>Gastos</th><th>Neto</th><th>Lechones</th><th>Carne</th><th>Insumos</th><th>Resultado est.</th><th></th></tr></thead>
+          <tbody>${histRows || `<tr><td colspan="9" class="muted">Sin datos para ese año.</td></tr>`}</tbody>
+        </table></div>
+        <div class="muted" style="margin-top:8px;font-size:12px">Tip: toca “Ver” para filtrar ese mes y ajustar el rango del informe.</div>
+      </div>
+    `;
+view.innerHTML = shell(
       "Finanzas",
       "Ingresos y gastos (ventas e inventario alimentan automáticamente).",
       `<button class="btn primary" id="inc"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-plus" xlink:href="#i-plus"></use></svg><span>Ingreso</span></button>
        <button class="btn" id="exp"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-minus" xlink:href="#i-minus"></use></svg><span>Gasto</span></button>
        <button class="btn" id="csv">Exportar CSV</button>`,
-      `<div class="kpis" style="margin-bottom:12px">
-        <div class="kpi" style="grid-column:span 4"><small>Ingresos (${m})</small><b>${fmtCOP(income)}</b><div class="muted mono">Ventas + abonos</div></div>
-        <div class="kpi" style="grid-column:span 4"><small>Gastos (${m})</small><b>${fmtCOP(expense)}</b><div class="muted mono">Compras + manual</div></div>
+      `${periodBar}
+      <div class="kpis" style="margin-bottom:12px">
+        <div class="kpi" style="grid-column:span 4"><small>Ingresos (${esc(label)})</small><b>${fmtCOP(income)}</b><div class="muted mono">Ventas + abonos</div></div>
+        <div class="kpi" style="grid-column:span 4"><small>Gastos (${esc(label)})</small><b>${fmtCOP(expense)}</b><div class="muted mono">Compras + manual</div></div>
         <div class="kpi" style="grid-column:span 4"><small>Resultado</small><b>${fmtCOP(income-expense)}</b><div class="muted mono">Ingreso - gasto</div></div>
         <div class="kpi" style="grid-column:span 4"><small>CxP pendientes</small><b class="mono">${esc(fmtCOP(payPending))}</b><div class="muted mono">Compras a crédito/parcial</div></div>
       </div>
       ${reportCard}
+      ${histCard}
       <div class="wrap" style="margin-top:12px"><table>
         <thead><tr><th>Fecha</th><th>Tipo</th><th>Línea</th><th>Categoría</th><th>Valor</th><th>Notas</th><th>Acción</th></tr></thead>
         <tbody>${rows||`<tr><td colspan="7" class="muted">Sin transacciones.</td></tr>`}</tbody>
@@ -8804,6 +8999,48 @@ if(!inRange(tx?.date, from, to)) return;
     $("#inc").onclick=()=>openTx("ingreso");
     $("#exp").onclick=()=>openTx("gasto");
     $("#csv").onclick=()=>exportTxCSV();
+    const ms = $("#finMonthSel");
+    if(ms) ms.onchange=()=>{
+      financePeriod = (ms.value||"").toString();
+      if(financePeriod !== "__all__"){
+        const mm = financePeriod==="" ? curM : financePeriod;
+        lineFrom = mm + "-01";
+        lineTo = (mm===curM) ? today() : monthEndISO(mm);
+      }
+      render();
+    };
+
+    const prevB = $("#finPrevM");
+    if(prevB) prevB.onclick=()=>{
+      if(financePeriod==="__all__") financePeriod = "";
+      const base = (financePeriod==="" ? curM : financePeriod);
+      const mm = addMonthsKey(base, -1);
+      financePeriod = (mm===curM) ? "" : mm;
+      lineFrom = mm + "-01";
+      lineTo = (mm===curM) ? today() : monthEndISO(mm);
+      render();
+    };
+
+    const nextB = $("#finNextM");
+    if(nextB) nextB.onclick=()=>{
+      if(financePeriod==="__all__") financePeriod = "";
+      const base = (financePeriod==="" ? curM : financePeriod);
+      let mm = addMonthsKey(base, 1);
+      if(mm.localeCompare(curM) > 0){
+        mm = curM;
+        financePeriod = "";
+      }else{
+        financePeriod = mm;
+      }
+      lineFrom = mm + "-01";
+      lineTo = (mm===curM) ? today() : monthEndISO(mm);
+      render();
+    };
+
+    const hy = $("#histYear");
+    if(hy) hy.onchange=()=>{ financeHistYear = (hy.value||"").toString(); render(); };
+
+
 
     const lf=$("#lineFrom");
     const lt=$("#lineTo");
@@ -8812,6 +9049,7 @@ if(!inRange(tx?.date, from, to)) return;
 
     view.onclick=(e)=>{
       const b=e.target.closest("button[data-act]"); if(!b) return;
+      if(b.dataset.act==="openMonth"){ const mm=(b.dataset.month||"").toString(); if(mm){ financePeriod = (mm===curM) ? "" : mm; lineFrom = mm + "-01"; lineTo = (mm===curM) ? today() : monthEndISO(mm); } render(); return; }
       if(b.dataset.act==="lineDetail"){ openLineDetail(b.dataset.line, lineFrom, lineTo); return; }
       if(b.dataset.act==="pay"){ openPayablePay(b.dataset.id); return; }
       if(b.dataset.act==="del") { state.transactions=state.transactions.filter(t=>t.id!==b.dataset.id); save(); toast("ok","Eliminada","Transacción eliminada."); render(); }
@@ -9118,6 +9356,66 @@ if(!inRange(tx?.date, from, to)) return;
     });
   }
 
+  // ------- Marca / Logo -------
+  function applyLogoFromSettings(){
+    try{
+      const root = document.documentElement;
+      const data = (state && state.settings && state.settings.logoData) ? String(state.settings.logoData).trim() : "";
+      const url  = (state && state.settings && state.settings.logoUrl) ? String(state.settings.logoUrl).trim() : "";
+      if(data){
+        root.style.setProperty("--farmLogo", `url("${data.replace(/"/g,"%22")}")`);
+      }else if(url){
+        root.style.setProperty("--farmLogo", `url("${url.replace(/"/g,"%22")}")`);
+      }else{
+        root.style.removeProperty("--farmLogo"); // vuelve al logo por defecto en :root
+      }
+    }catch(e){}
+  }
+
+  async function cropToSquareDataUrl(file, outSize=256, quality=0.86){
+    const srcDataUrl = await new Promise((resolve,reject)=>{
+      const r = new FileReader();
+      r.onload=()=>resolve(String(r.result||""));
+      r.onerror=()=>reject(r.error||new Error("read-error"));
+      r.readAsDataURL(file);
+    });
+
+    const img = await new Promise((resolve,reject)=>{
+      const i = new Image();
+      i.onload=()=>resolve(i);
+      i.onerror=()=>reject(new Error("img-load-error"));
+      i.src = srcDataUrl;
+    });
+
+    const w = img.naturalWidth || img.width || 0;
+    const h = img.naturalHeight || img.height || 0;
+    if(!w || !h) throw new Error("invalid-image");
+
+    const side = Math.min(w,h);
+    const sx = Math.floor((w - side)/2);
+    const sy = Math.floor((h - side)/2);
+
+    const canvas = document.createElement("canvas");
+    canvas.width = outSize; canvas.height = outSize;
+    const ctx = canvas.getContext("2d");
+    if(!ctx) throw new Error("no-canvas");
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
+    ctx.drawImage(img, sx, sy, side, side, 0, 0, outSize, outSize);
+
+    // Prefer WebP (mejor compresión). Si no soporta, usa PNG (mantiene transparencia).
+    try{
+      const webp = canvas.toDataURL("image/webp", Math.max(0.5, Math.min(0.95, quality)));
+      if(String(webp).startsWith("data:image/webp")) return webp;
+    }catch(e){}
+    try{
+      return canvas.toDataURL("image/png");
+    }catch(e){}
+    return canvas.toDataURL("image/jpeg", Math.max(0.5, Math.min(0.95, quality)));
+  }
+
+
+
   // ------- Ajustes / Backup / CSV -------
   function renderSettings(){
     view.innerHTML = shell(
@@ -9130,6 +9428,30 @@ if(!inRange(tx?.date, from, to)) return;
         <div class="f3"><label>Días gestación</label><input type="number" name="gestationDays" min="90" max="130" value="${esc(state.settings.gestationDays||114)}"/></div>
         <div class="f3"><label>Kg por arroba</label><input type="number" step="0.01" min="0" name="arrobaKg" value="${esc(state.settings.arrobaKg||12.5)}"/></div>
         <div class="f3"><label>Peso prom. cerdo (kg)</label><input type="number" step="0.1" min="0" name="defaultPigKg" value="${esc(state.settings.defaultPigKg||100)}"/></div>
+
+        <div class="f12"><div class="tag info">Marca</div></div>
+        <div class="f12">
+          <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+            <div id="logoPreviewBox" style="width:48px;height:48px;border-radius:14px;background-color:rgba(255,255,255,.96);background-image:var(--farmLogo);background-size:contain;background-repeat:no-repeat;background-position:center;border:1px solid rgba(255,255,255,.25)"></div>
+            <div class="muted" style="font-size:12px;line-height:1.3">
+              Puedes usar una <b>URL</b> o subir una imagen. Si subes una imagen, se <b>recorta a cuadrado</b> y se guarda dentro de Firestore (no Storage).
+            </div>
+          </div>
+        </div>
+        <div class="f6">
+          <label>Logo por URL (opcional)</label>
+          <input name="logoUrl" type="url" placeholder="https://..." value="${esc(state.settings.logoUrl||"")}"/>
+          <div class="muted" style="font-size:12px;margin-top:6px">Tip: usa una imagen cuadrada o con fondo transparente.</div>
+        </div>
+        <div class="f6">
+          <label>Subir logo (opcional)</label>
+          <input id="logoFile" type="file" accept="image/*" />
+          <div class="muted" style="font-size:12px;margin-top:6px">Máximo <b>2 MB</b>. Se optimiza a 256×256 automáticamente.</div>
+          <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn" type="button" id="clearLogo">Quitar logo</button>
+          </div>
+        </div>
+
         <div class="f12"><div class="tag info">Seguridad</div></div>
         <div class="f4"><label>Requerir inicio de sesión</label>
           <select name="requireLogin">
@@ -9159,12 +9481,64 @@ if(!inRange(tx?.date, from, to)) return;
       state.settings.gestationDays=num(fd.get("gestationDays"))||114;
       state.settings.arrobaKg=Math.max(0, num(fd.get("arrobaKg"))||12.5);
       state.settings.defaultPigKg=Math.max(0, num(fd.get("defaultPigKg"))||100);
-      
+
+      // Logo: si el usuario pega una URL, úsala. (Si subiste un logo, se gestiona con #logoFile y queda en settings.logoData)
+      const _logoUrl = (fd.get("logoUrl")||"").toString().trim();
+      if(_logoUrl){
+        state.settings.logoUrl = _logoUrl;
+        state.settings.logoData = ""; // prioridad para URL
+      }else{
+        // Si el campo queda vacío, NO borramos el logoData automáticamente.
+        state.settings.logoUrl = "";
+      }
+
       state.settings.requireLogin=(fd.get("requireLogin")||"1").toString()==="1";
       state.settings.authUser=(fd.get("authUser")||"admin").toString().trim()||"admin";
       state.settings.authPass=(fd.get("authPass")||"1234").toString();
       save(); toast("ok","Guardado","Ajustes actualizados."); render();
     };
+
+    // Logo (URL / archivo). El archivo se recorta y se guarda dentro del "state" (Firestore Sync).
+    const lf = $("#logoFile");
+    if(lf){
+      lf.onchange = async (e)=>{
+        const file = e && e.target && e.target.files ? e.target.files[0] : null;
+        if(!file) return;
+        const MAX = 2 * 1024 * 1024; // 2MB
+        if(file.size > MAX){
+          toast("bad","Archivo muy pesado","Máximo 2 MB. Usa una imagen más liviana.");
+          try{ lf.value=""; }catch(_){}
+          return;
+        }
+        try{
+          const dataUrl = await cropToSquareDataUrl(file, 256, 0.86);
+          state.settings.logoData = dataUrl;
+          state.settings.logoUrl = "";
+          applyLogoFromSettings();
+          save();
+          toast("ok","Logo actualizado","Se guardó en Firestore (dentro del estado).");
+          // refrescar vista para que el input URL quede vacío
+          render();
+        }catch(err){
+          console.error(err);
+          toast("bad","No se pudo procesar","Intenta con otra imagen.");
+        }finally{
+          try{ lf.value=""; }catch(_){}
+        }
+      };
+    }
+    const cl = $("#clearLogo");
+    if(cl){
+      cl.onclick = ()=>{
+        state.settings.logoUrl = "";
+        state.settings.logoData = "";
+        applyLogoFromSettings();
+        save();
+        toast("ok","Listo","Logo restablecido.");
+        render();
+      };
+    }
+
     $("#expJson").onclick=exportJSON;
     $("#imp").onchange=importJSON;
     $("#csvSales").onclick=exportSalesCSV;

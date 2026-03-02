@@ -3746,6 +3746,20 @@ function normalizeState(){
     const badB = state.batches.filter(b=>num(b.countCurrent)<=0 && (b.status||"")!=="cerrado");
     if(badB.length) list.push({level:"info", title:"Camadas por cerrar", detail:`${badB.length} camada(s) sin stock pero abiertas.`, tab:"batches"});
 
+    // Camadas sin destete registrado (recordatorio, no se asume fecha automática)
+    const noWean = state.batches.filter(b=>{
+      if(String(b.origin||"")==="engorde_manual") return false;
+      if((b.status||"disponible")==="cerrado") return false;
+      if(num(b.countCurrent)<=0) return false;
+      if(String(b.weaningDate||"")) return false;
+      if(!b.birthDate) return false;
+      const age = daysBetween(b.birthDate, todayS);
+      return age!=null && age>35;
+    });
+    if(noWean.length){
+      list.push({level:"warn", title:"Destetes sin registrar", detail:`${noWean.length} camada(s) llevan más de 35 días sin fecha de destete. Registra el destete real cuando ocurra.`, tab:"batches"});
+    }
+
     
     // Ventas huérfanas (camada/cerda eliminada)
     const batchIds = new Set(state.batches.map(b=>b.id));
@@ -4841,11 +4855,11 @@ const actions = `
     const b=list[0];
     const wean = String(b.weaningDate||"");
     if(wean) return (today() < wean) ? b : null;
-    // fallback: si no hay destete definido, asumir lactancia hasta 35 días post-nacimiento
-    const age = b.birthDate ? daysBetween(b.birthDate, today()) : null;
-    if(age!=null && age>=0 && age<=35) return b;
-    return null;
+    // Si no hay destete registrado, NO asumimos una fecha.
+    // Se considera lactancia abierta hasta que el usuario registre el destete.
+    return b;
   }
+
 
   function isGrowoutBatch(b){
     if(!b) return false;
@@ -4897,15 +4911,10 @@ const actions = `
       if((b.status||"disponible") === "cerrado") return;
       if(num(b.countCurrent) <= 0) return;
 
-      // En maternidad solo contar lactancia (antes del destete; fallback 35 días si no hay destete)
+      // En maternidad: contar lactancia hasta que el usuario registre el destete
       if(t === "maternidad"){
         const wean = String(b.weaningDate||"");
-        if(wean){
-          if(today() >= wean) return; // ya destetado -> no cuenta como ocupación de maternidad
-        } else {
-          const age = b.birthDate ? daysBetween(b.birthDate, today()) : null;
-          if(age == null || age < 0 || age > 35) return;
-        }
+        if(wean && today() >= wean) return; // ya destetado -> no cuenta como ocupación de maternidad
       }
 
       batches += 1;
@@ -5238,6 +5247,18 @@ function openPen(opts={}){
           const penId=(fd.get("penId")||"").toString();
           batch.weaningDate=d;
           if(penId) batch.penId=penId;
+
+          // marcar tarea de destete como hecha (si existe)
+          const sowTag = get.sow(sowId)?.tag||"cerda";
+          let t=state.tasks.find(x=>x.relatedType==="batch" && x.relatedId===batch.id && (x.title||"").toLowerCase().includes("destete"));
+          if(t){
+            const wd = String(d).slice(0,10);
+            t.status = "hecha";
+            t.title = `Destete registrado — ${sowTag}`;
+            t.dueDate = wd;
+            t.notes = `Destete registrado el ${wd}.`;
+          }
+
           save(); dlg.close(); toast("ok","Listo","Lote enviado a engorde."); render();
         };
       }
@@ -5324,7 +5345,7 @@ function openPen(opts={}){
           return `<tr>
             <td>${esc(sow.tag||sow.name||"—")}<div class="muted">${esc(sow.breed||"")} • ${esc(sow.status||"")}</div></td>
             <td class="mono">${esc(b.birthDate||"—")}</td>
-            <td class="mono">${esc(b.weaningDate||"—")}</td>
+            <td class="mono">${b.weaningDate?esc(b.weaningDate):'—<div class="muted">Sin registrar</div>'}</td>
             <td class="mono">${esc(b.countCurrent||0)}</td>
             <td class="mono">${age==null?"—":esc(age+" días")}</td>
             <td>
@@ -5821,6 +5842,7 @@ function openPen(opts={}){
 };
   }
 
+
   function farrowingForm(f,preset={}){
     if(!state.sows.length) return `<div class="muted">Primero crea una cerda.</div>`;
     const closed=new Set(state.farrowings.map(x=>x.breedingId).filter(Boolean));
@@ -5832,10 +5854,23 @@ function openPen(opts={}){
     const batch = f.id ? state.batches.find(b=>b.farrowingId===f.id) : null;
     const penSel = batch?.penId || preset.penId || "";
     const penOps = (state.pens||[]).filter(p=>p.type==="maternidad").map(p=>{ const occ=penOccupancy(p.id); return `<option value="${p.id}" ${penSel===p.id?"selected":""}>${esc(p.name)} • ${esc(occ.sows)} cerdas / ${esc(occ.batches)} camadas</option>`; }).join("");
+    const wVal = String(batch?.weaningDate || "");
+    const wSug = f.date ? addDays(f.date, 28) : "";
     return `<form id="farForm" class="grid2">
       <div class="f12"><label>Servicio asociado (opcional)</label><select name="breedingId" id="ffBr"><option value="">(Sin servicio)</option>${brOps}</select></div>
       <div class="f6"><label>Cerda *</label><select name="sowId" id="ffSow" required><option value="">Selecciona</option>${sowOps}</select></div>
       <div class="f6"><label>Fecha parto *</label><input type="date" name="date" value="${esc(f.date)}" required/></div>
+
+      <div class="f6">
+        <label>Fecha destete (opcional)</label>
+        <input type="date" name="weaningDate" value="${esc(wVal)}" />
+        <div class="muted" style="margin-top:6px">
+          Sugerido: <span class="mono" id="ffWeanSug">${esc(wSug||"")}</span>
+          <button type="button" class="btn" id="ffWeanUse">Usar sugerido</button>
+        </div>
+        <div class="muted" style="margin-top:6px">Déjalo vacío y regístralo cuando destetes (no se asume automáticamente).</div>
+      </div>
+
       <div class="f12"><label>Cajón de maternidad</label><select name="penId"><option value="">Auto (primer cajón de maternidad)</option>${penOps}</select></div>
       <div class="f3"><label>Total</label><input type="number" name="bornTotal" value="${esc(f.bornTotal)}" min="0"/></div>
       <div class="f3"><label>Vivos</label><input type="number" name="bornAlive" value="${esc(f.bornAlive)}" min="0"/></div>
@@ -5846,6 +5881,7 @@ function openPen(opts={}){
     </form>
 `;
   }
+
 
   function openFarrowing(id,preset={}){
     if(!state.sows.length){ toast("warn","Sin cerdas","Primero crea una cerda."); openSow(); return; }
@@ -5858,22 +5894,41 @@ function openPen(opts={}){
       onMount: ()=>{
         const sel=$("#ffBr"), sow=$("#ffSow");
         sel.onchange=()=>{ const br=get.breeding(sel.value); if(br && br.sowId) sow.value=br.sowId; };
+
+        // Sugerencia de destete (no automática)
+        const form = $("#farForm");
+        const dateI = form ? form.querySelector('input[name="date"]') : null;
+        const weanI = form ? form.querySelector('input[name="weaningDate"]') : null;
+        const sug = $("#ffWeanSug");
+        const use = $("#ffWeanUse");
+        const refreshSug = ()=>{
+          const s = (dateI && dateI.value) ? addDays(dateI.value, 28) : "";
+          if(sug) sug.textContent = s || "";
+        };
+        if(dateI) dateI.addEventListener("change", refreshSug);
+        if(use && weanI) use.onclick=()=>{ const s=(dateI && dateI.value)?addDays(dateI.value,28):""; if(s) weanI.value=s; };
+        refreshSug();
+
         $("#save").onclick=()=>saveFarrowing(id);
       }
     });
   }
+
 
   function saveFarrowing(id){
     const f=$("#farForm"); const fd=new FormData(f);
     const sowId=(fd.get("sowId")||"").toString();
     const date=(fd.get("date")||"").toString();
     const penId=(fd.get("penId")||"").toString();
+    const weaningDate=(fd.get("weaningDate")||"").toString(); // puede ir vacío (se registra cuando ocurra)
     if(!sowId||!date){ toast("bad","Faltan datos","Cerda y fecha son obligatorios."); return; }
+
     const breedingId=(fd.get("breedingId")||"").toString();
     if(breedingId){
       const dup=state.farrowings.find(x=>x.breedingId===breedingId && x.id!==id);
       if(dup){ toast("bad","Duplicado","Ese servicio ya tiene parto."); return; }
     }
+
     const payload={
       id:id||uid("far"),
       breedingId:breedingId||"",
@@ -5885,50 +5940,91 @@ function openPen(opts={}){
       notes:(fd.get("notes")||"").toString().trim()
     };
     if(id) state.farrowings=state.farrowings.map(x=>x.id===id?payload:x);
-    else {
-      state.farrowings.push(payload);
-    }
+    else state.farrowings.push(payload);
 
     // batch linked
     let batch=state.batches.find(b=>b.farrowingId===payload.id);
     const init=Math.max(0, payload.bornAlive);
     if(!batch){
-      batch={id:uid("bat"),sowId,farrowingId:payload.id,birthDate:date,weaningDate:addDays(date,28),countInitial:init,countCurrent:init,status:"disponible",penId:(penId || firstPenIdByType("maternidad") || ""),notes:""};
+      batch={
+        id:uid("bat"),
+        sowId,
+        farrowingId:payload.id,
+        birthDate:date,
+        // Destete real (opcional). Si se deja vacío, NO se asume automáticamente.
+        weaningDate: weaningDate || "",
+        countInitial:init,
+        countCurrent:init,
+        status:"disponible",
+        penId:(penId || firstPenIdByType("maternidad") || ""),
+        notes:""
+      };
       state.batches.push(batch);
     } else {
-      batch.sowId=sowId; batch.birthDate=date; batch.weaningDate=batch.weaningDate||addDays(date,28);
-      batch.countInitial=init; batch.countCurrent=Math.min(num(batch.countCurrent), init);
+      batch.sowId = sowId;
+      batch.birthDate = date;
+      batch.weaningDate = weaningDate || ""; // permitir limpiar/corregir
+      batch.countInitial = init;
+      batch.countCurrent = Math.min(num(batch.countCurrent), init);
     }
+
     const matPen = penId || firstPenIdByType("maternidad") || "";
     const weaned = batch.weaningDate && (today() >= batch.weaningDate);
     if(!weaned){
-      batch.penId = matPen;
+      batch.penId = matPen; // mantener en maternidad hasta registrar destete
     } else if(!batch.penId){
       batch.penId = matPen;
     }
-    // asegurar tarea de destete ligada a esta camada
+
+    // tarea de destete (sugerida) y cierre automático si ya registraste destete real
     const sowTag = get.sow(sowId)?.tag||"cerda";
-    let t=state.tasks.find(x=>x.relatedType==="batch" && x.relatedId===batch.id && (x.title||"").startsWith("Destete sugerido"));
+    let t=state.tasks.find(x=>x.relatedType==="batch" && x.relatedId===batch.id && (x.title||"").toLowerCase().includes("destete"));
     if(!t){
       t={id:uid("tsk"),title:`Destete sugerido — ${sowTag}`,dueDate:addDays(date,28),priority:"media",status:"pendiente",relatedType:"batch",relatedId:batch.id,notes:"Ajusta 21–35 días según manejo."};
       state.tasks.push(t);
     } else {
-      t.dueDate = addDays(date,28);
-      t.title = `Destete sugerido — ${sowTag}`;
+      // actualizar sugerencia si el parto cambió (solo si no está marcada como hecha)
+      if((t.status||"pendiente")!=="hecha"){
+        t.dueDate = addDays(date,28);
+        if(!(t.title||"").toLowerCase().includes("registrado")) t.title = `Destete sugerido — ${sowTag}`;
+        if(!t.notes) t.notes = "Ajusta 21–35 días según manejo.";
+      }
+    }
+    if(batch.weaningDate){
+      const wd = String(batch.weaningDate).slice(0,10);
+      t.status = "hecha";
+      t.title = `Destete registrado — ${sowTag}`;
+      t.dueDate = wd;
+      t.notes = `Destete registrado el ${wd}.`;
     }
 
     save(); dlg.close(); toast("ok","Guardado","Parto registrado."); render();
   }
 
+
+
   function batchForm(b){
     if(!state.sows.length) return `<div class="muted">Primero crea una cerda.</div>`;
-    b=b||{sowId:"",birthDate:today(),weaningDate:addDays(today(),28),countInitial:0,countCurrent:0,status:"disponible",notes:""};
+    // weaningDate es la fecha REAL de destete (opcional). Si está vacío, no se asume automáticamente.
+    b=b||{sowId:"",birthDate:today(),weaningDate:"",countInitial:0,countCurrent:0,status:"disponible",notes:""};
     const sowOps=state.sows.slice().sort((a,b)=>(a.tag||"").localeCompare(b.tag||"")).map(s=>`<option value="${s.id}" ${b.sowId===s.id?"selected":""}>${esc(s.tag||s.name||"—")}</option>`).join("");
+    const sug = b.birthDate ? addDays(b.birthDate,28) : addDays(today(),28);
     return `<form id="batchForm" class="grid2">
       <div class="f6"><label>Cerda *</label><select name="sowId" required><option value="">Selecciona</option>${sowOps}</select></div>
       <div class="f6"><label>Estado</label><select name="status">${["disponible","reservado","vendido","cerrado"].map(x=>`<option ${b.status===x?"selected":""} value="${x}">${x}</option>`).join("")}</select></div>
+
       <div class="f4"><label>Nacimiento *</label><input type="date" name="birthDate" required value="${esc(b.birthDate)}"/></div>
-      <div class="f4"><label>Destete</label><input type="date" name="weaningDate" value="${esc(b.weaningDate)}"/></div>
+
+      <div class="f4">
+        <label>Destete (opcional)</label>
+        <input type="date" name="weaningDate" value="${esc(b.weaningDate)}"/>
+        <div class="muted" style="margin-top:6px">
+          Sugerido: <span class="mono" id="batchWeanSug">${esc(sug||"")}</span>
+          <button type="button" class="btn" id="batchWeanUse">Usar sugerido</button>
+        </div>
+        <div class="muted" style="margin-top:6px">Déjalo vacío y regístralo cuando destetes (no se asume automáticamente).</div>
+      </div>
+
       <div class="f4"><label>Cajón (maternidad/engorde)</label><select name="penId"><option value="">Auto</option>${(state.pens||[]).filter(p=>penAcceptsBatch(p)).map(p=>`<option value="${p.id}" ${b.penId===p.id?"selected":""}>${esc(p.name)} • ${esc(p.type)}</option>`).join("")}</select></div>
       <div class="f4"><label>Cantidad inicial</label><input type="number" name="countInitial" value="${esc(b.countInitial)}" min="0"/></div>
       <div class="f4"><label>Cantidad actual</label><input type="number" name="countCurrent" value="${esc(b.countCurrent)}" min="0" placeholder="(vacío = inicial)"/></div>
@@ -5936,6 +6032,7 @@ function openPen(opts={}){
     </form>
 `;
   }
+
 
   function openBatch(id, pre={}){
     if(!state.sows.length){ toast("warn","Sin cerdas","Primero crea una cerda."); openSow(); return; }
@@ -5952,7 +6049,15 @@ function openPen(opts={}){
         const f=$("#batchForm");
         const birth=f.querySelector('input[name="birthDate"]');
         const wean=f.querySelector('input[name="weaningDate"]');
-        birth.onchange=()=>{ if(birth.value && !wean.value) wean.value=addDays(birth.value,28); };
+        const sug = $("#batchWeanSug");
+        const use = $("#batchWeanUse");
+        const refreshSug = ()=>{
+          const s = birth.value ? addDays(birth.value,28) : "";
+          if(sug) sug.textContent = s || "";
+        };
+        if(birth) birth.onchange=refreshSug;
+        if(use && wean) use.onclick=()=>{ const s = birth.value ? addDays(birth.value,28) : ""; if(s) wean.value = s; };
+        refreshSug();
         // Botón dentro del historial de suministros
         dlgBody.querySelectorAll("button[data-supply]").forEach(b=>{
           b.onclick=()=>{ const t=b.dataset.supply; const did=b.dataset.supplyid; dlg.close(); openSupplyFor(t, did); };
@@ -5980,6 +6085,20 @@ function openPen(opts={}){
           };
           if(id) state.batches=state.batches.map(x=>x.id===id?payload:x);
           else state.batches.push(payload);
+
+          // Si registraste destete real, marcar la tarea como hecha (si existe)
+          if(payload.weaningDate){
+            const sowTag = get.sow(payload.sowId)?.tag||"cerda";
+            let t=state.tasks.find(x=>x.relatedType==="batch" && x.relatedId===payload.id && (x.title||"").toLowerCase().includes("destete"));
+            if(t){
+              const wd = String(payload.weaningDate).slice(0,10);
+              t.status = "hecha";
+              t.title = `Destete registrado — ${sowTag}`;
+              t.dueDate = wd;
+              t.notes = `Destete registrado el ${wd}.`;
+            }
+          }
+
           save(); dlg.close(); toast("ok","Guardado","Camada guardada."); render();
         };
       }

@@ -2486,34 +2486,68 @@ header .brand .title span{
 </head>
 <body>
 
-<div id="fbStatus" style="
-  position:fixed;
-  top:8px; right:8px;
-  z-index:20000;
-  padding:6px 10px;
+<style id="fb-status-header-btn">
+#fbStatusBtn{
+  width:40px;
+  height:40px;
+  min-width:40px;
+  padding:0 !important;
+  border-radius:14px !important;
+  display:inline-flex !important;
+  align-items:center;
+  justify-content:center;
+  flex:0 0 40px;
+  font-size:16px;
+  font-weight:800;
+  line-height:1;
+  transition:background .2s ease, border-color .2s ease, transform .15s ease;
+}
+#fbStatusBtn .fbDot{
+  width:10px;
+  height:10px;
   border-radius:999px;
-  font-size:12px;
-  font-weight:700;
-  background:#374151;
-  color:#fff;
-  box-shadow:0 6px 20px rgba(0,0,0,.35);
-  user-select:none;
-">
-  🔌 Firebase: iniciando…
-</div>
+  background:currentColor;
+  display:block;
+  box-shadow:0 0 0 2px rgba(255,255,255,.18);
+}
+#fbStatusBtn.is-on{
+  background:#15803d !important;
+  border-color:#166534 !important;
+  color:#ffffff !important;
+}
+#fbStatusBtn.is-off{
+  background:#b91c1c !important;
+  border-color:#991b1b !important;
+  color:#ffffff !important;
+}
+#fbStatusBtn.is-wait{
+  background:#475569 !important;
+  border-color:#334155 !important;
+  color:#ffffff !important;
+}
+#fbStatusBtn:hover{
+  transform:translateY(-1px);
+}
+</style>
 
 <script>
-  // Estado visual de Firebase (badge arriba a la derecha)
+  // Estado visual de Firebase como botón en el header
   window.__setFBStatus = function(ok, msg){
-    const el = document.getElementById("fbStatus");
+    const el = document.getElementById("fbStatusBtn");
     if(!el) return;
-    if(ok){
-      el.textContent = "🟢 Firebase: conectado";
-      el.style.background = "#065f46";
+    const isOk = ok === true;
+    const stateText = isOk ? "Firebase conectado" : (msg ? "Firebase: " + msg : "Firebase sin conexión");
+    el.classList.remove("is-on","is-off","is-wait");
+    if(isOk){
+      el.classList.add("is-on");
+    }else if(msg && /inici|cargando|autentic|sincronizando|subiendo/i.test(msg)){
+      el.classList.add("is-wait");
     }else{
-      el.textContent = "🔴 Firebase: " + (msg || "sin conexión");
-      el.style.background = "#7f1d1d";
+      el.classList.add("is-off");
     }
+    el.title = stateText;
+    el.setAttribute("aria-label", stateText);
+    el.dataset.status = stateText;
   };
 </script>
 
@@ -2785,10 +2819,11 @@ header .brand .title span{
     </div>
     <div class="right">
       <input id="q" class="search" placeholder="Buscar: cerda, camada, cliente, insumo, venta…" />
+      <button class="btn is-wait" id="fbStatusBtn" type="button" title="Firebase: iniciando…" aria-label="Firebase: iniciando…"><span class="fbDot" aria-hidden="true"></span></button>
       <button class="btn" id="helpBtn" title="Ver pasos de uso"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-help" xlink:href="#i-help"></use></svg><span>Ayuda</span></button>
       <button class="btn" id="quick" title="Crear rápido: cerda, servicio, parto, insumo, gasto, tarea"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-plus" xlink:href="#i-plus"></use></svg><span>Rápido</span></button>
       <button class="btn primary" id="newSale" title="Registrar una venta de lechones">Nueva venta</button>
-            <button type="button" class="btn" id="acctBtn" title="Abrir contabilidad">Contabilidad</button>
+            
 <button class="btn" id="logoutBtn" title="Cerrar sesión"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-logout" xlink:href="#i-logout"></use></svg><span>Salir</span></button>
     </div>
   </div>
@@ -10723,42 +10758,6 @@ view.innerHTML = shell(
 
   
 $("#newSale").onclick=()=>openSale();
-const acct=$("#acctBtn");
-if(acct){
-  if(window.location.protocol === "file:"){
-    acct.disabled = true;
-    acct.classList.add("ghost");
-    acct.title = "Disponible al abrir la app por localhost";
-    acct.innerHTML = "Contabilidad (localhost)";
-    acct.onclick = (e)=>{
-      if(e) e.preventDefault();
-      openAlert({
-        title:"Contabilidad desactivada en modo local",
-        kind:"warn",
-        message:"Esta app está abierta como file:///. Por seguridad del navegador, el acceso a Contabilidad se desactiva en este modo. Para usarlo, abre esta carpeta por localhost o abre contabilidad.html manualmente desde la misma carpeta."
-      });
-      return false;
-    };
-  }else{
-    acct.onclick=(e)=>{
-      if(e) e.preventDefault();
-      const url = new URL("contabilidad.html", window.location.href).href;
-      let w = null;
-      try{
-        w = window.open(url, "_blank");
-      }catch(e){}
-      if(!w){
-        openAlert({
-          title:"Abrir contabilidad",
-          kind:"warn",
-          message:'Tu navegador bloqueó abrir una nueva pestaña. Toca aquí: <a href="'+url+'" target="_blank" rel="noopener">Abrir Contabilidad</a>'
-        });
-      }
-      return false;
-    };
-  }
-}
-
   const hb=$("#helpBtn"); if(hb) hb.onclick=()=>openHelp();
 
   // ------- Init -------

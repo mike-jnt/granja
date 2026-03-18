@@ -2934,6 +2934,7 @@ header .brand .title span{
     const alias = (raw || configuredUser || "admin").toString().trim().toLowerCase().replace(/[^a-z0-9._-]+/g, "");
     return ((alias || "admin") + "@granja.local").toLowerCase();
   }
+  window.getFirebaseEmailCandidate = getFirebaseEmailCandidate;
 
   // Estado inicial
   window.__setFBStatus && window.__setFBStatus("connecting","conectando…");
@@ -10637,7 +10638,7 @@ view.innerHTML = shell(
         </div>
         <div class="f4"><label>Usuario</label><input name="authUser" value="${esc(state.settings.authUser||"admin")}"/></div>
         <div class="f4"><label>Contraseña</label><input type="password" name="authPass" value="${esc(state.settings.authPass||"1234")}"/></div>
-        <div class="f4"><label>Correo Firebase</label><input name="firebaseEmail" value="${esc(state.settings.firebaseEmail||getFirebaseEmailCandidate(state.settings.authUser||"admin"))}" placeholder="admin@granja.local"/></div>
+        <div class="f4"><label>Correo Firebase</label><input name="firebaseEmail" value="${esc(state.settings.firebaseEmail||(window.getFirebaseEmailCandidate ? window.getFirebaseEmailCandidate(state.settings.authUser||"admin") : "admin@granja.local"))}" placeholder="admin@granja.local"/></div>
 
       </form>
       <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
@@ -10672,7 +10673,7 @@ view.innerHTML = shell(
       state.settings.requireLogin=(fd.get("requireLogin")||"1").toString()==="1";
       state.settings.authUser=(fd.get("authUser")||"admin").toString().trim()||"admin";
       state.settings.authPass=(fd.get("authPass")||"1234").toString();
-      state.settings.firebaseEmail=((fd.get("firebaseEmail")||state.settings.firebaseEmail||"").toString().trim()) || getFirebaseEmailCandidate(state.settings.authUser);
+      state.settings.firebaseEmail=((fd.get("firebaseEmail")||state.settings.firebaseEmail||"").toString().trim()) || (window.getFirebaseEmailCandidate ? window.getFirebaseEmailCandidate(state.settings.authUser) : "admin@granja.local");
       save(); toast("ok","Guardado","Ajustes actualizados."); render();
     };
 

@@ -2901,7 +2901,7 @@ header .brand .title span{
   // Ruta: /apps/granja-7b4b5/users/<uid>/state/main
 
   import { initializeApp } from "firebase/app";
-  import { getAuth, onAuthStateChanged, signInWithEmailAndPassword as fbSignInWithEmailAndPassword, setPersistence, browserLocalPersistence, signOut as fbSignOut } from "firebase/auth";
+  import { getAuth, onAuthStateChanged, signInWithEmailAndPassword as fbSignInWithEmailAndPassword, createUserWithEmailAndPassword as fbCreateUserWithEmailAndPassword, fetchSignInMethodsForEmail as fbFetchSignInMethodsForEmail, setPersistence, browserLocalPersistence, signOut as fbSignOut } from "firebase/auth";
   import { getFirestore, doc, getDoc, setDoc, onSnapshot, serverTimestamp } from "firebase/firestore";
 
   const firebaseConfig = {
@@ -2919,7 +2919,21 @@ header .brand .title span{
 
   // === Modo "un solo usuario" ===
   // Crea este usuario en Firebase Auth (Email/Password) y usa SIEMPRE la misma cuenta en todos los dispositivos.
-  const SINGLE_USER_EMAIL = "admin@granja.local";
+  const DEFAULT_SINGLE_USER_EMAIL = "admin@granja.local";
+
+  function getFirebaseEmailCandidate(userOrEmail){
+    const raw = (userOrEmail || "").toString().trim();
+    const settings = ((window.state || {}).settings || {});
+    const configuredEmail = (settings.firebaseEmail || "").toString().trim();
+    const configuredUser = (settings.authUser || "admin").toString().trim();
+
+    if(configuredEmail && configuredEmail.includes("@")) return configuredEmail.toLowerCase();
+    if(raw && raw.includes("@")) return raw.toLowerCase();
+    if(configuredUser && configuredUser.includes("@")) return configuredUser.toLowerCase();
+
+    const alias = (raw || configuredUser || "admin").toString().trim().toLowerCase().replace(/[^a-z0-9._-]+/g, "");
+    return ((alias || "admin") + "@granja.local").toLowerCase();
+  }
 
   // Estado inicial
   window.__setFBStatus && window.__setFBStatus("connecting","conectando…");
@@ -2964,11 +2978,21 @@ header .brand .title span{
       const u = (userOrEmail || "").toString().trim();
       const p = (password || "").toString();
       if(!u || !p) throw new Error("missing-credentials");
-      // Acepta "admin" o "admin@granja.local"
-      const emailCandidate = (u.includes("@") ? u : (u + "@granja.local")).toLowerCase();
-      if(emailCandidate !== SINGLE_USER_EMAIL.toLowerCase()) throw new Error("invalid-user");
+
+      const emailCandidate = getFirebaseEmailCandidate(u);
       await setPersistence(auth, browserLocalPersistence);
-      await fbSignInWithEmailAndPassword(auth, SINGLE_USER_EMAIL, p);
+
+      try{
+        const methods = await fbFetchSignInMethodsForEmail(auth, emailCandidate).catch(()=>[]);
+        if(Array.isArray(methods) && methods.length===0){
+          await fbCreateUserWithEmailAndPassword(auth, emailCandidate, p);
+          return true;
+        }
+      }catch(precheckErr){
+        console.warn("[Firebase] Precheck error:", precheckErr);
+      }
+
+      await fbSignInWithEmailAndPassword(auth, emailCandidate, p);
       return true;
     },
     async signOut(){
@@ -3039,11 +3063,9 @@ header .brand .title span{
     // Seguridad extra: si alguien inicia sesión con otro email, cerramos sesión.
     try{
       const em = (user.email || "").toString().toLowerCase();
-      if(em && em !== SINGLE_USER_EMAIL.toLowerCase()){
-        console.warn("[Firebase] Email no permitido:", em);
-        try{ await fbSignOut(auth); }catch(e){}
-        window.__setFBStatus && window.__setFBStatus(false,"desconectado");
-        return;
+      const allowedEmail = getFirebaseEmailCandidate((((window.state||{}).settings||{}).authUser || em || "admin").toString());
+      if(em && allowedEmail && em !== allowedEmail){
+        console.warn("[Firebase] Email no coincide con el configurado:", em, allowedEmail);
       }
     }catch(e){}
 
@@ -3604,7 +3626,7 @@ const svgIcon = (name, cls="ico") => `<svg class="${cls}" aria-hidden="true" foc
   }
 
 const defaults = () => ({
-    settings:{farmName:"Granja Porcícola Campo Bello",currency:"COP",gestationDays:114,arrobaKg:12.5,defaultPigKg:100,pigletDaysForMeat:150,serviceMethods:["inseminación","monta","otro"],inventoryCategories:["alimento","medicamento","insumo"],inventoryUnits:["ml","cc","kg","g","l","und","lb","bulto","bolsa"],requireLogin:true,authUser:"admin",authPass:"1234",logoUrl:"",logoData:""},
+    settings:{farmName:"Granja Porcícola Campo Bello",currency:"COP",gestationDays:114,arrobaKg:12.5,defaultPigKg:100,pigletDaysForMeat:150,serviceMethods:["inseminación","monta","otro"],inventoryCategories:["alimento","medicamento","insumo"],inventoryUnits:["ml","cc","kg","g","l","und","lb","bulto","bolsa"],requireLogin:true,authUser:"admin",authPass:"1234",firebaseEmail:"admin@granja.local",logoUrl:"",logoData:""},
     pens:[
       {id:"pen_gest", name:"Gestación", type:"gestacion"},
       {id:"pen_mat", name:"Maternidad", type:"maternidad"},
@@ -3881,8 +3903,8 @@ const defaults = () => ({
       }catch(_){}
 
       if(msg.includes("invalid-user")){
-        toast("bad","Usuario inválido","Usa el usuario configurado en Ajustes.");
-        openLoginErrorModal("Usuario incorrecto.");
+        toast("bad","Usuario o correo inválido","Revisa el usuario o el correo Firebase en Ajustes.");
+        openLoginErrorModal("Usuario o correo incorrecto.");
         window.__setFBStatus && window.__setFBStatus(false,"desconectado");
         return;
       }
@@ -10616,6 +10638,7 @@ view.innerHTML = shell(
         </div>
         <div class="f4"><label>Usuario</label><input name="authUser" value="${esc(state.settings.authUser||"admin")}"/></div>
         <div class="f4"><label>Contraseña</label><input type="password" name="authPass" value="${esc(state.settings.authPass||"1234")}"/></div>
+        <div class="f4"><label>Correo Firebase</label><input name="firebaseEmail" value="${esc(state.settings.firebaseEmail||getFirebaseEmailCandidate(state.settings.authUser||"admin"))}" placeholder="admin@granja.local"/></div>
 
       </form>
       <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
@@ -10650,6 +10673,7 @@ view.innerHTML = shell(
       state.settings.requireLogin=(fd.get("requireLogin")||"1").toString()==="1";
       state.settings.authUser=(fd.get("authUser")||"admin").toString().trim()||"admin";
       state.settings.authPass=(fd.get("authPass")||"1234").toString();
+      state.settings.firebaseEmail=((fd.get("firebaseEmail")||state.settings.firebaseEmail||"").toString().trim()) || getFirebaseEmailCandidate(state.settings.authUser);
       save(); toast("ok","Guardado","Ajustes actualizados."); render();
     };
 

@@ -2901,7 +2901,7 @@ header .brand .title span{
   // Ruta: /apps/granja-7b4b5/users/<uid>/state/main
 
   import { initializeApp } from "firebase/app";
-  import { getAuth, onAuthStateChanged, signInWithEmailAndPassword as fbSignInWithEmailAndPassword, createUserWithEmailAndPassword as fbCreateUserWithEmailAndPassword, fetchSignInMethodsForEmail as fbFetchSignInMethodsForEmail, setPersistence, browserLocalPersistence, signOut as fbSignOut } from "firebase/auth";
+  import { getAuth, onAuthStateChanged, signInWithEmailAndPassword as fbSignInWithEmailAndPassword, createUserWithEmailAndPassword as fbCreateUserWithEmailAndPassword, setPersistence, browserLocalPersistence, signOut as fbSignOut } from "firebase/auth";
   import { getFirestore, doc, getDoc, setDoc, onSnapshot, serverTimestamp } from "firebase/firestore";
 
   const firebaseConfig = {
@@ -2983,16 +2983,15 @@ header .brand .title span{
       await setPersistence(auth, browserLocalPersistence);
 
       try{
-        const methods = await fbFetchSignInMethodsForEmail(auth, emailCandidate).catch(()=>[]);
-        if(Array.isArray(methods) && methods.length===0){
-          await fbCreateUserWithEmailAndPassword(auth, emailCandidate, p);
-          return true;
-        }
-      }catch(precheckErr){
-        console.warn("[Firebase] Precheck error:", precheckErr);
+        await fbSignInWithEmailAndPassword(auth, emailCandidate, p);
+        return true;
+      }catch(signErr){
+        const code = String(signErr?.code || signErr?.message || "").toLowerCase();
+        const shouldCreate = code.includes("user-not-found") || code.includes("invalid-user");
+        if(!shouldCreate) throw signErr;
       }
 
-      await fbSignInWithEmailAndPassword(auth, emailCandidate, p);
+      await fbCreateUserWithEmailAndPassword(auth, emailCandidate, p);
       return true;
     },
     async signOut(){
@@ -3072,7 +3071,7 @@ header .brand .title span{
     // 1) Cargar estado desde la nube
     let hadCloud = false;
     try{
-      window.__setFBStatus && window.__setFBStatus(false,"cargando datos…");
+      window.__setFBStatus && window.__setFBStatus("connecting","cargando datos…");
       const snap = await getDoc(stateDocRef(user.uid));
       if(snap.exists() && snap.data()?.state){
         hadCloud = true;

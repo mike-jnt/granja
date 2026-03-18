@@ -1013,7 +1013,10 @@ input[type="range"]{
 html,body{
   background:#f5f7fb !important;
   color:var(--text) !important;
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+  font-family:'Poppins',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Helvetica Neue',Arial,sans-serif !important;
+}
+*{
+  font-family:'Poppins',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Helvetica Neue',Arial,sans-serif;
 }
 
 main{ padding:18px !important; }
@@ -1331,7 +1334,7 @@ table tr:hover{
   header .search{ flex: 1 1 100%; width: 100%; }
 
   /* Reducir texto de botones con icono (mantener “Nueva venta”) */
-  header .right .btn:not(.primary):not(#newSale) span{ display: none; }
+  header .right .btn:not(.primary):not(#newSale):not(#helpBtn) span{ display: none; }
   header .right .btn{ padding: 9px 10px; border-radius: 14px; }
 
   /* KPIs: 1 por fila */
@@ -1630,6 +1633,91 @@ select{
 }
 select::-ms-expand{display:none}
 
+/* Finanzas / histórico: controles más compactos para que las flechas queden cómodas */
+.finance-period-wrap{
+  display:flex;
+  justify-content:flex-end;
+  margin-bottom:12px;
+}
+.finance-period-card{
+  width:min(100%, 520px);
+  margin:0;
+}
+.finance-period-card .helpHd,
+.finance-hist-card .helpHd{
+  gap:10px 14px;
+}
+.finance-period-card .helpHd{
+  align-items:center;
+}
+.finance-period-card .helpHd > div:first-child{
+  flex:0 1 180px;
+}
+.finance-period-card .helpHd > div:first-child .muted{
+  font-size:12px;
+  line-height:1.35;
+}
+.finance-period-controls,
+.finance-hist-controls{
+  display:flex;
+  gap:6px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+.finance-period-controls{
+  justify-content:flex-end;
+  flex:1 1 auto;
+}
+.finance-hist-controls{
+  justify-content:flex-end;
+}
+.finance-period-controls .btn{
+  width:36px;
+  min-width:36px;
+  height:36px;
+  padding:0 !important;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  line-height:1;
+}
+.finance-period-controls select{
+  min-width:170px !important;
+  width:auto;
+}
+.finance-hist-controls select{
+  min-width:84px !important;
+  width:auto;
+}
+.finance-period-controls .tag,
+.finance-hist-controls .tag{
+  padding:5px 8px;
+  font-size:12px;
+}
+@media (max-width:700px){
+  .finance-period-wrap{
+    display:block;
+  }
+  .finance-period-card{
+    width:100%;
+  }
+  .finance-period-card .helpHd{
+    align-items:flex-start;
+  }
+  .finance-period-card .helpHd > div:first-child{
+    flex:1 1 auto;
+  }
+  .finance-period-controls,
+  .finance-hist-controls{
+    width:100%;
+    justify-content:flex-start;
+  }
+  .finance-period-controls select{
+    min-width:140px !important;
+    flex:1 1 160px;
+  }
+}
+
 /* Modales: más aire entre títulos y campos */
 dialog .dlgHd{padding:14px 16px !important}
 dialog .dlgBd{padding:16px !important}
@@ -1637,6 +1725,763 @@ dialog form.grid2{gap:14px !important}
 dialog label{margin-bottom:8px !important}
 dialog .dlgFt{padding:14px 16px !important}
 
+
+
+/* =========================================================
+   MODO CONTABLE — SOBRIO Y OPERATIVO
+   ========================================================= */
+:root{
+  --bg:#f4f6f8 !important;
+  --panel:#ffffff !important;
+  --panel2:#ffffff !important;
+  --text:#17212b !important;
+  --muted:#617182 !important;
+  --accent:#1f7a4c !important;
+  --accent2:#165f3b !important;
+  --acc:var(--accent) !important;
+  --bad:#b42318 !important;
+  --danger:#b42318 !important;
+  --ok:#1f7a4c !important;
+  --warn:#b7791f !important;
+  --line:rgba(15,23,42,.10) !important;
+  --shadow:none !important;
+}
+body{
+  background:#f4f6f8 !important;
+  color:var(--text) !important;
+}
+header{
+  background:#ffffff !important;
+  border-bottom:1px solid var(--line) !important;
+  box-shadow:none !important;
+  backdrop-filter:none !important;
+}
+.sidebar,
+.brand,
+.search,
+.card,
+.helpCard,
+.wrap,
+.btn,
+.tag,
+.pill,
+input,
+select,
+textarea,
+dialog,
+.toast .t,
+.step,
+.emptyBig{
+  box-shadow:none !important;
+}
+.brand,
+.sidebar,
+.card,
+.helpCard,
+.wrap,
+dialog,
+.toast .t,
+.step,
+.emptyBig{
+  background:#ffffff !important;
+  border-color:var(--line) !important;
+}
+.brand{
+  border-radius:14px !important;
+}
+.logo{
+  background:#eef6f1 !important;
+  color:var(--accent) !important;
+}
+header .brand .title span{
+  color:var(--muted) !important;
+}
+.sideHead{
+  border-bottom:1px solid var(--line) !important;
+  background:#ffffff !important;
+}
+header nav button,
+.nav button,
+.sideNav button{
+  background:#ffffff !important;
+  border:1px solid transparent !important;
+  color:var(--text) !important;
+  border-radius:10px !important;
+}
+header nav button:hover,
+.nav button:hover,
+.sideNav button:hover{
+  background:#f8fafc !important;
+  border-color:var(--line) !important;
+}
+header nav button.active,
+.nav button.active,
+.sideNav button.active{
+  background:#f1f5f9 !important;
+  border-color:rgba(31,122,76,.24) !important;
+  color:var(--text) !important;
+}
+.search,
+input,
+select,
+textarea{
+  background:#ffffff !important;
+  border:1px solid var(--line) !important;
+  color:var(--text) !important;
+}
+.search{
+  min-width:min(340px,70vw) !important;
+}
+.search::placeholder,
+input::placeholder,
+textarea::placeholder{
+  color:#8a97a6 !important;
+}
+.btn{
+  background:#ffffff !important;
+  border:1px solid var(--line) !important;
+  color:var(--text) !important;
+  border-radius:10px !important;
+  font-weight:600 !important;
+}
+.btn:hover{
+  background:#f8fafc !important;
+  border-color:rgba(15,23,42,.16) !important;
+}
+.btn.primary{
+  background:var(--accent) !important;
+  border-color:var(--accent) !important;
+  color:#ffffff !important;
+}
+.btn.primary:hover{
+  background:var(--accent2) !important;
+  border-color:var(--accent2) !important;
+  filter:none !important;
+}
+.btn.danger{
+  background:#ffffff !important;
+  border-color:rgba(180,35,24,.28) !important;
+  color:#7a271a !important;
+}
+.card{
+  border-radius:14px !important;
+}
+.card .hd,
+.dlgHd,
+.dlgFt{
+  background:#ffffff !important;
+  border-color:var(--line) !important;
+}
+.helpCard{
+  background:#ffffff !important;
+  border:1px solid var(--line) !important;
+  border-radius:14px !important;
+  padding:14px !important;
+}
+.helpHd{
+  margin-bottom:8px !important;
+}
+.kpis{
+  gap:8px !important;
+}
+.kpi{
+  background:#ffffff !important;
+  border:1px solid var(--line) !important;
+  border-radius:12px !important;
+  padding:12px !important;
+}
+.kpi:before{display:none !important;}
+.kpi small{
+  color:var(--muted) !important;
+  font-size:11px !important;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+}
+.kpi b{
+  font-size:24px !important;
+  margin-top:8px !important;
+}
+.tablewrap,
+.wrap{
+  border:1px solid var(--line) !important;
+  border-radius:12px !important;
+  background:#ffffff !important;
+}
+.tablewrap table,
+.wrap table,
+.helpCard table{
+  min-width:720px !important;
+}
+th{
+  background:#f8fafc !important;
+  color:#5b6774 !important;
+  font-size:11px !important;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+  border-bottom-color:var(--line) !important;
+}
+td{
+  border-bottom-color:rgba(15,23,42,.06) !important;
+}
+tr:hover td{
+  background:#fafbfc !important;
+}
+.tag,
+.pill{
+  background:#ffffff !important;
+  border:1px solid var(--line) !important;
+  color:#334155 !important;
+  font-family:inherit !important;
+  font-weight:600 !important;
+}
+.tag.ok{background:#edf7f1 !important; border-color:rgba(31,122,76,.20) !important; color:#165f3b !important;}
+.tag.warn{background:#fff7ed !important; border-color:rgba(183,121,31,.22) !important; color:#9a6b17 !important;}
+.tag.bad{background:#fff5f5 !important; border-color:rgba(180,35,24,.18) !important; color:#7a271a !important;}
+.tag.info{background:#f8fafc !important; border-color:rgba(15,23,42,.08) !important; color:#475569 !important;}
+.step{
+  border-radius:12px !important;
+  padding:10px 12px !important;
+}
+.step .ico{
+  background:#f1f5f9 !important;
+  border:1px solid var(--line) !important;
+}
+dialog{
+  background:#ffffff !important;
+  border:1px solid var(--line) !important;
+}
+dialog::backdrop{
+  background:rgba(15,23,42,.18) !important;
+}
+.toast{
+  right:16px !important;
+  bottom:16px !important;
+}
+.toast .t{
+  width:min(340px,calc(100vw - 32px)) !important;
+  border-radius:12px !important;
+}
+.execSplit{
+  display:grid;
+  grid-template-columns:1.1fr .9fr;
+  gap:12px;
+  margin-top:12px;
+}
+.execGrid2{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+  margin-top:12px;
+}
+.execTableCompact th,
+.execTableCompact td{
+  padding:9px 10px !important;
+}
+.execMutedList{
+  display:grid;
+  gap:8px;
+  margin-top:10px;
+}
+.execMutedItem{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  padding:8px 0;
+  border-bottom:1px solid rgba(15,23,42,.06);
+}
+.execMutedItem:last-child{border-bottom:none;}
+.execActions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+@media (max-width:1024px){
+  .execSplit,
+  .execGrid2{grid-template-columns:1fr !important;}
+}
+@media (max-width:720px){
+  .search{min-width:min(260px,86vw) !important;}
+  .kpi{grid-column:span 6 !important;}
+}
+@media (max-width:520px){
+  .kpi{grid-column:span 12 !important;}
+}
+
+
+
+/* =========================================================
+   PATCH v6 — Mantener colores originales en letras del header y botones
+   ========================================================= */
+header,
+header *{
+  color:#ffffff !important;
+}
+
+header .muted,
+header small,
+header .sub,
+header .subtitle,
+header .meta{
+  color:rgba(255,255,255,.82) !important;
+}
+
+header nav button,
+header .btn,
+input.search{
+  color:#ffffff !important;
+}
+
+.btn,
+button.btn,
+a.btn{
+  color:var(--text) !important;
+}
+
+.btn.primary,
+button.btn.primary,
+a.btn.primary{
+  color:#ffffff !important;
+}
+
+
+/* Limpieza de ayudas, sugerencias y explicaciones */
+.hd p,
+.helpHd .muted,
+.cardHd .muted,
+.emptyBig .muted,
+.kpi > .muted,
+.helpCard > .muted{
+  display:none !important;
+}
+
+#helpBtn{
+  display:inline-flex !important;
+}
+
+</style>
+
+<style id="brand-white-green-v2">
+/* =========================================================
+   MARCA BLANCO + VERDE — versión sobria para contabilidad
+   ========================================================= */
+:root{
+  --bg:#f6fbf7 !important;
+  --panel:#ffffff !important;
+  --panel2:#ffffff !important;
+  --text:#173126 !important;
+  --muted:#5f7468 !important;
+  --accent:#1f7a4c !important;
+  --accent2:#165f3b !important;
+  --line:#d8e7dc !important;
+  --shadow:none !important;
+}
+html,body{
+  background:#f6fbf7 !important;
+  color:var(--text) !important;
+}
+body{
+  background-image:none !important;
+}
+header{
+  background:#ffffff !important;
+  border-bottom:1px solid var(--line) !important;
+}
+header .brand,
+.sidebar,
+.card,
+.helpCard,
+.wrap,
+.tablewrap,
+dialog,
+.emptyBig,
+.step,
+.metric,
+.kpi,
+.toast .t{
+  background:#ffffff !important;
+  border-color:var(--line) !important;
+  box-shadow:none !important;
+}
+.sideHead{
+  background:#f7fcf8 !important;
+  border-bottom:1px solid var(--line) !important;
+}
+.logo,
+header .brand .logo{
+  background:#eef7f1 !important;
+  color:var(--accent) !important;
+}
+header .brand .title b,
+.kpi b,
+.metric b,
+.metric .v,
+.money,
+.total,
+.strong-green{
+  color:var(--accent2) !important;
+}
+.nav button,
+.sideNav button,
+header nav button{
+  background:#ffffff !important;
+  color:var(--text) !important;
+  border:1px solid transparent !important;
+}
+.nav button:hover,
+.sideNav button:hover,
+header nav button:hover{
+  background:#f5fbf7 !important;
+  border-color:#d8e7dc !important;
+}
+.nav button.active,
+.sideNav button.active,
+header nav button.active{
+  background:#eef7f1 !important;
+  border-color:#bcd7c4 !important;
+  color:var(--accent2) !important;
+}
+.btn,
+button.btn,
+a.btn{
+  background:#ffffff !important;
+  color:var(--accent2) !important;
+  border:1px solid #cfe2d4 !important;
+  box-shadow:none !important;
+}
+.btn:hover,
+button.btn:hover,
+a.btn:hover{
+  background:#f4faf6 !important;
+  border-color:#b8d3c0 !important;
+}
+.btn.primary,
+button.btn.primary,
+a.btn.primary{
+  background:var(--accent) !important;
+  color:#ffffff !important;
+  border-color:var(--accent) !important;
+}
+.btn.primary:hover,
+button.btn.primary:hover,
+a.btn.primary:hover{
+  background:var(--accent2) !important;
+  border-color:var(--accent2) !important;
+}
+.search,
+input,
+select,
+textarea{
+  background:#ffffff !important;
+  border:1px solid #d8e7dc !important;
+  color:var(--text) !important;
+}
+.search:focus,
+input:focus,
+select:focus,
+textarea:focus{
+  outline:none !important;
+  border-color:#96be9f !important;
+  box-shadow:0 0 0 3px rgba(31,122,76,.08) !important;
+}
+th{
+  background:#f3faf5 !important;
+  color:var(--accent2) !important;
+  border-bottom:1px solid #d8e7dc !important;
+}
+td{
+  border-bottom:1px solid rgba(31,122,76,.08) !important;
+}
+tr:hover td{
+  background:#f8fcf9 !important;
+}
+.tag,
+.pill{
+  background:#ffffff !important;
+  border:1px solid #d8e7dc !important;
+  color:var(--text) !important;
+}
+.tag.ok,
+.pill.ok,
+.tag.info,
+.pill.info{
+  background:#eef7f1 !important;
+  border-color:#c7dccd !important;
+  color:var(--accent2) !important;
+}
+.kpi,
+.metric{
+  background:linear-gradient(180deg,#ffffff 0%,#fbfefc 100%) !important;
+}
+.helpHd,
+.dlgHd,
+.dlgFt{
+  background:#ffffff !important;
+  border-color:var(--line) !important;
+}
+.execMutedItem,
+.metricRow > *,
+.listItem,
+.rowLine{
+  border-color:rgba(31,122,76,.10) !important;
+}
+::-webkit-scrollbar-thumb{
+  background:#c7dccd;
+}
+</style>
+
+
+<style id="final-header-buttons-original-colors">
+/* =========================================================
+   AJUSTE FINAL
+   - Mantiene enfoque contable blanco + verde
+   - Recupera el comportamiento visual del header original
+   - Conserva colores legibles en letras de header y botones
+   ========================================================= */
+:root{
+  --bg:#f6fbf7 !important;
+  --panel:#ffffff !important;
+  --panel2:#ffffff !important;
+  --text:#173126 !important;
+  --muted:#5f7468 !important;
+  --accent:#1f7a4c !important;
+  --accent2:#076146 !important;
+  --line:#d8e7dc !important;
+}
+html,body{
+  background:#f6fbf7 !important;
+  color:var(--text) !important;
+}
+header{
+  background:#076146 !important;
+  border-bottom:1px solid rgba(255,255,255,.18) !important;
+  box-shadow:none !important;
+  backdrop-filter:none !important;
+}
+header,
+header *{
+  color:#ffffff !important;
+}
+header .muted,
+header small,
+header .sub,
+header .subtitle,
+header .meta,
+header .brand .title span{
+  color:rgba(255,255,255,.82) !important;
+}
+header .brand,
+header .search{
+  background:rgba(255,255,255,.08) !important;
+  border-color:rgba(255,255,255,.18) !important;
+}
+header .brand{
+  box-shadow:none !important;
+}
+header .brand .logo,
+header .logo{
+  background-color:#ffffff !important;
+  background-image:var(--farmLogo) !important;
+  background-size:contain !important;
+  background-repeat:no-repeat !important;
+  background-position:center !important;
+  color:transparent !important;
+  border-color:rgba(255,255,255,.35) !important;
+}
+header .brand .title b,
+header .brand .title span{
+  color:#ffffff !important;
+}
+header nav button,
+header .btn,
+header .right .btn{
+  background:rgba(255,255,255,.14) !important;
+  border:1px solid rgba(255,255,255,.22) !important;
+  color:#ffffff !important;
+}
+header nav button:hover,
+header .btn:hover,
+header .right .btn:hover{
+  background:rgba(255,255,255,.22) !important;
+  border-color:rgba(255,255,255,.30) !important;
+}
+header nav button.active{
+  background:rgba(255,255,255,.26) !important;
+  border-color:rgba(255,255,255,.36) !important;
+  color:#ffffff !important;
+}
+header input.search,
+header .search input,
+input.search{
+  background:rgba(255,255,255,.16) !important;
+  border:1px solid rgba(255,255,255,.28) !important;
+  color:#ffffff !important;
+}
+header input.search::placeholder,
+header .search input::placeholder,
+input.search::placeholder{
+  color:rgba(255,255,255,.75) !important;
+}
+header input.search:focus,
+header .search input:focus,
+input.search:focus{
+  background:rgba(255,255,255,.20) !important;
+  border-color:rgba(255,255,255,.38) !important;
+  box-shadow:0 0 0 3px rgba(255,255,255,.16) !important;
+}
+.btn,
+button.btn,
+a.btn{
+  background:#ffffff !important;
+  color:var(--accent2) !important;
+  border:1px solid #cfe2d4 !important;
+}
+.btn:hover,
+button.btn:hover,
+a.btn:hover{
+  background:#f4faf6 !important;
+  border-color:#b8d3c0 !important;
+}
+.btn.primary,
+button.btn.primary,
+a.btn.primary{
+  background:linear-gradient(135deg,#1f7a4c,#076146) !important;
+  color:#ffffff !important;
+  border-color:#076146 !important;
+}
+.btn.primary:hover,
+button.btn.primary:hover,
+a.btn.primary:hover{
+  background:linear-gradient(135deg,#17653f,#06533b) !important;
+  border-color:#06533b !important;
+}
+#loginScreen .loginBtn{
+  background:linear-gradient(135deg,#1f7a4c,#076146) !important;
+  color:#ffffff !important;
+  border-color:#076146 !important;
+}
+#loginScreen .repairBtn{
+  color:var(--accent2) !important;
+}
+</style>
+
+
+<style id="engorde-selector-patch">
+.engSelectedHd{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.engPenSwitch .cardHd{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.engPenButtons{display:flex;flex-wrap:wrap;gap:8px;padding:0 14px 14px}
+.engPenButtons .btn{display:inline-flex;align-items:center;justify-content:space-between;gap:8px;min-width:180px}
+.engPenButtons .btn.primary .engPenBtnMeta{opacity:.95}
+.engPenBtnMeta{font-size:12px;white-space:nowrap}
+.pigGridTable{width:100%;border-collapse:separate;border-spacing:12px;background:transparent}
+.pigGridTable td{border:0;background:transparent;padding:0;vertical-align:top}
+.pigCellTd--empty{background:transparent}
+.pigCellBox{border:1px solid var(--line);border-radius:14px;background:#fff;padding:12px;min-height:220px;display:flex;flex-direction:column;gap:10px}
+.pigCellTop{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.pigCellStats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 10px}
+.pigCellStats > div{display:flex;flex-direction:column;gap:2px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:#fafdf9}
+.pigCellActions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:auto}
+.pigCellActions .btn{width:100%;justify-content:center}
+@media (max-width:1100px){
+  .pigGridTable{border-spacing:8px}
+  .pigCellStats,.pigCellActions{grid-template-columns:1fr}
+}
+@media (max-width:900px){
+  .engPenButtons .btn{min-width:140px}
+  .pigGridTable tbody,.pigGridTable tr{display:block}
+  .pigGridTable tr{margin-bottom:12px}
+  .pigGridTable td{display:block;margin-bottom:8px}
+}
+</style>
+
+
+<style id="sidebar-left-compact-patch">
+/* =========================================================
+   AJUSTE LATERAL
+   - menú más pegado a la izquierda
+   - sidebar más angosto
+   - más ancho útil para tablas
+   ========================================================= */
+@media (min-width: 901px){
+  :root{
+    --gutter: 8px !important;
+    --maxw: none !important;
+  }
+  .layout{
+    max-width:none !important;
+    width:100% !important;
+    margin-left:0 !important;
+    margin-right:0 !important;
+    padding-left:8px !important;
+    padding-right:8px !important;
+    padding-top:10px !important;
+    padding-bottom:10px !important;
+    gap:10px !important;
+    align-items:flex-start !important;
+  }
+  header .bar{
+    max-width:none !important;
+    padding-left:8px !important;
+    padding-right:8px !important;
+  }
+  .sidebar{
+    width:208px !important;
+    flex:0 0 208px !important;
+    border-radius:14px !important;
+    top:76px !important;
+    height:calc(100vh - 88px) !important;
+    margin-left:0 !important;
+  }
+  .sideHead{
+    padding:10px 10px 6px !important;
+  }
+  .sideHead .muted{
+    font-size:11px !important;
+  }
+  .sideNav{
+    padding:8px !important;
+    gap:6px !important;
+  }
+  .sidebar nav button,
+  .sideNav button{
+    padding:9px 10px !important;
+    border-radius:12px !important;
+    font-size:13px !important;
+  }
+  .sidebar nav button span,
+  .sideNav button span{
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  main.content{
+    flex:1 1 auto !important;
+    min-width:0 !important;
+  }
+  #view{
+    width:100% !important;
+  }
+}
+</style>
+
+<style id="logo-font-fix-final">
+/* Ajuste final: logo visible + texto blanco + Poppins global */
+html,body,button,input,select,textarea{
+  font-family:'Poppins',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Helvetica Neue',Arial,sans-serif !important;
+}
+header .brand .logo,
+header .logo{
+  background-color:#ffffff !important;
+  background-image:var(--farmLogo) !important;
+  background-size:contain !important;
+  background-repeat:no-repeat !important;
+  background-position:center !important;
+  color:transparent !important;
+}
+header .brand .title b,
+header .brand .title span{
+  color:#ffffff !important;
+  font-family:'Poppins',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Helvetica Neue',Arial,sans-serif !important;
+}
 </style>
 </head>
 <body>
@@ -1940,10 +2785,10 @@ dialog .dlgFt{padding:14px 16px !important}
     </div>
     <div class="right">
       <input id="q" class="search" placeholder="Buscar: cerda, camada, cliente, insumo, venta…" />
+      <button class="btn" id="helpBtn" title="Ver pasos de uso"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-help" xlink:href="#i-help"></use></svg><span>Ayuda</span></button>
       <button class="btn" id="quick" title="Crear rápido: cerda, servicio, parto, insumo, gasto, tarea"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-plus" xlink:href="#i-plus"></use></svg><span>Rápido</span></button>
-      <button class="btn" id="helpBtn" title="Abrir guía rápida y primeros pasos"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-help" xlink:href="#i-help"></use></svg><span>Ayuda</span></button>
       <button class="btn primary" id="newSale" title="Registrar una venta de lechones">Nueva venta</button>
-            <button class="btn" id="acctBtn" title="Abrir contabilidad">Contabilidad</button>
+            <button type="button" class="btn" id="acctBtn" title="Abrir contabilidad">Contabilidad</button>
 <button class="btn" id="logoutBtn" title="Cerrar sesión"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-logout" xlink:href="#i-logout"></use></svg><span>Salir</span></button>
     </div>
   </div>
@@ -2681,7 +3526,7 @@ const svgIcon = (name, cls="ico") => `<svg class="${cls}" aria-hidden="true" foc
   }
 
 const defaults = () => ({
-    settings:{farmName:"Granja Porcícola Campo Bello",currency:"COP",gestationDays:114,arrobaKg:12.5,defaultPigKg:100,pigletDaysForMeat:150,serviceMethods:["inseminación","monta","otro"],requireLogin:true,authUser:"admin",authPass:"1234",logoUrl:"",logoData:""},
+    settings:{farmName:"Granja Porcícola Campo Bello",currency:"COP",gestationDays:114,arrobaKg:12.5,defaultPigKg:100,pigletDaysForMeat:150,serviceMethods:["inseminación","monta","otro"],inventoryCategories:["alimento","medicamento","insumo"],inventoryUnits:["ml","cc","kg","g","l","und","lb","bulto","bolsa"],requireLogin:true,authUser:"admin",authPass:"1234",logoUrl:"",logoData:""},
     pens:[
       {id:"pen_gest", name:"Gestación", type:"gestacion"},
       {id:"pen_mat", name:"Maternidad", type:"maternidad"},
@@ -3132,147 +3977,97 @@ if(typeof renderNavBadges==="function") renderNavBadges();
   const ONBOARD_KEY = KEY + "_onboard_seen";
 
   function gettingStartedCardHTML(){
-    const steps = [
-      {k:"sows",  icon:"pig", title:"Registra tu primera cerda",  desc:"Crea el registro maestro (Arete/Tag).", done: state.sows.length>0, act:"Crear cerda", on:"sow"},
-      {k:"breed", icon:"dna", title:"Registra un servicio/inseminación", desc:"Así el sistema calcula parto estimado y crea tareas.", done: state.breedings.length>0, act:"Registrar servicio", on:"breeding"},
-      {k:"litt",  icon:"users", title:"Registra un parto (camada)", desc:"Crea camadas y lechones disponibles para vender.", done: (state.farrowings.length>0 || state.batches.length>0), act:"Registrar parto", on:"farrowing"},
-      {k:"inv",   icon:"box", title:"Crea inventario (insumos)", desc:"Alimento/medicamento con mínimos y vencimiento.", done: state.inventory.length>0, act:"Nuevo insumo", on:"inv"},
-      {k:"sales", icon:"card", title:"Registra una venta", desc:"Vende lechones por camada y controla abonos/saldo.", done: state.sales.length>0, act:"Nueva venta", on:"sale"},
-    ];
-    const doneCount = steps.filter(s=>s.done).length;
-    if(doneCount===steps.length) return "";
     return `
-      <div class="helpCard" id="gsCard">
+      <div class="helpCard" style="margin-top:0">
         <div class="helpHd">
           <div>
-            <b>Primeros pasos (para que el sistema “arranque”)</b>
-            <div class="muted">Completa estos pasos y el Dashboard empezará a mostrar alertas, lechones disponibles y cartera.</div>
+            <b>Pasos rápidos</b>
+            <div class="muted">Guía corta para usar la app sin perderte.</div>
           </div>
-          <span class="tag info">${doneCount}/${steps.length} completados</span>
+          <span class="tag info">5 pasos</span>
         </div>
         <div class="steps">
-          ${steps.map(s=>`
-            <div class="step ${s.done?"done":""}">
-              <div class="left">
-                <div class="ico">${s.done?svgIcon("check","ico lg"):svgIcon(s.icon,"ico lg")}</div>
-                <div class="txt">
-                  <b>${esc(s.title)}</b>
-                  <div class="muted">${esc(s.desc)}</div>
-                </div>
-              </div>
-              <div class="right">
-                ${s.done?`<span class="tag ok">Listo</span>`:`
-                  <button class="btn primary" data-gs="${s.on}">${esc(s.act)}</button>
-                  <button class="btn" data-goto="${s.k}">Ir al módulo</button>
-                `}
+          <div class="step done">
+            <div class="left">
+              <div class="ico">${svgIcon("pig","ico")}</div>
+              <div class="txt">
+                <b>1. Registra tu operación base</b>
+                <div class="muted">Crea cerdas, camadas o animales en engorde según lo que vayas a controlar.</div>
               </div>
             </div>
-          `).join("")}
+            <div class="right"><button class="btn" data-helptab="sows">Ir a Cerdas</button></div>
+          </div>
+          <div class="step done">
+            <div class="left">
+              <div class="ico">${svgIcon("dna","ico")}</div>
+              <div class="txt">
+                <b>2. Registra eventos productivos</b>
+                <div class="muted">Guarda servicios, partos y movimientos para que el historial quede completo.</div>
+              </div>
+            </div>
+            <div class="right"><button class="btn" data-helptab="breed">Ir a Reproducción</button></div>
+          </div>
+          <div class="step done">
+            <div class="left">
+              <div class="ico">${svgIcon("box","ico")}</div>
+              <div class="txt">
+                <b>3. Carga inventario e insumos</b>
+                <div class="muted">Agrega compras, existencias y consumos para saber costos reales.</div>
+              </div>
+            </div>
+            <div class="right"><button class="btn" data-helptab="inv">Ir a Inventario</button></div>
+          </div>
+          <div class="step done">
+            <div class="left">
+              <div class="ico">${svgIcon("card","ico")}</div>
+              <div class="txt">
+                <b>4. Registra ventas y cobros</b>
+                <div class="muted">Usa Nueva venta para lechones o entra a Carne para ventas por kilos.</div>
+              </div>
+            </div>
+            <div class="right"><button class="btn" data-helptab="sales">Ir a Ventas</button></div>
+          </div>
+          <div class="step done">
+            <div class="left">
+              <div class="ico">${svgIcon("cash","ico")}</div>
+              <div class="txt">
+                <b>5. Revisa panel y finanzas</b>
+                <div class="muted">Consulta el periodo, flujo neto, cuentas por cobrar y cuentas por pagar.</div>
+              </div>
+            </div>
+            <div class="right"><button class="btn primary" data-helptab="finance">Ir a Finanzas</button></div>
+          </div>
         </div>
-      </div>
-    `;
+      </div>`;
   }
 
   function bindGettingStartedActions(root=document){
-    root.querySelectorAll("button[data-goto]").forEach(b=>{
-      b.onclick=()=>goTab(b.dataset.goto);
-    });
-    root.querySelectorAll("button[data-gs]").forEach(b=>{
-      const t=b.dataset.gs;
-      b.onclick=()=>{
-        dlg.close();
-        if(t==="sow") openSow();
-        if(t==="breeding") openBreeding();
-        if(t==="farrowing") openFarrowing();
-        if(t==="inv") openInvItem();
-        if(t==="sale") openSale();
+    root.querySelectorAll('[data-helptab]').forEach(btn=>{
+      btn.onclick = ()=>{
+        const tab = btn.getAttribute('data-helptab') || 'dashboard';
+        try{ dlg.close(); }catch(e){}
+        goTab(tab);
       };
     });
   }
 
   function openHelp(){
     openModal({
-      title:"Ayuda rápida",
-      sub:"Guía dentro del sistema (sin internet).",
-      body:`
-        <div class="helpCard" style="margin-top:0">
-          <div class="helpHd">
-            <div>
-              <b>¿Por dónde empezar?</b>
-              <div class="muted">Si es tu primera vez, abre “Primeros pasos” y sigue el checklist.</div>
-            </div>
-            <span class="tag info">Tip</span>
-          </div>
-          <div class="actions" style="display:flex;gap:8px;flex-wrap:wrap">
-            <button class="btn primary" id="openOnb"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-book" xlink:href="#i-book"></use></svg><span>Primeros pasos</span></button>
-            <button class="btn" id="goSettings"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-gear" xlink:href="#i-gear"></use></svg><span>Ajustes</span></button>
-            <button class="btn" id="goBackup"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-receipt" xlink:href="#i-receipt"></use></svg><span>Exportar respaldo</span></button>
-          </div>
-        </div>
-
-        <div class="wrap">
-          <table>
-            <thead><tr><th>Acción</th><th>Qué hace</th><th>Atajo</th></tr></thead>
-            <tbody>
-              <tr><td><b><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-plus" xlink:href="#i-plus"></use></svg> Rápido</b></td><td class="muted">Crea cerda/servicio/parto/insumo/gasto/tarea sin cambiar de módulo.</td><td class="mono">Header</td></tr>
-              <tr><td><b>Buscar</b></td><td class="muted">Busca por tag, cliente, insumo, venta… y filtra la vista actual.</td><td class="mono">Caja de búsqueda</td></tr>
-              <tr><td><b>Abonos</b></td><td class="muted">Registra pagos parciales y mira historial de cobros.</td><td class="mono">Ventas → Ver</td></tr>
-              <tr><td><b>Respaldos</b></td><td class="muted">Exporta/Importa JSON para no perder datos (recomendado semanal).</td><td class="mono">Ajustes</td></tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div class="emptyBig">
-          <b>Flujo recomendado</b>
-          <div class="muted">Cerda → Servicio → Parto (Camada) → Venta → Abonos → Finanzas</div>
-        </div>
-      `,
-      footer:`<button class="btn" id="hClose">Cerrar</button>`,
-      onMount:()=>{
-        $("#hClose",dlgFt).onclick=()=>dlg.close();
-        $("#openOnb").onclick=()=>{ dlg.close(); openOnboarding(true); };
-        $("#goSettings").onclick=()=>{ dlg.close(); goTab("settings"); };
-        $("#goBackup").onclick=()=>{ dlg.close(); goTab("settings"); setTimeout(()=>$("#expAll")?.click(), 180); };
-      }
+      title:'Ayuda rápida',
+      sub:'Aquí tienes los pasos principales para usar el sistema.',
+      body:gettingStartedCardHTML(),
+      footer:'<button class="btn primary" id="mClose">Cerrar</button>',
+      onMount:()=>bindGettingStartedActions(dlg)
     });
   }
 
   function openOnboarding(force=false){
-    if(!force && localStorage.getItem(ONBOARD_KEY)==="1") return;
-    const body = `
-      <div class="helpCard" style="margin-top:0">
-        <div class="helpHd">
-          <div>
-            <b>Primeros pasos</b>
-            <div class="muted">Completa el checklist y empieza a registrar tu operación.</div>
-          </div>
-          <span class="tag info">Checklist</span>
-        </div>
-        ${gettingStartedCardHTML() || `<div class="emptyBig"><b>¡Listo!</b><div class="muted">Ya completaste lo básico. Ahora usa Inventario, Ventas y Finanzas día a día.</div></div>`}
-      </div>
-
-      <div class="emptyBig">
-        <b>Consejo importante</b>
-        <div class="muted">Este sistema guarda datos en tu navegador. Haz <b>Exportar JSON</b> cada semana (Ajustes).</div>
-      </div>
-    `;
-    openModal({
-      title:"Primeros pasos",
-      sub:"Checklist dentro del sistema.",
-      body,
-      footer:`<button class="btn" id="obClose">Cerrar</button>
-              <button class="btn" id="obNo">No mostrar de nuevo</button>`,
-      onMount:()=>{
-        $("#obClose",dlgFt).onclick=()=>dlg.close();
-        $("#obNo",dlgFt).onclick=()=>{ localStorage.setItem(ONBOARD_KEY,"1"); dlg.close(); toast("ok","Listo","No volverá a mostrarse automáticamente."); };
-        bindGettingStartedActions(dlgBody);
-      }
-    });
+    return;
   }
 
   function maybeOnboard(){
     const isEmpty = state.sows.length===0 && state.inventory.length===0 && state.sales.length===0 && state.breedings.length===0 && state.farrowings.length===0;
-    if(isEmpty) openOnboarding(false);
+    return;
   }
 
   // ------- Data helpers -------
@@ -3522,6 +4317,8 @@ function normalizeState(){
 
     state.settings = state.settings || defaults().settings;
     state.settings.serviceMethods = state.settings.serviceMethods || ["inseminación","monta","otro"]; 
+    state.settings.inventoryCategories = (state.settings.inventoryCategories || defaults().settings.inventoryCategories || ["alimento","medicamento","insumo"]).map(x=>String(x??"").trim()).filter(Boolean);
+    state.settings.inventoryUnits = (state.settings.inventoryUnits || defaults().settings.inventoryUnits || ["ml","cc","kg","g","l","und","lb","bulto","bolsa"]).map(x=>String(x??"").trim()).filter(Boolean);
   }
 
   function auditState(){
@@ -3950,8 +4747,11 @@ return list;
     auditState();
     state.engorde = state.engorde || {manual:[], movements:[]};
 
-    // Cajones de engorde (ubicación)
-    const engPens = (state.pens||[]).filter(p=>String(p.type||"").toLowerCase()==="engorde" && penAcceptsBatch(p));
+    const engPens = (state.pens||[])
+      .filter(p=>String(p.type||"").toLowerCase()==="engorde" && penAcceptsBatch(p))
+      .slice()
+      .sort((a,b)=>String(a.name||"").localeCompare(String(b.name||"")));
+
     if(!engPenId || !engPens.some(p=>p.id===engPenId)) engPenId = engPens[0]?.id || "";
 
     const engBatchesAll = (state.batches||[])
@@ -3960,186 +4760,123 @@ return list;
         if(num(b.countCurrent)<=0) return false;
         const pid = String(b.penId||"");
         const p = pid ? getPen(pid) : null;
-        // En engorde si está asignado a un cajón de engorde, o si ya está destetado (aunque falte asignación)
         if(p && String(p.type||"").toLowerCase()==="engorde") return true;
         return isGrowoutBatch(b);
       })
       .map(b=>{
-        const sow=get.sow(b.sowId);
+        const sow = get.sow(b.sowId);
         const penId = effectiveEngordePenId(b);
         const pen = penId ? getPen(penId) : null;
         return {b, sow, penId, pen, inv: invested.batch(b.id)};
       });
 
-    // Conteos por cajón
     const counts = new Map();
-    engPens.forEach(p=>counts.set(p.id,{lots:0,heads:0}));
+    engPens.forEach(p=>counts.set(p.id,{lotHeads:0, animalHeads:0, heads:0}));
+
     engBatchesAll.forEach(x=>{
       if(!x.penId) return;
-      if(!counts.has(x.penId)) counts.set(x.penId,{lots:0,heads:0});
+      if(!counts.has(x.penId)) counts.set(x.penId,{lotHeads:0, animalHeads:0, heads:0});
       const c = counts.get(x.penId);
-      c.lots += 1;
-      c.heads += Math.max(0,num(x.b.countCurrent));
-    // Sumar animales individuales (solo engorde)
+      const lotHeads = Math.max(0, num(x.b.countCurrent));
+      c.lotHeads += lotHeads;
+      c.heads += lotHeads;
+    });
+
     (state.animals||[]).forEach(a=>{
       if(!isAnimalActive(a)) return;
       const pid = String(a.penId||"");
       if(!pid) return;
       const p = getPen(pid);
       if(!p || String(p.type||"").toLowerCase()!=="engorde") return;
-      if(!counts.has(pid)) counts.set(pid,{lots:0,heads:0});
+      if(!counts.has(pid)) counts.set(pid,{lotHeads:0, animalHeads:0, heads:0});
       const c = counts.get(pid);
+      c.animalHeads += 1;
       c.heads += 1;
     });
 
-    });
+    const penButtons = engPens.map(p=>{
+      const c = counts.get(p.id) || {lotHeads:0, animalHeads:0, heads:0};
+      const active = p.id===engPenId;
+      return `<button class="btn ${active?"primary":""}" data-eng-pen="${p.id}" aria-pressed="${active?"true":"false"}">
+        <span>${esc(p.name||"Cajón")}</span>
+        <span class="engPenBtnMeta">${fmtNum(c.heads,0)} cerdos</span>
+      </button>`;
+    }).join("") || `<span class="muted">Sin cajones de engorde</span>`;
 
-    const penBtns = engPens.length
-      ? engPens.map(p=>{
-          const c = counts.get(p.id) || {lots:0,heads:0};
-          const active = p.id===engPenId;
-          const cap = (p.capacity!=null && num(p.capacity)>0) ? Math.max(0, Math.floor(num(p.capacity))) : 0;
-          const headsStr = cap ? `${fmtNum(c.heads,0)}/${fmtNum(cap,0)} cabezas` : `${fmtNum(c.heads,0)} cabezas`;
-          return `<button class="btn ${active?"primary":""}" data-eng-pen="${p.id}">${esc(p.name)} <span class="tag info">${fmtNum(c.lots,0)} lotes • ${headsStr}</span></button>`;
-        }).join("")
-      : `<div class="muted">No hay cajones de engorde. Crea uno con <b>Nuevo cajón</b>.</div>`;
+    let selectedPenHtml = `
+      <div class="card" style="margin-top:12px">
+        <div class="cardHd"><b>Engorde</b></div>
+        <div class="wrap"><table><tbody><tr><td class="muted">No hay cajones de engorde.</td></tr></tbody></table></div>
+      </div>`;
 
-    const inPen = engBatchesAll
-      .filter(x=>x.penId===engPenId)
-      .sort((a,b)=>(b.b.weaningDate||b.b.birthDate||"").localeCompare(a.b.weaningDate||a.b.birthDate||""));
+    const selectedPen = engPens.find(p=>p.id===engPenId) || null;
+    if(selectedPen){
+      const p = selectedPen;
+      const c = counts.get(p.id) || {lotHeads:0, animalHeads:0, heads:0};
+      const cap = (p.capacity!=null && num(p.capacity)>0) ? Math.max(0, Math.floor(num(p.capacity))) : 0;
+      const occupancy = cap ? `${fmtNum((c.heads/cap)*100,0)}%` : "—";
 
-    const rowsPen = inPen.map(x=>{
-      const b=x.b; const sow=x.sow;
-      const postWean = b.weaningDate ? daysBetween(b.weaningDate, today()) : null;
-      const assignedPen = b.penId ? getPen(b.penId) : null;
-      const mismatch = (assignedPen && String(assignedPen.type||"").toLowerCase()!=="engorde") ? true : (!assignedPen && isGrowoutBatch(b));
-      return `<tr>
-        <td class="mono">${esc(b.id.slice(-8))}</td>
-        <td>${esc(sow?.tag||sow?.name||"—")}</td>
-        <td class="mono">${esc(b.birthDate||"—")}</td>
-        <td class="mono">${esc(b.weaningDate||"—")}${postWean==null?"":`<div class="muted">${esc(postWean)} días post-destete</div>`}</td>
-        <td class="mono">${esc(b.countCurrent||0)}</td>
-        <td class="mono">${x.inv?fmtCOP(x.inv):"—"}</td>
-        <td>${mismatch?`<span class="tag warn">Revisar cajón</span>`:`<span class="tag ok">OK</span>`}</td>
-        <td class="r">
-          <button class="btn" data-eng-act="go-batch" data-id="${b.id}">Ver</button>
-          <button class="btn" data-eng-act="supply-batch" data-id="${b.id}">Suministrar</button>
-          <button class="btn primary" data-eng-act="sell-batch" data-id="${b.id}">Vender</button>
-          <button class="btn" data-eng-act="move-batch" data-id="${b.id}">Mover cajón</button>
-        </td>
-      </tr>`;
-    }).join("") || `<tr><td colspan="8" class="muted">Sin lechones en este cajón de engorde.</td></tr>`;
+      const inPen = engBatchesAll
+        .filter(x=>x.penId===p.id)
+        .sort((a,b)=>(String(a.sow?.tag||a.sow?.name||a.b.id)).localeCompare(String(b.sow?.tag||b.sow?.name||b.b.id)));
 
-    // Pendientes: destetados pero sin cajón engorde asignado
-    const pending = engBatchesAll.filter(x=>{
-      const b=x.b;
-      const assignedPen = b.penId ? getPen(b.penId) : null;
-      if(!isGrowoutBatch(b)) return false;
-      return !(assignedPen && String(assignedPen.type||"").toLowerCase()==="engorde");
-    });
+      const realAnimals = animalsInPen(p.id)
+        .filter(a=>isAnimalActive(a))
+        .slice()
+        .sort((a,b)=>String(a.name||"").localeCompare(String(b.name||"")));
 
-    const rowsPending = pending
-      .sort((a,b)=>(b.b.weaningDate||"").localeCompare(a.b.weaningDate||""))
-      .map(x=>{
-        const b=x.b; const sow=x.sow;
-        const postWean = b.weaningDate ? daysBetween(b.weaningDate, today()) : null;
-        const cur = b.penId ? getPen(b.penId) : null;
-        return `<tr>
-          <td class="mono">${esc(b.id.slice(-8))}</td>
-          <td>${esc(sow?.tag||sow?.name||"—")}</td>
-          <td class="mono">${esc(b.weaningDate||"—")}${postWean==null?"":`<div class="muted">${esc(postWean)} días</div>`}</td>
-          <td>${cur?`${esc(cur.name)} <span class="muted">(${esc(cur.type)})</span>`:`<span class="muted">Sin asignar</span>`}</td>
-          <td class="r"><button class="btn primary" data-eng-act="assign-eng" data-id="${b.id}">Asignar cajón</button></td>
-        </tr>`;
-      }).join("") || `<tr><td colspan="5" class="muted">No hay pendientes.</td></tr>`;
+      const rows = [];
+      let idx = 1;
 
-    // Sección existente: stock manual para carne (no depende de cajones)
-    const elig = engordeEligibleBatches();
-    const autoHeads = elig.reduce((s,x)=>s + Math.max(0,num(x.b.countCurrent)), 0);
-    const manualHeads = engordeManualTotal();
-    const manualAvailable = engordeTotalHeadsAvailable();
-
-    const rowsManual = (state.engorde.manual||[])
-      .slice()
-      .sort((a,b)=>(b.date||"").localeCompare(a.date||""))
-      .map(x=>`<tr>
-        <td class="mono">${esc((x.id||"").slice(-8))}</td>
-        <td class="mono">${esc(x.date||"—")}</td>
-        <td class="mono">${esc(x.heads||0)}</td>
-        <td class="muted">${esc(x.notes||"")}</td>
-        <td class="r">
-          <button class="btn" data-eng-act="sup-all" data-id="${x.id}">Suministrar</button>
-          <button class="btn danger" data-eng-act="del-manual" data-id="${x.id}">Eliminar</button>
-        </td>
-      </tr>`).join("") || `<tr><td colspan="5" class="muted">Aún no has agregado cerdos manuales.</td></tr>`;
-
-    
-    // Animales individuales en el cajón seleccionado (solo engorde)
-    const anInPen = animalsInPen(engPenId)
-      .slice()
-      .sort((a,b)=>(String(a.name||"")).localeCompare(String(b.name||"")));
-
-    const penAnimalIds = new Set(anInPen.map(a=>String(a.id)));
-    const penBatchIds = new Set(inPen.map(x=>String(x.b.id)));
-
-    const mFrom = today().slice(0,7) + "-01";
-    const mTo = today();
-
-    const movs = (state.stockMovements||[]).filter(m=>String(m.type||"").toLowerCase()==="salida" && inRange(m.date, mFrom, mTo));
-
-    const costPenEng = movs.filter(m=>m.linkedType==="engorde" && String(m.linkedId||"")===String(engPenId)).reduce((s,m)=>s+moveCost(m),0);
-    const costPenAnimals = movs.filter(m=>m.linkedType==="animal" && penAnimalIds.has(String(m.linkedId||""))).reduce((s,m)=>s+moveCost(m),0);
-    const costPenBatches = movs.filter(m=>m.linkedType==="batch" && penBatchIds.has(String(m.linkedId||""))).reduce((s,m)=>s+moveCost(m),0);
-    const costPen = costPenEng + costPenAnimals + costPenBatches;
-
-    const revPen = (state.meatSales||[])
-      .filter(s=>inRange(s.date, mFrom, mTo) && String(s.penId||"")===String(engPenId))
-      .reduce((s,x)=>s+Math.max(0,num(x.total||0)),0);
-
-    const costAll = movs.filter(m=>{
-      if(m.linkedType==="engorde") return true; // incluye "all" y por cajón
-      if(m.linkedType==="animal"){
-        const a=get.animal(m.linkedId);
-        const p=getPen(a?.penId);
-        return p && String(p.type||"").toLowerCase()==="engorde";
-      }
-      if(m.linkedType==="batch"){
-        const b=get.batch(m.linkedId);
-        if(!b) return false;
-        const pid = effectiveEngordePenId(b);
-        const p=getPen(pid);
-        return p && String(p.type||"").toLowerCase()==="engorde";
-      }
-      return false;
-    }).reduce((s,m)=>s+moveCost(m),0);
-
-    const revAll = (state.meatSales||[])
-      .filter(s=>inRange(s.date, mFrom, mTo))
-      .reduce((s,x)=>s+Math.max(0,num(x.total||0)),0);
-
-    const pigCards = anInPen.length
-      ? `<div class="pigGrid">` + anInPen.map(a=>{
-          const nm = a.name ? a.name : "(sin nombre)";
-          const w = Math.max(0, num(a.weightKg));
-          const age = a.createdAt ? daysBetween(String(a.createdAt).slice(0,10), today()) : null;
-          const sick = !!a.sick;
-          return `<div class="pigCard">
-            <div class="pigTop">
-              <div>
-                <div class="pigName">${esc(nm)}</div>
-                <div class="pigSub muted">${esc(getPen(a.penId)?.name||"")} • ${age==null?"—":esc(age+" días")}</div>
+      inPen.forEach(x=>{
+        const b = x.b;
+        const sowLabel = x.sow?.tag || x.sow?.name || `Lote ${String(b.id||"").slice(-8)}`;
+        const heads = Math.max(0, Math.floor(num(b.countCurrent)));
+        const unitCost = heads ? (Math.max(0, num(x.inv||0)) / heads) : 0;
+        const age = b.birthDate ? daysBetween(b.birthDate, today()) : (b.weaningDate ? daysBetween(b.weaningDate, today()) : null);
+        const inDate = b.weaningDate || b.birthDate || "";
+        for(let i=1;i<=heads;i++){
+          rows.push(`<tr>
+            <td class="mono">${idx++}</td>
+            <td><b>${esc(sowLabel)}</b><div class="muted mono">${esc(String(b.id||"").slice(-8))} · #${i}</div></td>
+            <td>Lote</td>
+            <td class="mono">${esc(inDate||"—")}</td>
+            <td class="mono">${age==null?"—":esc(age)+" d"}</td>
+            <td class="mono">—</td>
+            <td><span class="tag">Lote</span></td>
+            <td class="mono">${fmtCOP(unitCost)}</td>
+            <td class="mono">—</td>
+            <td class="mono">—</td>
+            <td class="r">
+              <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">
+                <button class="btn" data-eng-act="go-batch" data-id="${b.id}">Ver lote</button>
+                <button class="btn" data-eng-act="supply-batch" data-id="${b.id}">Suministrar</button>
+                <button class="btn" data-eng-act="move-batch" data-id="${b.id}">Mover</button>
               </div>
-              <div style="text-align:right">
-                <span class="tag info">${w?fmtNum(w,1)+" kg":"—"}</span>
-                ${sick?`<span class="tag bad" style="margin-left:6px">Enfermo</span>`:""}
-              </div>
-            </div>
-            <div class="pigMeta">
-              <span class="tag info">Costos: ${fmtCOP(animalCost(a.id))}</span>
-              <span class="tag info">Ingresos: ${fmtCOP(animalRevenue(a.id))}</span>
-              <span class="tag ${ (animalRevenue(a.id)-animalCost(a.id))>=0 ? "ok" : "warn"}">Rend.: ${fmtCOP(animalRevenue(a.id)-animalCost(a.id))}</span>
-            </div>
-            <div class="pigActions">
+            </td>
+          </tr>`);
+        }
+      });
+
+      realAnimals.forEach(a=>{
+        const w = Math.max(0, num(a.weightKg));
+        const age = a.createdAt ? daysBetween(String(a.createdAt).slice(0,10), today()) : null;
+        const cost = animalCost(a.id);
+        const rev = animalRevenue(a.id);
+        const margin = rev - cost;
+        rows.push(`<tr>
+          <td class="mono">${idx++}</td>
+          <td><b>${esc(a.name||"(sin nombre)")}</b><div class="muted mono">${esc(String(a.id||"").slice(-8))}</div></td>
+          <td>Individual</td>
+          <td class="mono">${esc(a.createdAt?String(a.createdAt).slice(0,10):"—")}</td>
+          <td class="mono">${age==null?"—":esc(age)+" d"}</td>
+          <td class="mono">${w?fmtNum(w,1)+" kg":"—"}</td>
+          <td>${a.sick?'<span class="tag bad">Enfermo</span>':'<span class="tag ok">Normal</span>'}</td>
+          <td class="mono">${fmtCOP(cost)}</td>
+          <td class="mono">${fmtCOP(rev)}</td>
+          <td class="mono"><b class="${margin>=0?"good":"bad"}">${fmtCOP(margin)}</b></td>
+          <td class="r">
+            <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">
               <button class="btn" data-eng-an-act="view" data-id="${a.id}">Ver</button>
               <button class="btn" data-eng-an-act="weight" data-id="${a.id}">Peso</button>
               <button class="btn" data-eng-an-act="health" data-id="${a.id}">Salud</button>
@@ -4147,136 +4884,78 @@ return list;
               <button class="btn" data-eng-an-act="move" data-id="${a.id}">Mover</button>
               <button class="btn danger" data-eng-an-act="death" data-id="${a.id}">Baja</button>
             </div>
-          </div>`;
-        }).join("") + `</div>`
-      : `<div class="emptyBig"><b>Sin cerdos individuales</b><div class="muted">Usa <b>Agregar cerdo</b> para registrar cerdos en este cajón.</div></div>`;
+          </td>
+        </tr>`);
+      });
 
-    const animalsCard = `
-      <div class="card" style="margin-top:12px">
-        <div class="cardHd" style="display:flex;justify-content:space-between;align-items:center;gap:12px">
-          <div>
-            <b>Cerdos en el cajón (tarjetas)</b>
-            <div class="muted">Peso, edad, salud, bajas y rendimiento por cerdo (solo Engorde).</div>
-          </div>
-          <div class="miniRow" style="gap:8px">
-            <button class="btn primary" data-eng-an-act="add">Agregar cerdo</button>
-            <button class="btn" data-eng-an-act="move-all" ${anInPen.length?"" :"disabled"}>Mover todos</button>
-          </div>
-        </div>
+      const rowsHtml = rows.join("") || `<tr><td colspan="11" class="muted">No hay cerdos en este cajón.</td></tr>`;
 
-        <div class="metricRow">
-          <div class="metric">
-            <b>Gastos (cajón)</b>
-            <div class="val">${fmtCOP(costPen)}</div>
-            <div class="muted">${esc(mFrom)} a ${esc(mTo)}</div>
+      selectedPenHtml = `
+        <div class="card" style="margin-top:12px">
+          <div class="cardHd engSelectedHd">
+            <div><b>${esc(p.name||"Cajón de engorde")}</b></div>
+            <div class="miniRow" style="gap:8px;align-items:center">
+              <span class="tag">Total: ${fmtNum(c.heads,0)}</span>
+              <span class="tag">Capacidad: ${cap?fmtNum(cap,0):"—"}</span>
+              <span class="tag">Ocupación: ${occupancy}</span>
+              <button class="btn primary" data-eng-an-act="add" data-pen="${p.id}">Agregar cerdo</button>
+            </div>
           </div>
-          <div class="metric">
-            <b>Ventas (cajón)</b>
-            <div class="val">${fmtCOP(revPen)}</div>
-            <div class="muted">${esc(mFrom)} a ${esc(mTo)}</div>
+          <div class="wrap" style="margin-top:8px">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Cerdo</th>
+                  <th>Tipo</th>
+                  <th>Ingreso</th>
+                  <th>Edad</th>
+                  <th>Peso</th>
+                  <th>Estado</th>
+                  <th>Costo</th>
+                  <th>Ingreso</th>
+                  <th>Resultado</th>
+                  <th class="r">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>${rowsHtml}</tbody>
+            </table>
           </div>
-          <div class="metric">
-            <b>Ganancia estimada</b>
-            <div class="val ${ (revPen-costPen)>=0 ? "good" : "bad"}">${fmtCOP(revPen-costPen)}</div>
-            <div class="muted">${esc(mFrom)} a ${esc(mTo)}</div>
-          </div>
-          <div class="metric">
-            <b>Engorde total (ventas - gastos)</b>
-            <div class="val ${ (revAll-costAll)>=0 ? "good" : "bad"}">${fmtCOP(revAll-costAll)}</div>
-            <div class="muted">Incluye “Todo engorde”</div>
-          </div>
-        </div>
+        </div>`;
+    }
 
-        ${pigCards}
-      </div>
-    `;
-const actions = `
-      <button class="btn primary" id="engAdd"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-plus" xlink:href="#i-plus"></use></svg><span>Agregar cerdos</span></button>
+    const actions = `
+      <button class="btn primary" id="engAdd"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-plus" xlink:href="#i-plus"></use></svg><span>Agregar cerdo</span></button>
       <button class="btn" id="engPenAdd"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-plus" xlink:href="#i-plus"></use></svg><span>Nuevo cajón</span></button>
-      <button class="btn" id="engSupAll"><svg class="ico" aria-hidden="true" focusable="false"><use xlink:href="#i-box"></use></svg><span>Suministrar a engorde</span></button>
     `;
 
     const body = `
-      <div class="helpCard">
-        <div class="helpHd">
-          <div>
-            <b>Cajones de Engorde (ubicación)</b>
-            <div class="muted">Organiza los lechones destetados por cajón. Puedes mover lotes entre cajones.</div>
-          </div>
-          <span class="tag info">${fmtNum(engBatchesAll.reduce((s,x)=>s+Math.max(0,num(x.b.countCurrent)),0),0)} cabezas</span>
-        </div>
-        <div class="miniRow" style="margin-top:10px;flex-wrap:wrap;gap:8px">${penBtns}</div>
+      <div class="engPenSwitch card" style="margin-top:12px">
+        <div class="engPenButtons">${penButtons}</div>
       </div>
-
-      <div class="card" style="margin-top:12px">
-        <div class="cardHd"><b>Lechones en el cajón seleccionado</b><div class="muted">Cajón: <b>${esc(getPen(engPenId)?.name||"—")}</b></div></div>
-        <div class="wrap">
-          <table>
-            <thead><tr><th>Lote</th><th>Cerda</th><th>Nac.</th><th>Destete</th><th>Stock</th><th>Inversión</th><th>Estado</th><th class="r">Acciones</th></tr></thead>
-            <tbody>${rowsPen}</tbody>
-          </table>
-        </div>
-      </div>
-
-      ${animalsCard}
-
-      <div class="card" style="margin-top:12px">
-        <div class="cardHd"><b>Pendientes de asignar cajón de engorde</b><div class="muted">Destetados pero aún no están en un cajón de engorde.</div></div>
-        <div class="wrap">
-          <table>
-            <thead><tr><th>Lote</th><th>Cerda</th><th>Destete</th><th>Cajón actual</th><th class="r">Acción</th></tr></thead>
-            <tbody>${rowsPending}</tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="helpCard" style="margin-top:12px">
-        <div class="helpHd">
-          <div>
-            <b>Stock para Carne (referencia)</b>
-            <div class="muted">Sugerido por edad: camadas con más de ${pigletDaysForMeat()} días. Esto se usa como ayuda para Carne (Kg).</div>
-          </div>
-          <span class="tag info">Referencia: ${fmtNum(pigletDaysForMeat(),0)} días</span>
-        </div>
-        <div class="kpis" style="margin-top:10px">
-          ${kpi("Elegibles por edad", fmtNum(autoHeads,0)+" cabezas", autoHeads>0?"info":"ok")}
-          ${kpi("Engorde manual (registrado)", fmtNum(manualHeads,0)+" cabezas", manualHeads>0?"info":"ok")}
-          ${kpi("Total disponible (engorde)", fmtNum(manualAvailable,0)+" cabezas", manualAvailable>0?"ok":"warn")}
-        </div>
-      </div>
-
-      <div class="card" style="margin-top:12px">
-        <div class="cardHd"><b>Engorde manual (stock para carne)</b><div class="muted">Registra cerdos adicionales que tengas para venta como carne (sin afectar camadas).</div></div>
-        <div class="wrap">
-          <table>
-            <thead><tr><th>ID</th><th>Fecha</th><th>Cabezas</th><th>Notas</th><th class="r">Acciones</th></tr></thead>
-            <tbody>${rowsManual}</tbody>
-          </table>
-        </div>
-      </div>
+      ${selectedPenHtml}
     `;
 
-    view.innerHTML = shell(
-      "Engorde",
-      "Ubicación por cajones + referencia para carne.",
-      actions,
-      body
-    );
+    view.innerHTML = shell("Engorde", "", actions, body);
 
-    const add=$("#engAdd"); if(add) add.onclick=()=>openEngordeAdd();
-    const penAdd=$("#engPenAdd"); if(penAdd) penAdd.onclick=()=>openPen({type:"engorde", onCreated:(p)=>{ engPenId=p.id; }});
-    const sup=$("#engSupAll"); if(sup) sup.onclick=()=>openSupplyFor("engorde","all");
+    const add = $("#engAdd"); if(add) add.onclick = ()=>openEngordeAdd();
+    const penAdd = $("#engPenAdd"); if(penAdd) penAdd.onclick = ()=>openPen({type:"engorde", onCreated:(p)=>{ engPenId = p.id; }});
 
-    view.onclick=(e)=>{
-      const pb=e.target.closest("button[data-eng-pen]");
-      if(pb){ engPenId = pb.dataset.engPen; render(); return; }
+    view.onclick = (e)=>{
+      const penBtn = e.target.closest("button[data-eng-pen]");
+      if(penBtn){
+        engPenId = penBtn.dataset.engPen || "";
+        renderEngorde();
+        return;
+      }
 
       const an = e.target.closest("button[data-eng-an-act]");
       if(an){
         const act = an.dataset.engAnAct;
         const id = an.dataset.id;
-        if(act==="add"){ openAddEngordeAnimal(engPenId); return; }
-        if(act==="move-all"){ openMoveAnimalsInPen(engPenId); return; }
+        const pen = an.dataset.pen || engPenId;
+        if(act==="add"){ openAddEngordeAnimal(pen); return; }
+        if(act==="move-all"){ openMoveAnimalsInPen(pen); return; }
         if(act==="view"){ openAnimalModal(id); return; }
         if(act==="weight"){ openAnimalWeight(id); return; }
         if(act==="health"){ openAnimalHealth(id); return; }
@@ -4285,17 +4964,14 @@ const actions = `
         if(act==="death"){ openAnimalDeath(id); return; }
       }
 
-
-      const b=e.target.closest("button[data-eng-act]"); if(!b) return;
-      const id=b.dataset.id, act=b.dataset.engAct;
+      const b = e.target.closest("button[data-eng-act]"); if(!b) return;
+      const id = b.dataset.id, act = b.dataset.engAct;
 
       if(act==="go-batch"){ openBatch(id); return; }
       if(act==="supply-batch"){ openSupplyFor("batch", id); return; }
       if(act==="sell-batch"){ openSale(null,{batchId:id}); return; }
       if(act==="move-batch"){ openMoveToPen("batch", id); return; }
-
       if(act==="assign-eng"){ openAssignEngordePen(id); return; }
-
       if(act==="sup-all"){ openSupplyFor("engorde","all"); return; }
       if(act==="del-manual"){ delEngordeManual(id); return; }
     };
@@ -4612,16 +5288,16 @@ const actions = `
   }
 // ------- UI Nav -------
   const tabs = [
-    ["dashboard","Dashboard","dashboard"],
+    ["dashboard","Panel","dashboard"],
+    ["finance","Finanzas","cash"],
+    ["sales","Ventas","card"],
+    ["inv","Inventario","box"],
+    ["tasks","Tareas","clock"],
     ["sows","Cerdas","pig"],
-    ["meat","Carne (Kg)","weight"],
-    ["engorde","Engorde","pig"],
     ["breed","Reproducción","dna"],
     ["litters","Camadas","users"],
-    ["inv","Inventario","box"],
-    ["sales","Ventas","card"],
-    ["finance","Finanzas","cash"],
-    ["tasks","Tareas","clock"],
+    ["engorde","Engorde","pig"],
+    ["meat","Carne (Kg)","weight"],
     ["settings","Ajustes","gear"]
   ];
   let current="dashboard", q="";
@@ -4648,7 +5324,7 @@ const actions = `
     return `<div class="grid">
       <div class="card">
         <div class="hd">
-          <div><h2>${esc(title)}</h2><p>${esc(sub||"")}</p></div>
+          <div><h2>${esc(title)}</h2></div>
           <div style="display:flex;gap:8px;flex-wrap:wrap">${actions||""}</div>
         </div>
         <div class="bd">${body||""}</div>
@@ -4674,64 +5350,98 @@ const actions = `
 
   // ------- Dashboard -------
   function renderDashboard(){
-    const preg=pregnantBreedings();
-    const upcoming=preg.map(b=>({b,s:get.sow(b.sowId),inDays:b.expectedFarrowing?daysBetween(today(),b.expectedFarrowing):null}))
-      .filter(x=>x.s && x.inDays!==null && x.inDays>=0 && x.inDays<=14).sort((a,b)=>a.inDays-b.inDays);
-
-        const months = getAvailableMonths();
+    const months = getAvailableMonths();
     const curM = today().slice(0,7);
     if(!dashMonth) dashMonth = curM;
     if(dashMonth && !months.includes(dashMonth)) months.unshift(dashMonth);
     const monthSel = dashMonth || curM;
 
-    const inc=sumTx("ingreso", monthSel), exp=sumTx("gasto", monthSel), net=inc-exp;
-    const alerts=[];
-    upcoming.forEach(x=>alerts.push({t:"warn",a:"Parto cercano",d:`${x.s.tag||x.s.name||"cerda"} • ${x.b.expectedFarrowing} (${x.inDays} días)`}));
-    lowStock().slice(0,6).forEach(i=>alerts.push({t:"bad",a:"Stock bajo",d:`${i.name} • ${i.qty} ${i.unit} (mín ${i.minQty||0})`}));
-    receivables().slice(0,6).forEach(x=>alerts.push({t:"warn",a:"Cobro pendiente",d:`${get.client(x.s.clientId)?.name||"cliente"} • ${fmtCOP(x.pending)} • ${x.s.date}`}));
+    const inc = sumTx("ingreso", monthSel);
+    const exp = sumTx("gasto", monthSel);
+    const net = inc - exp;
 
+    const recs = receivables().slice().sort((a,b)=>b.pending-a.pending);
+    const recTotal = recs.reduce((s,x)=>s + Math.max(0, num(x.pending)), 0);
 
+    const payOpen = (state.payables||[])
+      .filter(p=>(p.status||"abierto")!=="cerrado")
+      .slice()
+      .sort((a,b)=>String(a.dueDate||a.date||"").localeCompare(String(b.dueDate||b.date||"")));
+    const payPending = payOpen.reduce((s,p)=>s + Math.max(0, num(p.total) - num(p.paid)), 0);
+    const payOverdue = payOpen.filter(p=>p.dueDate && daysBetween(p.dueDate, today())>0);
+
+    const inventoryValue = (state.inventory||[]).reduce((s,i)=>s + (Math.max(0, num(i.qty)) * Math.max(0, num(i.unitCost))), 0);
+
+    const tasksPending = (state.tasks||[]).filter(t=>(t.status||"pendiente")!=="hecha");
+    const tasksOverdue = tasksPending.filter(t=>t.dueDate && daysBetween(t.dueDate, today())>0);
+    const tasksSoon = tasksPending.filter(t=>{
+      const d = daysBetween(today(), t.dueDate);
+      return t.dueDate && d!==null && d>=0 && d<=7;
+    });
+
+    const warnings = getWarnings().slice(0,8);
     const monthOps = months.map(mm=>`<option value="${esc(mm)}" ${mm===monthSel?"selected":""}>${esc(mm)}</option>`).join("");
-    const periodCard = `
+
+    const controlRows = [
+      {label:"Cobros pendientes", value:fmtCOP(recTotal), meta:`${recs.length} venta(s) con saldo`, tag: recTotal>0 ? "warn" : "ok", action:"sales", cta:"Ver cartera"},
+      {label:"Cuentas por pagar", value:fmtCOP(payPending), meta:`${payOpen.length} compra(s) abiertas`, tag: payPending>0 ? "bad" : "ok", action:"finance", cta:"Ver proveedores"},
+      {label:"Tareas vencidas", value:fmtNum(tasksOverdue.length,0), meta:`${fmtNum(tasksSoon.length,0)} por vencer en 7 días`, tag: tasksOverdue.length ? "bad" : (tasksSoon.length ? "warn" : "ok"), action:"tasks", cta:"Ver agenda"},
+      {label:"Inventario valorizado", value:fmtCOP(inventoryValue), meta:`${fmtNum((state.inventory||[]).length,0)} insumo(s) activos`, tag:"info", action:"inv", cta:"Ver inventario"}
+    ];
+
+    const controlHTML = `
       <div class="helpCard" style="margin-top:12px">
         <div class="helpHd">
           <div>
-            <b>Histórico por mes</b>
-            <div class="muted">Cambia el mes para ver información de meses/años anteriores (no se borra nada).</div>
+            <b>Control del período</b>
+            <div class="muted">Lectura rápida para tesorería, cartera y seguimiento diario.</div>
           </div>
-          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-            <button class="btn" id="dashPrevM" type="button">◀</button>
-            <select id="dashMonthSel" style="min-width:140px">${monthOps}</select>
-            <button class="btn" id="dashNextM" type="button">▶</button>
-            <button class="btn" id="dashGoHist" type="button">${svgIcon("cash","ico")}<span>Ver en Finanzas</span></button>
-          </div>
+          <button class="btn" id="dashGoFinance">Ir a Finanzas</button>
         </div>
-      </div>
-    `;
-    const kpis = `<div class="kpis">
-      <div class="kpi"><small>Cerdas</small><b>${state.sows.length}</b><div class="muted mono">Registro maestro</div></div>
-      <div class="kpi"><small>Gestaciones abiertas</small><b>${preg.length}</b><div class="muted mono">Servicios sin parto</div></div>
-      <div class="kpi"><small>Lechones disponibles</small><b>${pigletsAvailable()}</b><div class="muted mono">Suma camadas</div></div>
-      <div class="kpi"><small>Flujo (${esc(monthSel)})</small><b>${fmtCOP(net)}</b><div class="muted mono">${fmtCOP(inc)} - ${fmtCOP(exp)}</div></div>
-    </div>`;
+        <div class="wrap">
+          <table class="execTableCompact">
+            <thead><tr><th>Control</th><th>Valor</th><th>Detalle</th><th>Acción</th></tr></thead>
+            <tbody>
+              ${controlRows.map(r=>`<tr>
+                <td><b>${esc(r.label)}</b></td>
+                <td class="mono">${esc(r.value)}</td>
+                <td><span class="tag ${r.tag}">${esc(r.meta)}</span></td>
+                <td><button class="btn" data-go="${r.action}">${esc(r.cta)}</button></td>
+              </tr>`).join("")}
+            </tbody>
+          </table>
+        </div>
+      </div>`;
 
-    const alertsHTML = alerts.length ? `<div class="wrap" style="margin-top:12px">
-      <table><thead><tr><th>Tipo</th><th>Detalle</th><th class="mono">Acción</th></tr></thead>
-      <tbody>${alerts.map(x=>`<tr>
-        <td><span class="tag ${x.t}">${x.t==="bad"?"Crítico":x.t==="warn"?"Atención":"Info"}</span></td>
-        <td><b>${esc(x.a)}</b><div class="muted">${esc(x.d)}</div></td>
-        <td>
-          ${x.a==="Stock bajo"?`<button class="btn" data-go="inv">Inventario</button>`:
-            x.a==="Cobro pendiente"?`<button class="btn" data-go="sales">Ventas</button>`:
-            `<button class="btn" data-go="breed">Reproducción</button>`}
-        </td>
-      </tr>`).join("")}</tbody></table></div>` : `<div class="muted" style="margin-top:10px">Sin alertas por ahora.</div>`;
+    const receivableRows = recs.slice(0,6).map(x=>{
+      const c = get.client(x.s.clientId);
+      const st = num(x.s.paidAmount)>0 ? '<span class="tag warn">Parcial</span>' : '<span class="tag bad">Pendiente</span>';
+      return `<tr>
+        <td class="mono">${esc(x.s.date||"—")}</td>
+        <td><b>${esc(c?.name||"Cliente")}</b><div class="muted">${esc(x.s.notes||"")}</div></td>
+        <td class="mono">${fmtCOP(x.s.total)}</td>
+        <td class="mono">${fmtCOP(x.pending)}</td>
+        <td>${st}</td>
+      </tr>`;
+    }).join("");
 
-    const gs = gettingStartedCardHTML();
-    const wp = renderWarningsPanel();
+    const payableRows = payOpen.slice(0,6).map(p=>{
+      const rem = Math.max(0, num(p.total) - num(p.paid));
+      const overdue = p.dueDate && daysBetween(p.dueDate, today())>0;
+      return `<tr>
+        <td class="mono">${esc(p.dueDate||p.date||"—")}</td>
+        <td><b>${esc(p.itemName||"Compra")}</b><div class="muted">${esc(p.supplier||"Proveedor")}</div></td>
+        <td class="mono">${fmtCOP(rem)}</td>
+        <td>${overdue ? '<span class="tag bad">Vencida</span>' : '<span class="tag warn">Abierta</span>'}</td>
+      </tr>`;
+    }).join("");
 
+    const warningsRows = warnings.map(w=>`<tr>
+      <td><span class="tag ${w.level==="bad"?"bad":(w.level==="warn"?"warn":"info")}">${w.level==="bad"?"Crítico":(w.level==="warn"?"Atención":"Info")}</span></td>
+      <td><b>${esc(w.title)}</b><div class="muted">${esc(w.detail||"")}</div></td>
+      <td><button class="btn" data-go="${esc(w.tab||"dashboard")}">Revisar</button></td>
+    </tr>`).join("");
 
-    // Resumen por línea (periodo seleccionado)
     const month = monthSel;
     const mFrom = month + "-01";
     const mTo = (month===curM) ? today() : monthEndISO(month);
@@ -4759,71 +5469,127 @@ const actions = `
       <div class="helpCard" style="margin-top:12px">
         <div class="helpHd">
           <div>
-            <b>Resumen por línea (${esc(month)})</b>
+            <b>Resultado por línea (${esc(month)})</b>
             <div class="muted">Rango: <span class="mono">${esc(mFrom)}</span> → <span class="mono">${esc(mTo)}</span></div>
           </div>
           <button class="btn" id="dashLineReport">Ver informe</button>
         </div>
-        <div class="wrap" style="margin-top:10px"><table>
+        <div class="wrap"><table class="execTableCompact">
           <thead><tr><th>Línea</th><th>Vendido</th><th>Insumos</th><th>Resultado</th><th>Caja neta</th></tr></thead>
           <tbody>${lineRows}</tbody>
         </table></div>
-        <div class="muted" style="margin-top:8px;font-size:12px">“Resultado” = vendido − consumo de insumos. “Caja neta” = ingresos − gastos registrados.</div>
-      </div>
-    `;
+        <div class="muted" style="margin-top:8px;font-size:12px">“Resultado” = vendido − insumos. “Caja neta” = ingresos − gastos registrados.</div>
+      </div>`;
 
     view.innerHTML = shell(
-      "Dashboard",
-      "Vista rápida con métricas y alertas automáticas.",
-      `<button class="btn" id="dashFeedSows"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-utensils" xlink:href="#i-utensils"></use></svg><span>Alimentar cerdas</span></button>
-       <button class="btn" id="dashFeedBatches"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-utensils" xlink:href="#i-utensils"></use></svg><span>Alimentar camadas</span></button>
-       <button class="btn primary" id="addSow"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-plus" xlink:href="#i-plus"></use></svg><span>Nueva cerda</span></button>
-       <button class="btn" id="addInv"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-box" xlink:href="#i-box"></use></svg><span>Nuevo insumo</span></button>
-       ${state.inventory.length?`<button class="btn" id="dashIn"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-plus" xlink:href="#i-plus"></use></svg><span>Entrada</span></button>
-       <button class="btn" id="dashOut"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-minus" xlink:href="#i-minus"></use></svg><span>Salida</span></button>`:""}
-       <button class="btn" id="addBreeding"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-dna" xlink:href="#i-dna"></use></svg><span>Servicio</span></button>
-       <button class="btn" id="addFarrowing"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-users" xlink:href="#i-users"></use></svg><span>Parto</span></button>
-       <button class="btn" id="startGuide"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-book" xlink:href="#i-book"></use></svg><span>Primeros pasos</span></button>`,
-      gs + wp + periodCard + kpis + lineCard + alertsHTML
+      "Panel ejecutivo",
+      "Resumen financiero, cartera, proveedores y pendientes del período.",
+      `<div class="execActions">
+        <button class="btn primary" id="dashIncome">Nuevo ingreso</button>
+        <button class="btn" id="dashExpense">Nuevo gasto</button>
+        <button class="btn" id="dashSales">Ventas</button>
+        <button class="btn" id="dashInventory">Inventario</button>
+      </div>`,
+      `
+      <div class="finance-period-wrap">
+        <div class="helpCard finance-period-card" style="margin-top:0">
+          <div class="helpHd">
+            <div>
+              <b>Periodo de consulta</b>
+              <div class="muted">Cambia el mes para revisar cierres, cartera y movimientos históricos.</div>
+            </div>
+            <div class="finance-period-controls">
+              <button class="btn" id="dashPrevM" type="button">◀</button>
+              <select id="dashMonthSel" style="min-width:150px">${monthOps}</select>
+              <button class="btn" id="dashNextM" type="button">▶</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="kpis">
+        <div class="kpi"><small>Ingresos (${esc(monthSel)})</small><b class="mono">${fmtCOP(inc)}</b><div class="muted">Caja registrada</div></div>
+        <div class="kpi"><small>Gastos (${esc(monthSel)})</small><b class="mono">${fmtCOP(exp)}</b><div class="muted">Egresos del período</div></div>
+        <div class="kpi"><small>Flujo neto</small><b class="mono">${fmtCOP(net)}</b><div class="muted">Ingresos − gastos</div></div>
+        <div class="kpi"><small>Por cobrar</small><b class="mono">${fmtCOP(recTotal)}</b><div class="muted">${fmtNum(recs.length,0)} venta(s) pendientes</div></div>
+        <div class="kpi"><small>Por pagar</small><b class="mono">${fmtCOP(payPending)}</b><div class="muted">${fmtNum(payOpen.length,0)} compra(s) abiertas</div></div>
+        <div class="kpi"><small>Inventario valorizado</small><b class="mono">${fmtCOP(inventoryValue)}</b><div class="muted">Costo estimado actual</div></div>
+      </div>
+
+      ${controlHTML}
+
+      <div class="execSplit">
+        <div class="helpCard">
+          <div class="helpHd">
+            <div>
+              <b>Cuentas por cobrar</b>
+              <div class="muted">Ventas con saldo pendiente, ordenadas por mayor valor.</div>
+            </div>
+            <button class="btn" data-go="sales">Ver ventas</button>
+          </div>
+          <div class="wrap"><table class="execTableCompact">
+            <thead><tr><th>Fecha</th><th>Cliente</th><th>Total</th><th>Pendiente</th><th>Estado</th></tr></thead>
+            <tbody>${receivableRows || `<tr><td colspan="5" class="muted">No hay cartera pendiente.</td></tr>`}</tbody>
+          </table></div>
+        </div>
+
+        <div class="helpCard">
+          <div class="helpHd">
+            <div>
+              <b>Cuentas por pagar</b>
+              <div class="muted">Compras abiertas priorizadas por fecha de vencimiento.</div>
+            </div>
+            <button class="btn" data-go="finance">Ver proveedores</button>
+          </div>
+          <div class="wrap"><table class="execTableCompact">
+            <thead><tr><th>Vence</th><th>Compra</th><th>Pendiente</th><th>Estado</th></tr></thead>
+            <tbody>${payableRows || `<tr><td colspan="4" class="muted">No hay cuentas por pagar abiertas.</td></tr>`}</tbody>
+          </table></div>
+        </div>
+      </div>
+
+      ${lineCard}
+
+      <div class="helpCard" style="margin-top:12px">
+        <div class="helpHd">
+          <div>
+            <b>Alertas relevantes</b>
+            <div class="muted">Solo las incidencias que impactan control, cartera o cierres.</div>
+          </div>
+          <button class="btn" data-go="tasks">Ver tareas</button>
+        </div>
+        <div class="wrap"><table class="execTableCompact">
+          <thead><tr><th>Nivel</th><th>Detalle</th><th>Acción</th></tr></thead>
+          <tbody>${warningsRows || `<tr><td colspan="3" class="muted">Sin alertas críticas por ahora.</td></tr>`}</tbody>
+        </table></div>
+      </div>
+      `
     );
 
-    const dl=$("#dashLineReport"); if(dl) dl.onclick=()=>{ financePeriod = monthSel; lineFrom=mFrom; lineTo=mTo; goTab("finance"); };
+    const dl = $("#dashLineReport"); if(dl) dl.onclick=()=>{ financePeriod = monthSel; lineFrom = mFrom; lineTo = mTo; goTab("finance"); };
+    const dm = $("#dashMonthSel"); if(dm) dm.onchange=()=>{ dashMonth = dm.value; render(); };
+    const dPrev = $("#dashPrevM"); if(dPrev) dPrev.onclick=()=>{ dashMonth = addMonthsKey(monthSel, -1); render(); };
+    const dNext = $("#dashNextM"); if(dNext) dNext.onclick=()=>{ const nxt = addMonthsKey(monthSel, 1); dashMonth = (nxt.localeCompare(curM)>0) ? curM : nxt; render(); };
 
-    const dm = $("#dashMonthSel");
-    if(dm) dm.onchange=()=>{ dashMonth = dm.value; render(); };
-    const dPrev = $("#dashPrevM");
-    if(dPrev) dPrev.onclick=()=>{ dashMonth = addMonthsKey(monthSel, -1); render(); };
-    const dNext = $("#dashNextM");
-    if(dNext) dNext.onclick=()=>{
-      const nxt = addMonthsKey(monthSel, 1);
-      dashMonth = (nxt.localeCompare(curM)>0) ? curM : nxt;
-      render();
-    };
-    const gh = $("#dashGoHist");
-    if(gh) gh.onclick=()=>{ financePeriod = monthSel; lineFrom=mFrom; lineTo=mTo; goTab("finance"); };
-
-
-    const fs=$("#dashFeedSows"); if(fs) fs.onclick=()=>openSupplySowPicker();
-    const fb=$("#dashFeedBatches"); if(fb) fb.onclick=()=>openSupplyBatchPicker();
-    $("#addSow").onclick=()=>openSow();
-    $("#addInv").onclick=()=>openInvItem();
-    const di=$("#dashIn"); if(di) di.onclick=()=>openInvMovePicker("entrada");
-    const doo=$("#dashOut"); if(doo) doo.onclick=()=>openInvMovePicker("salida");
-    $("#addBreeding").onclick=()=>openBreeding();
-    $("#addFarrowing").onclick=()=>openFarrowing();
-    const sg=$("#startGuide"); if(sg) sg.onclick=()=>openOnboarding(true);
-    bindGettingStartedActions(view);
-    view.querySelectorAll('button[data-wtab]').forEach(b=>b.onclick=()=>goTab(b.dataset.wtab));
+    const dg = $("#dashGoFinance"); if(dg) dg.onclick=()=>{ financePeriod = monthSel; lineFrom = mFrom; lineTo = mTo; goTab("finance"); };
+    const bi = $("#dashIncome"); if(bi) bi.onclick=()=>openTx("ingreso");
+    const be = $("#dashExpense"); if(be) be.onclick=()=>openTx("gasto");
+    const bs = $("#dashSales"); if(bs) bs.onclick=()=>goTab("sales");
+    const bv = $("#dashInventory"); if(bv) bv.onclick=()=>goTab("inv");
 
     view.onclick = (e)=>{
-      const b=e.target.closest("button[data-go]"); if(!b) return;
-      current=b.dataset.go; renderNav(); render();
+      const b = e.target.closest("button[data-go]");
+      if(!b) return;
+      current = b.dataset.go;
+      renderNav();
+      render();
     };
   }
 
   // ------- Sows / Cajones -------
   let sowsPenId = ""; // vista actual de cajón en sección Cerdas
   let engPenId = ""; // vista actual de cajón en pestaña Engorde
+  let meatViewId = "sales"; // vista actual en Carne: sales o id de cajón
   let lineFrom = ""; // filtro informe por línea (Finanzas)
   let lineTo = "";   // filtro informe por línea (Finanzas)
 
@@ -6186,15 +6952,77 @@ function openPen(opts={}){
     };
   }
 
+  function inventoryCategoriesList(currentValue=""){
+    const base = ["alimento","medicamento","insumo"];
+    const raw = [...base, ...((state.settings && state.settings.inventoryCategories) || [])];
+    if(String(currentValue||"").trim()) raw.push(String(currentValue).trim());
+    const seen = new Set();
+    return raw.map(x=>String(x??"").trim()).filter(Boolean).filter(x=>{
+      const k=x.toLowerCase();
+      if(seen.has(k)) return false;
+      seen.add(k);
+      return true;
+    });
+  }
+
+  function inventoryUnitsList(currentValue=""){
+    const base = ["ml","cc","kg","g","l","und","lb","bulto","bolsa"];
+    const raw = [...base, ...((state.settings && state.settings.inventoryUnits) || [])];
+    if(String(currentValue||"").trim()) raw.push(String(currentValue).trim());
+    const seen = new Set();
+    return raw.map(x=>String(x??"").trim()).filter(Boolean).filter(x=>{
+      const k=x.toLowerCase();
+      if(seen.has(k)) return false;
+      seen.add(k);
+      return true;
+    });
+  }
+
+  function inventoryUnitLabel(v){
+    const s=String(v||"").trim();
+    const k=s.toLowerCase();
+    const map={ml:"ML",cc:"CC",kg:"KG",g:"G",l:"L",und:"UND",lb:"LB",bulto:"Bulto",bolsa:"Bolsa"};
+    return map[k] || s;
+  }
+
+  function promptNewInventoryOption(kind){
+    const isUnit = kind === "unit";
+    const label = isUnit ? "unidad de medida" : "categoría";
+    const current = isUnit ? inventoryUnitsList() : inventoryCategoriesList();
+    const value = prompt(`Nueva ${label}:`,"");
+    const clean = String(value||"").trim();
+    if(!clean) return "";
+    const exists = current.find(x=>x.toLowerCase()===clean.toLowerCase());
+    if(exists){
+      toast("warn","Ya existe",`La ${label} ya está creada.`);
+      return exists;
+    }
+    state.settings = state.settings || defaults().settings;
+    if(isUnit){
+      state.settings.inventoryUnits = inventoryUnitsList(clean);
+      save();
+      toast("ok","Unidad creada", inventoryUnitLabel(clean));
+      return clean;
+    }
+    state.settings.inventoryCategories = inventoryCategoriesList(clean);
+    save();
+    toast("ok","Categoría creada", clean);
+    return clean;
+  }
+
   function invForm(i,isNew){
     isNew=!!isNew;
     i=i||{name:"",category:"alimento",unit:"kg",qty:0,minQty:0,unitCost:0,supplier:"",expiration:"",notes:""};
+    const catOptions = inventoryCategoriesList(i.category).map(x=>`<option ${String(i.category||"alimento").toLowerCase()===x.toLowerCase()?"selected":""} value="${esc(x)}">${esc(x)}</option>`).join("");
+    const unitOptions = inventoryUnitsList(i.unit).map(x=>`<option ${String(i.unit||"kg").toLowerCase()===x.toLowerCase()?"selected":""} value="${esc(x)}">${esc(inventoryUnitLabel(x))}</option>`).join("");
     return `<form id="invForm" class="grid2">
+      <div class="f12" style="display:flex;justify-content:flex-end;gap:8px;align-items:center;margin:0 0 6px 0">
+        <button type="button" class="btn" id="addInvCategory">Nueva categoría</button>
+        <button type="button" class="btn" id="addInvUnit">Nueva unidad</button>
+      </div>
       <div class="f6"><label>Nombre *</label><input name="name" required value="${esc(i.name)}"/></div>
-      <div class="f3"><label>Categoría</label><select name="category">
-        ${["alimento","medicamento","insumo"].map(x=>`<option ${i.category===x?"selected":""} value="${x}">${x}</option>`).join("")}
-      </select></div>
-      <div class="f3"><label>Unidad</label><input name="unit" value="${esc(i.unit)}" placeholder="kg, ml, und"/></div>
+      <div class="f3"><label>Categoría</label><select name="category">${catOptions}</select></div>
+      <div class="f3"><label>Unidad</label><select name="unit">${unitOptions}</select></div>
 
       <div class="f3"><label>Cantidad</label><input id="invQty" type="number" step="0.01" name="qty" value="${esc(i.qty)}" placeholder="0"/></div>
       <div class="f3"><label>bajo stock en</label><input type="number" step="0.01" name="minQty" value="${esc(i.minQty)}"/></div>
@@ -6270,6 +7098,16 @@ function openPen(opts={}){
         const paidI = $("#invPaidNow");
         const dueI = $("#invDue");
         const methodI = $("#invMethod");
+        const catSel = f?.querySelector('[name="category"]');
+        const unitSel = f?.querySelector('[name="unit"]');
+        const btnCat = $("#addInvCategory");
+        const btnUnit = $("#addInvUnit");
+
+        function refreshInvSelect(sel, values, currentValue, labelFn){
+          if(!sel) return;
+          sel.innerHTML = values.map(x=>`<option value="${esc(x)}" ${String(currentValue||"").toLowerCase()===String(x||"").toLowerCase()?"selected":""}>${esc(labelFn?labelFn(x):x)}</option>`).join("");
+          if(currentValue) sel.value = currentValue;
+        }
 
         function clampPaid(){
           const total=num(totalI?.value);
@@ -6301,6 +7139,8 @@ function openPen(opts={}){
           clampPaid();
         }
         if(reg){ reg.onchange=()=>{ clampPaid(); }; }
+        if(btnCat){ btnCat.onclick=()=>{ const added = promptNewInventoryOption("category"); if(added) refreshInvSelect(catSel, inventoryCategoriesList(added), added); }; }
+        if(btnUnit){ btnUnit.onclick=()=>{ const added = promptNewInventoryOption("unit"); if(added) refreshInvSelect(unitSel, inventoryUnitsList(added), added, inventoryUnitLabel); }; }
         if(totalI){ totalI.oninput=recalcUnit; }
         if(qtyI){ qtyI.oninput=recalcUnit; }
         if(stI){ stI.onchange=clampPaid; }
@@ -7770,29 +8610,26 @@ if(mode==="salida"){
     auditState();
     const st = meatStats();
     const stock = meatStockFromEngordePens();
+    const pens = stock.pens || [];
+
+    const hasSelectedPen = pens.some(x=>x.pen?.id===meatViewId);
+    if(meatViewId!=='sales' && !hasSelectedPen) meatViewId = 'sales';
 
     const actions = `
       <button class="btn" id="goEng"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-pig" xlink:href="#i-pig"></use></svg><span>Ir a Engorde</span></button>
       <button class="btn primary" id="meatNew"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-plus" xlink:href="#i-plus"></use></svg><span>Nueva venta</span></button>
     `;
 
-    const penRows = stock.pens.map(x=>{
-      const defKg = Math.max(0, num(state.settings?.defaultPigKg) || 100);
-      const avg = Math.max(0, num(x.pen?.avgKg || defKg));
-      const kgEst = Math.max(0, num(x.heads)) * avg;
-      const canSell = Math.max(0,num(x.heads))>0;
-      return `<tr>
-        <td><b>${esc(x.pen?.name||"—")}</b><div class="muted">${esc(x.pen?.id?.slice(-8)||"")}</div></td>
-        <td class="mono">${fmtNum(x.lots,0)}</td>
-        <td class="mono">${fmtNum(x.heads,0)}</td>
-        <td class="mono">${fmtNum(avg,1)} kg</td>
-        <td class="mono">${fmtNum(kgEst,1)} kg</td>
-        <td class="r">
-          <button class="btn" data-mavg="${x.pen.id}">Peso</button>
-          <button class="btn primary" data-msell-pen="${x.pen.id}" ${canSell?"":"disabled"}>Vender</button>
-        </td>
-      </tr>`;
-    }).join("") || `<tr><td colspan="6" class="muted">No hay cajones de engorde. Crea uno en <b>Engorde</b>.</td></tr>`;
+    const switchButtons = [
+      `<button class="btn ${meatViewId==='sales'?'primary':''}" data-meat-view="sales" aria-pressed="${meatViewId==='sales'?'true':'false'}">Ventas</button>`,
+      ...pens.map(x=>{
+        const active = x.pen?.id===meatViewId;
+        return `<button class="btn ${active?'primary':''}" data-meat-view="${x.pen.id}" aria-pressed="${active?'true':'false'}">
+          <span>${esc(x.pen?.name||'Cajón')}</span>
+          <span class="engPenBtnMeta">${fmtNum(x.heads,0)} cerdos</span>
+        </button>`;
+      })
+    ].join('') || `<span class="muted">Sin cajones</span>`;
 
     const salesRows = (state.meatSales||[])
       .filter(s=>{
@@ -7827,36 +8664,9 @@ if(mode==="salida"){
         </tr>`;
       }).join("") || `<tr><td colspan="10" class="muted">Aún no hay ventas de carne registradas.</td></tr>`;
 
-    const body = `
-      <div class="kpis">
-        ${kpi("Cerdos en engorde (stock)", fmtNum(st.stockHeads,0)+" cabezas", st.stockHeads>0?"ok":"warn")}
-        ${kpi("Stock estimado (kg)", fmtNum(st.stockKgEst,1)+" kg", st.stockKgEst>0?"info":"warn")}
-        ${kpi("Kg vendidos (equiv.)", fmtNum(st.kgSold,2)+" kg", "info")}
-        ${kpi("Ingresos (carne)", fmtCOP(st.total), "ok")}
-        ${kpi("Pendiente por cobrar", fmtCOP(st.pending), st.pending>0?"warn":"ok")}
-      </div>
-
-      <div class="helpCard" style="margin-top:12px">
-        <div class="helpHd">
-          <div>
-            <b>Stock desde Engorde (por cajón)</b>
-            <div class="muted">Solo cuentan los cerdos que estén asignados a un <b>cajón de engorde</b>. Usa “Peso” para definir el promedio por cerdo (estimaciones).</div>
-          </div>
-          <span class="tag info">Arroba: ${fmtNum(stock.arrobaKg,2)} kg</span>
-        </div>
-        <div class="wrap" style="margin-top:10px">
-          <table>
-            <thead><tr><th>Cajón</th><th>Lotes</th><th>Cabezas</th><th>Peso prom.</th><th>Kg est.</th><th class="r">Acciones</th></tr></thead>
-            <tbody>${penRows}</tbody>
-          </table>
-        </div>
-      </div>
-
+    let contentHtml = `
       <div class="card" style="margin-top:12px">
-        <div class="cardHd">
-          <b>Ventas de carne</b>
-          <div class="muted">Venta por <b>kg</b>, por <b>arroba</b> o por <b>completo</b>. El stock se descuenta desde el cajón seleccionado.</div>
-        </div>
+        <div class="cardHd"><b>Ventas de carne</b></div>
         <div class="wrap">
           <table>
             <thead>
@@ -7867,27 +8677,162 @@ if(mode==="salida"){
             <tbody>${salesRows}</tbody>
           </table>
         </div>
+      </div>`;
+
+    if(meatViewId!=='sales'){
+      const selected = pens.find(x=>x.pen?.id===meatViewId) || null;
+      if(selected){
+        const p = selected.pen;
+        const cap = (p.capacity!=null && num(p.capacity)>0) ? Math.max(0, Math.floor(num(p.capacity))) : 0;
+        const occupancy = cap ? `${fmtNum((Math.max(0,num(selected.heads))/cap)*100,0)}%` : '—';
+
+        const penBatches = (state.batches||[])
+          .filter(b=>String(b.penId||'')===p.id && (b.status||'disponible')!=='cerrado' && Math.max(0,num(b.countCurrent))>0)
+          .slice()
+          .sort((a,b)=>(String((get.sow(a.sowId)?.tag||get.sow(a.sowId)?.name||a.id||''))).localeCompare(String((get.sow(b.sowId)?.tag||get.sow(b.sowId)?.name||b.id||''))));
+
+        const penAnimals = animalsInPen(p.id)
+          .filter(a=>isAnimalActive(a))
+          .slice()
+          .sort((a,b)=>String(a.name||'').localeCompare(String(b.name||'')));
+
+        const rows = [];
+        let idx = 1;
+
+        penBatches.forEach(b=>{
+          const sow = get.sow(b.sowId);
+          const sowLabel = sow?.tag || sow?.name || `Lote ${String(b.id||'').slice(-8)}`;
+          const heads = Math.max(0, Math.floor(num(b.countCurrent)));
+          const inv = invested.batch(b.id);
+          const unitCost = heads ? (Math.max(0, num(inv||0)) / heads) : 0;
+          const age = b.birthDate ? daysBetween(b.birthDate, today()) : (b.weaningDate ? daysBetween(b.weaningDate, today()) : null);
+          const inDate = b.weaningDate || b.birthDate || '';
+          const avg = Math.max(0, num(p.avgKg || stock.defKg));
+          for(let i=1;i<=heads;i++){
+            rows.push(`<tr>
+              <td class="mono">${idx++}</td>
+              <td><b>${esc(sowLabel)}</b><div class="muted mono">${esc(String(b.id||'').slice(-8))} · #${i}</div></td>
+              <td>Lote</td>
+              <td class="mono">${esc(inDate||'—')}</td>
+              <td class="mono">${age==null?'—':esc(age)+' d'}</td>
+              <td class="mono">${fmtNum(avg,1)} kg</td>
+              <td><span class="tag">Disponible</span></td>
+              <td class="mono">${fmtCOP(unitCost)}</td>
+              <td class="r">
+                <button class="btn" data-msell-pen="${p.id}">Vender</button>
+              </td>
+            </tr>`);
+          }
+        });
+
+        penAnimals.forEach(a=>{
+          const weight = Math.max(0, num(a.weightKg));
+          const age = a.createdAt ? daysBetween(String(a.createdAt).slice(0,10), today()) : null;
+          const cost = animalCost(a.id);
+          rows.push(`<tr>
+            <td class="mono">${idx++}</td>
+            <td><b>${esc(a.name||'(sin nombre)')}</b><div class="muted mono">${esc(String(a.id||'').slice(-8))}</div></td>
+            <td>Individual</td>
+            <td class="mono">${esc(a.createdAt?String(a.createdAt).slice(0,10):'—')}</td>
+            <td class="mono">${age==null?'—':esc(age)+' d'}</td>
+            <td class="mono">${weight?fmtNum(weight,1)+' kg':'—'}</td>
+            <td>${a.sick?'<span class="tag bad">Enfermo</span>':'<span class="tag ok">Normal</span>'}</td>
+            <td class="mono">${fmtCOP(cost)}</td>
+            <td class="r">
+              <button class="btn" data-msell-pen="${p.id}">Vender</button>
+            </td>
+          </tr>`);
+        });
+
+        const rowsHtml = rows.join('') || `<tr><td colspan="9" class="muted">No hay cerdos en este cajón.</td></tr>`;
+
+        contentHtml = `
+          <div class="card" style="margin-top:12px">
+            <div class="cardHd engSelectedHd">
+              <div><b>${esc(p.name||'Cajón')}</b></div>
+              <div class="miniRow" style="gap:8px;align-items:center">
+                <span class="tag">Total: ${fmtNum(selected.heads,0)}</span>
+                <span class="tag">Lotes: ${fmtNum(selected.lots,0)}</span>
+                <span class="tag">Capacidad: ${cap?fmtNum(cap,0):'—'}</span>
+                <span class="tag">Ocupación: ${occupancy}</span>
+              </div>
+            </div>
+            <div class="wrap" style="margin-top:8px">
+              <table>
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Cerdo</th>
+                    <th>Origen</th>
+                    <th>Ingreso</th>
+                    <th>Edad</th>
+                    <th>Peso</th>
+                    <th>Estado</th>
+                    <th>Costo</th>
+                    <th class="r">Acción</th>
+                  </tr>
+                </thead>
+                <tbody>${rowsHtml}</tbody>
+              </table>
+            </div>
+          </div>`;
+      }
+    }
+
+    const body = `
+      <div class="kpis">
+        ${kpi('Cerdos en engorde (stock)', fmtNum(st.stockHeads,0)+' cabezas', st.stockHeads>0?'ok':'warn')}
+        ${kpi('Stock estimado (kg)', fmtNum(st.stockKgEst,1)+' kg', st.stockKgEst>0?'info':'warn')}
+        ${kpi('Kg vendidos (equiv.)', fmtNum(st.kgSold,2)+' kg', 'info')}
+        ${kpi('Ingresos (carne)', fmtCOP(st.total), 'ok')}
+        ${kpi('Pendiente por cobrar', fmtCOP(st.pending), st.pending>0?'warn':'ok')}
       </div>
+      <div class="engPenSwitch card" style="margin-top:20px;padding-top:8px">
+        <div class="engPenButtons" style="padding-top:2px">${switchButtons}</div>
+      </div>
+      ${contentHtml}
     `;
 
-    view.innerHTML = shell(
-      "Carne",
-      "Ventas a carnicerías y clientes. El stock se toma de los cajones de engorde.",
-      actions,
-      body
-    );
+    view.innerHTML = shell('Carne', '', actions, body);
 
-    const btnNew = $("#meatNew");
-    const btnEng = $("#goEng");
-    if(btnEng) btnEng.onclick=()=>navTo("engorde");
-    if(btnNew) btnNew.onclick=()=>openMeatSale();
+    const btnNew = $('#meatNew');
+    const btnEng = $('#goEng');
+    if(btnEng) btnEng.onclick=()=>navTo('engorde');
+    if(btnNew) btnNew.onclick=()=>openMeatSale(null, meatViewId!=='sales' ? {penId:meatViewId} : {});
 
-    view.querySelectorAll("button[data-msell-pen]").forEach(b=>b.onclick=()=>openMeatSale(null,{penId:b.dataset.msellPen}));
-    view.querySelectorAll("button[data-mavg]").forEach(b=>b.onclick=()=>openPenAvgKg(b.dataset.mavg));
-
-    view.querySelectorAll("button[data-medit]").forEach(b=>b.onclick=()=>openMeatSale(b.dataset.medit));
-    view.querySelectorAll("button[data-mdel]").forEach(b=>b.onclick=()=>delMeatSale(b.dataset.mdel));
-    view.querySelectorAll("button[data-mpay]").forEach(b=>b.onclick=()=>openMeatPayment(b.dataset.mpay));
+    view.onclick = (e)=>{
+      const switchBtn = e.target.closest('button[data-meat-view]');
+      if(switchBtn){
+        meatViewId = switchBtn.dataset.meatView || 'sales';
+        renderMeat();
+        return;
+      }
+      const sellPenBtn = e.target.closest('button[data-msell-pen]');
+      if(sellPenBtn){
+        openMeatSale(null,{penId:sellPenBtn.dataset.msellPen});
+        return;
+      }
+      const avgBtn = e.target.closest('button[data-mavg]');
+      if(avgBtn){
+        openPenAvgKg(avgBtn.dataset.mavg);
+        return;
+      }
+      const editBtn = e.target.closest('button[data-medit]');
+      if(editBtn){
+        openMeatSale(editBtn.dataset.medit);
+        return;
+      }
+      const delBtn = e.target.closest('button[data-mdel]');
+      if(delBtn){
+        delMeatSale(delBtn.dataset.mdel);
+        return;
+      }
+      const payBtn = e.target.closest('button[data-mpay]');
+      if(payBtn){
+        openMeatPayment(payBtn.dataset.mpay);
+        return;
+      }
+    };
   }
 
   function openMeatSale(id, ctx={}){
@@ -8811,7 +9756,7 @@ if(!inRange(tx?.date, from, to)) return;
         const b3 = document.getElementById("goEng");
         if(b3) b3.onclick=()=>{ dlg.close(); goTab("engorde"); };
         const b4 = document.getElementById("goInv");
-        if(b4) b4.onclick=()=>{ dlg.close(); goTab("inventory"); };
+        if(b4) b4.onclick=()=>{ dlg.close(); goTab("inv"); };
       }
     });
   }
@@ -9013,17 +9958,19 @@ if(!inRange(tx?.date, from, to)) return;
       ${monthOps}
     `;
     const periodBar = `
-      <div class="helpCard" style="margin-bottom:12px">
-        <div class="helpHd">
-          <div>
-            <b>Periodo / Histórico</b>
-            <div class="muted">Elige un mes para ver años pasados. Usa “Todo” para ver todo el historial.</div>
-          </div>
-          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-            <button class="btn" id="finPrevM" type="button">◀</button>
-            <select id="finMonthSel" style="min-width:220px">${periodOptions}</select>
-            <button class="btn" id="finNextM" type="button">▶</button>
-            <span class="tag info">${financePeriod==="__all__"?"Todo el historial":esc(label)}</span>
+      <div class="finance-period-wrap">
+        <div class="helpCard finance-period-card">
+          <div class="helpHd">
+            <div>
+              <b>Periodo / Histórico</b>
+              <div class="muted">Elige un mes o ve todo el historial.</div>
+            </div>
+            <div class="finance-period-controls">
+              <button class="btn" id="finPrevM" type="button" aria-label="Mes anterior">◀</button>
+              <select id="finMonthSel">${periodOptions}</select>
+              <button class="btn" id="finNextM" type="button" aria-label="Mes siguiente">▶</button>
+              <span class="tag info">${financePeriod==="__all__"?"Todo el historial":esc(label)}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -9071,15 +10018,15 @@ if(!inRange(tx?.date, from, to)) return;
     }).join("");
 
     const histCard = `
-      <div class="helpCard" style="margin-top:12px">
+      <div class="helpCard finance-hist-card" style="margin-top:12px">
         <div class="helpHd">
           <div>
             <b>Histórico mensual</b>
             <div class="muted">Resumen por mes (ingresos, gastos y producción).</div>
           </div>
-          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <div class="finance-hist-controls">
             <span class="muted">Año</span>
-            <select id="histYear" style="min-width:110px">${yearOps}</select>
+            <select id="histYear">${yearOps}</select>
             <span class="tag info">${monthsYear.length} mes(es)</span>
           </div>
         </div>
@@ -9777,22 +10724,40 @@ view.innerHTML = shell(
   
 $("#newSale").onclick=()=>openSale();
 const acct=$("#acctBtn");
-if(acct) acct.onclick=()=>{
-  // Abre Contabilidad en otra pestaña y deja la granja abierta
-  const url = "contabilidad.html";
-  let w = null;
-  try{
-    w = window.open(url, "_blank", "noopener,noreferrer");
-  }catch(e){}
-  if(!w){
-    // Si el navegador bloquea popups, NO navegamos esta pestaña: mostramos un enlace.
-    openAlert({
-      title:"Abrir contabilidad",
-      kind:"warn",
-      message:'Tu navegador bloqueó abrir una nueva pestaña. Toca aquí: <a href="'+url+'" target="_blank" rel="noopener noreferrer">Abrir Contabilidad</a>'
-    });
+if(acct){
+  if(window.location.protocol === "file:"){
+    acct.disabled = true;
+    acct.classList.add("ghost");
+    acct.title = "Disponible al abrir la app por localhost";
+    acct.innerHTML = "Contabilidad (localhost)";
+    acct.onclick = (e)=>{
+      if(e) e.preventDefault();
+      openAlert({
+        title:"Contabilidad desactivada en modo local",
+        kind:"warn",
+        message:"Esta app está abierta como file:///. Por seguridad del navegador, el acceso a Contabilidad se desactiva en este modo. Para usarlo, abre esta carpeta por localhost o abre contabilidad.html manualmente desde la misma carpeta."
+      });
+      return false;
+    };
+  }else{
+    acct.onclick=(e)=>{
+      if(e) e.preventDefault();
+      const url = new URL("contabilidad.html", window.location.href).href;
+      let w = null;
+      try{
+        w = window.open(url, "_blank");
+      }catch(e){}
+      if(!w){
+        openAlert({
+          title:"Abrir contabilidad",
+          kind:"warn",
+          message:'Tu navegador bloqueó abrir una nueva pestaña. Toca aquí: <a href="'+url+'" target="_blank" rel="noopener">Abrir Contabilidad</a>'
+        });
+      }
+      return false;
+    };
   }
-};
+}
 
   const hb=$("#helpBtn"); if(hb) hb.onclick=()=>openHelp();
 

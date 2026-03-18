@@ -2521,8 +2521,8 @@ header .brand .title span{
   color:#ffffff !important;
 }
 #fbStatusBtn.is-wait{
-  background:#475569 !important;
-  border-color:#334155 !important;
+  background:#2563eb !important;
+  border-color:#1d4ed8 !important;
   color:#ffffff !important;
 }
 #fbStatusBtn:hover{
@@ -2532,19 +2532,28 @@ header .brand .title span{
 
 <script>
   // Estado visual de Firebase como botón en el header
-  window.__setFBStatus = function(ok, msg){
+  window.__setFBStatus = function(stateOrOk, msg){
     const el = document.getElementById("fbStatusBtn");
     if(!el) return;
-    const isOk = ok === true;
-    const stateText = isOk ? "Firebase conectado" : (msg ? "Firebase: " + msg : "Firebase sin conexión");
+
+    const raw = (msg || "").toString().trim();
+    const isOk = stateOrOk === true || stateOrOk === "on" || stateOrOk === "connected";
+    const isWait = stateOrOk === "wait" || stateOrOk === "connecting" || (!isOk && raw && /inici|cargando|autentic|sincronizando|subiendo|conectando|restaurando/i.test(raw));
+
+    let stateText = "Firebase desconectado";
     el.classList.remove("is-on","is-off","is-wait");
+
     if(isOk){
       el.classList.add("is-on");
-    }else if(msg && /inici|cargando|autentic|sincronizando|subiendo/i.test(msg)){
+      stateText = "Firebase conectado";
+    }else if(isWait){
       el.classList.add("is-wait");
+      stateText = raw ? ("Firebase conectando: " + raw) : "Firebase conectando";
     }else{
       el.classList.add("is-off");
+      stateText = raw ? ("Firebase desconectado: " + raw) : "Firebase desconectado";
     }
+
     el.title = stateText;
     el.setAttribute("aria-label", stateText);
     el.dataset.status = stateText;
@@ -2913,7 +2922,7 @@ header .brand .title span{
   const SINGLE_USER_EMAIL = "admin@granja.local";
 
   // Estado inicial
-  window.__setFBStatus && window.__setFBStatus(false,"inicia sesión");
+  window.__setFBStatus && window.__setFBStatus("connecting","conectando…");
 
   // Identificador del dispositivo (para ignorar el eco de nuestros propios cambios)
   const DEVICE_ID_KEY = "granja_device_id";
@@ -2967,13 +2976,47 @@ header .brand .title span{
     },
 };
 
+  window.__fbAutoConnectInFlight = false;
+  window.__ensureFirebaseConnection = async function(passwordOverride){
+    try{
+      if(!window.firebaseCloud || !window.firebaseCloud.enabled) return false;
+      if(window.firebaseCloud.ready && window.firebaseCloud.uid){
+        window.__setFBStatus && window.__setFBStatus(true);
+        return true;
+      }
+      if(window.firebaseCloud.hasSession && window.firebaseCloud.hasSession()){
+        window.__setFBStatus && window.__setFBStatus("connecting","restaurando sesión…");
+        return true;
+      }
+      if(window.__fbAutoConnectInFlight) return false;
+
+      const savedUser = (((window.state||{}).settings||{}).authUser || "admin").toString().trim() || "admin";
+      const savedPass = (passwordOverride != null ? passwordOverride : ((((window.state||{}).settings||{}).authPass || "").toString()));
+      if(!savedPass){
+        window.__setFBStatus && window.__setFBStatus(false,"desconectado");
+        return false;
+      }
+
+      window.__fbAutoConnectInFlight = true;
+      window.__setFBStatus && window.__setFBStatus("connecting","conectando…");
+      await window.firebaseCloud.signIn(savedUser, savedPass);
+      return true;
+    }catch(e){
+      console.warn("[Firebase] Auto connect error:", e);
+      window.__setFBStatus && window.__setFBStatus(false,"desconectado");
+      return false;
+    }finally{
+      window.__fbAutoConnectInFlight = false;
+    }
+  };
+
   // Firebase Auth (Email/Password): cuando hay sesión cargamos/sincronizamos el state
   onAuthStateChanged(auth, async (user) => {
     if(!user){
       window.firebaseCloud.ready = false;
       window.firebaseCloud.uid = null;
       try{ if(window.firebaseCloud.unsub) window.firebaseCloud.unsub(); }catch(e){}
-      window.__setFBStatus && window.__setFBStatus(false,"inicia sesión");
+      window.__setFBStatus && window.__setFBStatus(false,"desconectado");
       // Si la app ya cargó, fuerza pantalla de login
       try{
         if(typeof window.__clearLocalAuthed === "function") window.__clearLocalAuthed();
@@ -2999,7 +3042,7 @@ header .brand .title span{
       if(em && em !== SINGLE_USER_EMAIL.toLowerCase()){
         console.warn("[Firebase] Email no permitido:", em);
         try{ await fbSignOut(auth); }catch(e){}
-        window.__setFBStatus && window.__setFBStatus(false,"usuario no permitido");
+        window.__setFBStatus && window.__setFBStatus(false,"desconectado");
         return;
       }
     }catch(e){}
@@ -3026,7 +3069,7 @@ header .brand .title span{
     }catch(e){
       console.warn("[Firebase] Load error:", e);
       // Si ves "permission-denied", revisa reglas de Firestore.
-      window.__setFBStatus && window.__setFBStatus(false,"permisos");
+      window.__setFBStatus && window.__setFBStatus(false,"desconectado");
       return; // sin permisos, no intentes suscribirte
     }
 
@@ -3047,7 +3090,7 @@ header .brand .title span{
       });
     }catch(e){
       console.warn("[Firebase] Subscribe error:", e);
-      window.__setFBStatus && window.__setFBStatus(false,"permisos");
+      window.__setFBStatus && window.__setFBStatus(false,"desconectado");
     }
 
     // 3) Avisar a la app que Firebase está listo (para hacer primer push local si hace falta)
@@ -3725,6 +3768,15 @@ const defaults = () => ({
     if(window.__PENDING_LOCAL_CLEAR__){ clearAuthed(); delete window.__PENDING_LOCAL_CLEAR__; }
   }catch(e){}
 
+  // Si la sesión local ya está abierta, intenta enlazar Firebase en segundo plano.
+  try{
+    if(isAuthed()){
+      setTimeout(()=>{
+        try{ window.__ensureFirebaseConnection && window.__ensureFirebaseConnection(); }catch(e){}
+      }, 250);
+    }
+  }catch(e){}
+
   async function attemptLogin(){
     const uEl=$("#loginUser");
     const pEl=$("#loginPass");
@@ -3761,21 +3813,11 @@ const defaults = () => ({
         openLoginErrorModal("Ingresa usuario y contraseña.");
         return;
       }
-
-      // 1) Login local (Ajustes > Usuario/Contraseña)
+      // 1) Preparar coincidencia local y priorizar Firebase cuando sea posible
       const lu=((state.settings.authUser||"admin")+"").trim();
       const lp=((state.settings.authPass||"1234")+"");
-      if(u===lu && p===lp){
-        setAuthed(true);
-        toast("ok","Bienvenido","Sesión iniciada (local).");
-        if(window.firebaseCloud && window.firebaseCloud.enabled && !window.firebaseCloud.ready){
-          window.__setFBStatus && window.__setFBStatus(false,"modo local (sin nube)");
-        }
-        enforceAuth();
-        return;
-      }
+      const localMatch = (u===lu && p===lp);
 
-      
       // 1.5) Si Firebase está restaurando sesión, espera un poco antes de forzar signIn.
       if(window.firebaseCloud && window.firebaseCloud.enabled){
         const wait2 = (ms)=>new Promise(r=>setTimeout(r,ms));
@@ -3792,13 +3834,25 @@ const defaults = () => ({
         }
       }
 
-
-      // 2) Si no coincide local, intenta credenciales de nube
+      // 2) Intenta nube primero. Si falla pero la clave coincide localmente, entra local y luego vuelve a intentar conectar.
       if(window.firebaseCloud && typeof window.firebaseCloud.signIn==="function"){
-        window.__setFBStatus && window.__setFBStatus(false,"autenticando…");
-        await window.firebaseCloud.signIn(u, p);
+        try{
+          window.__setFBStatus && window.__setFBStatus("connecting","autenticando…");
+          await window.firebaseCloud.signIn(u, p);
+          setAuthed(true);
+          toast("ok","Bienvenido","Sesión iniciada (nube).");
+          enforceAuth();
+          return;
+        }catch(firebaseErr){
+          console.warn("[Firebase] SignIn error:", firebaseErr);
+          if(!localMatch) throw firebaseErr;
+        }
+      }
+
+      if(localMatch){
         setAuthed(true);
-        toast("ok","Bienvenido","Sesión iniciada (nube).");
+        const linked = await (window.__ensureFirebaseConnection ? window.__ensureFirebaseConnection(p) : false);
+        toast("ok","Bienvenido", linked ? "Sesión iniciada y Firebase conectado." : "Sesión iniciada. Firebase quedó desconectado.");
         enforceAuth();
         return;
       }
@@ -3829,20 +3883,20 @@ const defaults = () => ({
       if(msg.includes("invalid-user")){
         toast("bad","Usuario inválido","Usa el usuario configurado en Ajustes.");
         openLoginErrorModal("Usuario incorrecto.");
-        window.__setFBStatus && window.__setFBStatus(false,"usuario inválido");
+        window.__setFBStatus && window.__setFBStatus(false,"desconectado");
         return;
       }
 
       if(msg.includes("auth/invalid-credential") || msg.includes("invalid-credential") || msg.includes("auth/wrong-password")){
         toast("bad","Datos inválidos","Contraseña incorrecta.");
         openLoginErrorModal("Contraseña incorrecta.");
-        window.__setFBStatus && window.__setFBStatus(false,"login inválido");
+        window.__setFBStatus && window.__setFBStatus(false,"desconectado");
         return;
       }
 
       toast("bad","No se pudo iniciar","Revisa usuario/contraseña o conecta la nube.");
       openLoginErrorModal("No se pudo iniciar sesión.");
-      window.__setFBStatus && window.__setFBStatus(false,"login inválido");
+      window.__setFBStatus && window.__setFBStatus(false,"desconectado");
     }finally{
       if(b){ b.disabled=false; b.textContent=prevTxt || "Iniciar sesión"; }
     }
@@ -3886,7 +3940,7 @@ const defaults = () => ({
       try{ window.firebaseCloud && window.firebaseCloud.signOut && await window.firebaseCloud.signOut(); }catch(e){}
       clearAuthed();
       toast("ok","Sesión cerrada","Vuelve a iniciar sesión para continuar.");
-      window.__setFBStatus && window.__setFBStatus(false,"inicia sesión");
+      window.__setFBStatus && window.__setFBStatus(false,"desconectado");
       enforceAuth();
     };
   }
@@ -3915,11 +3969,11 @@ const defaults = () => ({
             .catch((err)=>{
               console.warn("[Firebase] Save error:", err);
               // Normalmente esto es permisos o conexión
-              window.__setFBStatus && window.__setFBStatus(false,"error al guardar");
+              window.__setFBStatus && window.__setFBStatus(false,"desconectado");
             });
         }catch(e){
           console.warn("[Firebase] Save error:", e);
-          window.__setFBStatus && window.__setFBStatus(false,"error al guardar");
+          window.__setFBStatus && window.__setFBStatus(false,"desconectado");
         }
       }, 700);
     }
@@ -10758,6 +10812,7 @@ view.innerHTML = shell(
 
   
 $("#newSale").onclick=()=>openSale();
+  const fbBtn=$("#fbStatusBtn"); if(fbBtn) fbBtn.onclick=()=>{ try{ window.__ensureFirebaseConnection && window.__ensureFirebaseConnection(); }catch(e){} };
   const hb=$("#helpBtn"); if(hb) hb.onclick=()=>openHelp();
 
   // ------- Init -------
@@ -10821,7 +10876,7 @@ $("#newSale").onclick=()=>openSale();
           })
           .catch((e)=>{
             console.warn("[Firebase] Primer push error:", e);
-            window.__setFBStatus && window.__setFBStatus(false,"error al guardar");
+            window.__setFBStatus && window.__setFBStatus(false,"desconectado");
           });
       }
     }catch(e){}

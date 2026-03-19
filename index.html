@@ -2058,6 +2058,97 @@ a.btn.primary{
   display:inline-flex !important;
 }
 
+
+/* PATCH v30 - Ventas más legible en recuadros, tabla y formulario */
+.salesModule{ padding:16px; }
+.salesModule .salesTableWrap{
+  overflow:auto;
+  border-radius:16px;
+}
+.salesModule table{
+  min-width:1120px !important;
+  table-layout:auto !important;
+}
+.salesModule th,
+.salesModule td{
+  padding:12px 14px !important;
+  font-size:13.5px !important;
+  line-height:1.38 !important;
+  vertical-align:middle;
+  word-break:normal !important;
+  overflow-wrap:break-word !important;
+}
+.salesModule th{ white-space:nowrap !important; }
+.salesModule td:nth-child(1),
+.salesModule td:nth-child(3),
+.salesModule td:nth-child(4),
+.salesModule td:nth-child(5),
+.salesModule td:nth-child(7){ white-space:nowrap; }
+.salesModule td:nth-child(2){ min-width:230px; }
+.salesModule td:nth-child(6){ min-width:165px; }
+.salesModule td:last-child{
+  min-width:240px;
+  white-space:normal;
+}
+.salesModule td:last-child .btn{
+  margin:3px 6px 3px 0;
+  white-space:nowrap;
+}
+.salesModule .tag{ white-space:nowrap; }
+.saleFormGrid{
+  grid-template-columns:repeat(12,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start;
+}
+.saleFormGrid > .f3{ grid-column:span 3 !important; min-width:0; }
+.saleFormGrid > .f4{ grid-column:span 4 !important; min-width:0; }
+.saleFormGrid > .f6{ grid-column:span 6 !important; min-width:0; }
+.saleFormGrid > .f12{ grid-column:span 12 !important; min-width:0; }
+.saleFormGrid label{
+  display:block;
+  margin-bottom:6px;
+  font-size:13px !important;
+  line-height:1.25;
+  white-space:normal;
+}
+.saleFormGrid input,
+.saleFormGrid select,
+.saleFormGrid textarea{
+  width:100%;
+  min-width:0;
+  min-height:46px;
+  padding:11px 12px;
+  font-size:14px !important;
+}
+.saleFormGrid textarea{
+  min-height:98px;
+}
+.saleFormGrid .saleHint{
+  grid-column:span 12 !important;
+  margin-top:-4px;
+  font-size:12px !important;
+  line-height:1.35;
+}
+@media (max-width:1180px){
+  .saleFormGrid > .f3{ grid-column:span 6 !important; }
+  .saleFormGrid > .f4{ grid-column:span 6 !important; }
+}
+@media (max-width:760px){
+  .saleFormGrid > .f3,
+  .saleFormGrid > .f4,
+  .saleFormGrid > .f6{ grid-column:span 12 !important; }
+}
+@media (max-width:1280px){
+  .salesModule table{ min-width:1040px !important; }
+  .salesModule th,
+  .salesModule td{ font-size:13px !important; }
+}
+@media (max-width:900px){
+  .salesModule{ padding:12px; }
+  .salesModule table{ min-width:960px !important; }
+  .salesModule td:nth-child(2){ min-width:210px; }
+  .salesModule td:last-child{ min-width:220px; }
+}
 </style>
 
 <style id="brand-white-green-v2">
@@ -2483,6 +2574,121 @@ header .brand .title span{
   font-family:'Poppins',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Helvetica Neue',Arial,sans-serif !important;
 }
 </style>
+
+
+<!-- PATCH: tablas con texto más pequeño y mejor salto de línea -->
+<style>
+.tablewrap table,
+.wrap table,
+.helpCard table,
+table{
+  font-size:11px !important;
+}
+.tablewrap th, .tablewrap td,
+.wrap th, .wrap td,
+.helpCard th, .helpCard td,
+table th, table td{
+  font-size:11px !important;
+  line-height:1.22 !important;
+  white-space:normal !important;
+  overflow-wrap:anywhere !important;
+  word-break:normal !important;
+  hyphens:auto;
+}
+.tablewrap th,
+.wrap th,
+.helpCard th,
+table th{
+  font-size:10.4px !important;
+}
+.tablewrap td,
+.wrap td,
+.helpCard td,
+table td{
+  padding:8px 9px !important;
+}
+.execTableCompact,
+.execTableCompact th,
+.execTableCompact td{
+  font-size:10.6px !important;
+}
+.mono{
+  font-size:.96em !important;
+}
+@media (max-width: 900px){
+  .tablewrap table,
+  .wrap table,
+  .helpCard table,
+  table{
+    font-size:10.4px !important;
+  }
+  .tablewrap td,
+  .wrap td,
+  .helpCard td,
+  table td{
+    padding:7px 8px !important;
+  }
+}
+</style>
+
+
+<style id="table-headers-complete-patch">
+/* Encabezados completos para Reproducción, Camadas, Engorde y Carne */
+.tblBreedOptimized,
+.tblLittersOptimized,
+.tblEngordeOptimized,
+.tblMeatSalesOptimized{
+  table-layout:auto !important;
+}
+.tblBreedOptimized{ min-width: 920px !important; }
+.tblLittersOptimized{ min-width: 980px !important; }
+.tblEngordeOptimized{ min-width: 1180px !important; }
+.tblMeatSalesOptimized{ min-width: 1080px !important; }
+.tblBreedOptimized thead th,
+.tblLittersOptimized thead th,
+.tblEngordeOptimized thead th,
+.tblMeatSalesOptimized thead th{
+  white-space: nowrap !important;
+  word-break: normal !important;
+  overflow-wrap: normal !important;
+  hyphens: manual !important;
+  line-height: 1.08 !important;
+  font-size: 10.8px !important;
+  letter-spacing: .12px !important;
+  padding-top: 9px !important;
+  padding-bottom: 9px !important;
+}
+.tblBreedOptimized thead th.r,
+.tblLittersOptimized thead th.r,
+.tblEngordeOptimized thead th.r,
+.tblMeatSalesOptimized thead th.r{
+  min-width: 118px !important;
+}
+@media (max-width: 1280px){
+  .tblBreedOptimized thead th,
+  .tblLittersOptimized thead th,
+  .tblEngordeOptimized thead th,
+  .tblMeatSalesOptimized thead th{
+    font-size: 10.4px !important;
+    letter-spacing: .08px !important;
+    padding-left: 9px !important;
+    padding-right: 9px !important;
+  }
+}
+@media (max-width: 1024px){
+  .tblBreedOptimized{ min-width: 900px !important; }
+  .tblLittersOptimized{ min-width: 960px !important; }
+  .tblEngordeOptimized{ min-width: 1140px !important; }
+  .tblMeatSalesOptimized{ min-width: 1040px !important; }
+  .tblBreedOptimized thead th,
+  .tblLittersOptimized thead th,
+  .tblEngordeOptimized thead th,
+  .tblMeatSalesOptimized thead th{
+    font-size: 10px !important;
+  }
+}
+</style>
+
 </head>
 <body>
 
@@ -4030,17 +4236,29 @@ if(typeof renderNavBadges==="function") renderNavBadges();
     bindMoneyInputs(dlg);
   }
 
+  function openMiniModal({title,sub,body,footer,onMount}){
+    if(!dlg2) return;
+    dlg2Title.textContent=title||"";
+    dlg2Sub.textContent=sub||"";
+    dlg2Body.innerHTML=body||"";
+    dlg2Ft.innerHTML=footer||`<button class="btn primary" id="aOk">Cerrar</button>`;
+    dlg2.showModal();
+    bindMoneyInputs(dlg2);
+    const close=()=>dlg2.close();
+    const x=$("#dlg2Close"); if(x) x.onclick=close;
+    const ok=$("#aOk",dlg2Ft); if(ok) ok.onclick=close;
+    if(typeof onMount==="function") onMount();
+  }
+
   function openAlert({title="Atención", sub="", message="", kind="bad"}){
     if(!dlg2) return toast(kind, title, message);
-    dlg2Title.textContent=title;
-    dlg2Sub.textContent=sub||"";
     const boxClass = kind==="ok" ? "alertBox ok" : "alertBox";
-    dlg2Body.innerHTML = `<div class="${boxClass}"><b>${esc(title)}</b><div class="muted" style="margin-top:6px">${esc(message||sub||"")}</div></div>`;
-    dlg2Ft.innerHTML = `<button class="btn primary" id="aOk">Entendido</button>`;
-    dlg2.showModal();
-    const close=()=>dlg2.close();
-    $("#dlg2Close").onclick=close;
-    $("#aOk",dlg2Ft).onclick=close;
+    openMiniModal({
+      title,
+      sub,
+      body:`<div class="${boxClass}"><b>${esc(title)}</b><div class="muted" style="margin-top:6px">${esc(message||sub||"")}</div></div>`,
+      footer:`<button class="btn primary" id="aOk">Entendido</button>`
+    });
   }
 
 
@@ -4133,7 +4351,7 @@ if(typeof renderNavBadges==="function") renderNavBadges();
               <div class="ico">${svgIcon("card","ico")}</div>
               <div class="txt">
                 <b>4. Registra ventas y cobros</b>
-                <div class="muted">Usa Nueva venta para lechones o entra a Carne para ventas por kilos.</div>
+                <div class="muted">Usa Nueva venta para lechones o Venta engorde para vender cerdos de engorde.</div>
               </div>
             </div>
             <div class="right"><button class="btn" data-helptab="sales">Ir a Ventas</button></div>
@@ -4397,6 +4615,8 @@ function normalizeState(){
         avgKg: (p.avgKg==null || p.avgKg==="") ? null : Math.max(0, num(p.avgKg)),
         capacity: (p.capacity==null || p.capacity==="") ? null : Math.max(0, Math.floor(num(p.capacity))),
         initialCount: (p.initialCount==null || p.initialCount==="") ? 0 : Math.max(0, Math.floor(num(p.initialCount))),
+        entryDate: String(p.entryDate||"").trim(),
+        estimatedExitDate: String(p.estimatedExitDate||"").trim(),
       }))
       .filter(p=>p.name);
 
@@ -4412,6 +4632,8 @@ function normalizeState(){
         avgKg: (found && found.avgKg!=null) ? found.avgKg : null,
         capacity: (found && found.capacity!=null) ? found.capacity : null,
         initialCount: (found && found.initialCount!=null) ? found.initialCount : 0,
+        entryDate: (found && found.entryDate!=null) ? found.entryDate : "",
+        estimatedExitDate: (found && found.estimatedExitDate!=null) ? found.estimatedExitDate : "",
       });
     });
     cleaned.forEach(p=>{ if(!merged.some(x=>x.id===p.id)) merged.push(p); });
@@ -4863,7 +5085,7 @@ return list;
       .slice()
       .sort((a,b)=>String(a.name||"").localeCompare(String(b.name||"")));
 
-    if(!engPenId || !engPens.some(p=>p.id===engPenId)) engPenId = engPens[0]?.id || "";
+    if(engPenId && !engPens.some(p=>p.id===engPenId)) engPenId = "";
 
     const engBatchesAll = (state.batches||[])
       .filter(b=>{
@@ -4914,11 +5136,9 @@ return list;
       </button>`;
     }).join("") || `<span class="muted">Sin cajones de engorde</span>`;
 
-    let selectedPenHtml = `
-      <div class="card" style="margin-top:12px">
-        <div class="cardHd"><b>Engorde</b></div>
-        <div class="wrap"><table><tbody><tr><td class="muted">No hay cajones de engorde.</td></tr></tbody></table></div>
-      </div>`;
+    let selectedPenHtml = engPens.length
+      ? `<div class="card" style="margin-top:12px"><div class="cardHd"><b>Detalle del cajón</b></div><div class="wrap"><div class="muted">Presiona un cajón para ver su tabla. Cuando quieras ocultarla, usa la <b>X</b>.</div></div></div>`
+      : `<div class="card" style="margin-top:12px"><div class="cardHd"><b>Engorde</b></div><div class="wrap"><table><tbody><tr><td class="muted">No hay cajones de engorde.</td></tr></tbody></table></div></div>`;
 
     const selectedPen = engPens.find(p=>p.id===engPenId) || null;
     if(selectedPen){
@@ -5004,16 +5224,20 @@ return list;
       selectedPenHtml = `
         <div class="card" style="margin-top:12px">
           <div class="cardHd engSelectedHd">
-            <div><b>${esc(p.name||"Cajón de engorde")}</b></div>
+            <div>
+              <b>${esc(p.name||"Cajón de engorde")}</b>
+              ${p.entryDate || p.estimatedExitDate ? `<div class="muted" style="margin-top:4px">${p.entryDate ? `Entrada: <b>${esc(p.entryDate)}</b>` : ``}${(p.entryDate && p.estimatedExitDate) ? ` &nbsp;•&nbsp; ` : ``}${p.estimatedExitDate ? `Salida estimada: <b>${esc(p.estimatedExitDate)}</b>` : ``}</div>` : ``}
+            </div>
             <div class="miniRow" style="gap:8px;align-items:center">
               <span class="tag">Total: ${fmtNum(c.heads,0)}</span>
               <span class="tag">Capacidad: ${cap?fmtNum(cap,0):"—"}</span>
               <span class="tag">Ocupación: ${occupancy}</span>
               <button class="btn primary" data-eng-an-act="add" data-pen="${p.id}">Agregar cerdo</button>
+              <button class="btn" data-eng-close="1" aria-label="Cerrar tabla">✕</button>
             </div>
           </div>
           <div class="wrap" style="margin-top:8px">
-            <table>
+            <table class="tblEngordeOptimized">
               <thead>
                 <tr>
                   <th>#</th>
@@ -5055,7 +5279,15 @@ return list;
     view.onclick = (e)=>{
       const penBtn = e.target.closest("button[data-eng-pen]");
       if(penBtn){
-        engPenId = penBtn.dataset.engPen || "";
+        const nextPen = penBtn.dataset.engPen || "";
+        engPenId = (engPenId===nextPen) ? "" : nextPen;
+        renderEngorde();
+        return;
+      }
+
+      const closeBtn = e.target.closest("button[data-eng-close]");
+      if(closeBtn){
+        engPenId = "";
         renderEngorde();
         return;
       }
@@ -5408,7 +5640,6 @@ return list;
     ["breed","Reproducción","dna"],
     ["litters","Camadas","users"],
     ["engorde","Engorde","pig"],
-    ["meat","Carne (Kg)","weight"],
     ["settings","Ajustes","gear"]
   ];
   let current="dashboard", q="";
@@ -5824,6 +6055,12 @@ function openPen(opts={}){
         <div class="f6"><label id="penInitLbl">Cerdas iniciales (opcional)</label>
           <input name="initialCount" type="number" min="0" step="1" placeholder="Opcional" />
         </div>
+        <div class="f6"><label>Fecha de entrada</label>
+          <input name="entryDate" type="date" />
+        </div>
+        <div class="f6"><label>Fecha estimada de salida</label>
+          <input name="estimatedExitDate" type="date" />
+        </div>
 
         <div class="f12 muted" id="penCapHint" style="margin-top:-4px">La capacidad y la cantidad inicial son opcionales.</div>
       </form>`,
@@ -5855,13 +6092,24 @@ function openPen(opts={}){
           const cap = capRaw ? Math.max(0, Math.floor(num(capRaw))) : null;
           const initRaw = (fd.get("initialCount")||"").toString().trim();
           const initCount = initRaw ? Math.max(0, Math.floor(num(initRaw))) : 0;
+          const entryDate = (fd.get("entryDate")||"").toString().trim();
+          const estimatedExitDate = (fd.get("estimatedExitDate")||"").toString().trim();
 
           if(!name){ toast("bad","Falta nombre","Escribe un nombre para el cajón."); return; }
+          if(entryDate && estimatedExitDate && estimatedExitDate < entryDate){ toast("warn","Fechas inválidas","La fecha estimada de salida no puede ser menor que la fecha de entrada."); return; }
           state.pens = state.pens || [];
           const dup = state.pens.some(p=>String(p.name||"").trim().toLowerCase()===name.toLowerCase() && String(p.type||"").toLowerCase()===type);
           if(dup){ toast("warn","Ya existe","Ya tienes un cajón con ese nombre y tipo."); return; }
 
-          const pen={id:uid("pen"), name, type, capacity: (cap!=null && cap>0)?cap:null, initialCount: (type==="engorde") ? 0 : initCount};
+          const pen={
+            id:uid("pen"),
+            name,
+            type,
+            capacity: (cap!=null && cap>0)?cap:null,
+            initialCount: (type==="engorde") ? 0 : initCount,
+            entryDate: entryDate || "",
+            estimatedExitDate: estimatedExitDate || ""
+          };
           state.pens.push(pen);
 
           // Si es engorde y el usuario puso cabezas, crear cerdos individuales en ese cajón
@@ -5869,7 +6117,10 @@ function openPen(opts={}){
             ensureAnimals();
             for(let k=0;k<initCount;k++){
               // Nombre vacío (puedes editarlo luego); peso opcional
-              const a = createAnimal(pen.id, "", 0, {notes:"Ingreso inicial al crear cajón"});
+              const a = createAnimal(pen.id, "", 0, {
+                notes:"Ingreso inicial al crear cajón",
+                createdAt: entryDate ? `${entryDate}T00:00:00` : nowISO()
+              });
               // Marca visible para que el usuario los identifique
               if(!a.name) a.name = `Cerdo ${k+1}`;
             }
@@ -5961,6 +6212,8 @@ function openPen(opts={}){
         ` : `
           <div class="f6"><label>${initLbl}</label><input name="initialCount" type="number" min="0" step="1" placeholder="Opcional" value="${esc(String(Math.max(0,Math.floor(num(pen.initialCount||0)))))}" /></div>
         `}
+        <div class="f6"><label>Fecha de entrada</label><input name="entryDate" type="date" value="${esc(String(pen.entryDate||""))}" /></div>
+        <div class="f6"><label>Fecha estimada de salida</label><input name="estimatedExitDate" type="date" value="${esc(String(pen.estimatedExitDate||""))}" /></div>
         <div class="f12 muted" style="margin-top:-6px">Tip: puedes cambiar el nombre sin afectar los datos históricos.</div>
       </form>`,
       footer:`<button class="btn" id="mClose">Cancelar</button><button class="btn primary" id="savePenEdit">Guardar</button>`,
@@ -5973,8 +6226,13 @@ function openPen(opts={}){
           if(dup){ toast("warn","Duplicado","Ya existe un cajón con ese nombre."); return; }
 
           const capRaw=(fd.get("capacity")||"").toString().trim();
+          const entryDate = (fd.get("entryDate")||"").toString().trim();
+          const estimatedExitDate = (fd.get("estimatedExitDate")||"").toString().trim();
+          if(entryDate && estimatedExitDate && estimatedExitDate < entryDate){ toast("warn","Fechas inválidas","La fecha estimada de salida no puede ser menor que la fecha de entrada."); return; }
           pen.capacity = capRaw ? Math.max(0, Math.floor(num(capRaw))) : null;
           pen.name = name;
+          pen.entryDate = entryDate || "";
+          pen.estimatedExitDate = estimatedExitDate || "";
 
           if(t==="engorde"){
             const avgRaw=(fd.get("avgKg")||"").toString().trim();
@@ -6145,10 +6403,8 @@ function openPen(opts={}){
   function renderSows(){
     const closedBr = new Set((state.farrowings||[]).map(f=>f.breedingId).filter(Boolean));
 
-    if(!sowsPenId || !(state.pens||[]).some(p=>p.id===sowsPenId)){
-      sowsPenId = firstPenIdByType("gestacion") || (state.pens||[])[0]?.id || "";
-    }
     const pens = (state.pens||[]).slice();
+    if(sowsPenId && !pens.some(p=>p.id===sowsPenId)) sowsPenId = "";
 
     const gestSows = [];
     const maternityPairs = [];
@@ -6206,9 +6462,13 @@ function openPen(opts={}){
 
     const selPen = getPen(sowsPenId);
     const selType = String(selPen?.type||"").toLowerCase();
+    const hasSelectedPen = !!selPen;
 
     const selExtra = (selType==="engorde") ? 0 : Math.max(0, Math.floor(num(selPen?.initialCount||0)));
-    const extraNote = selExtra ? `<div class="muted" style="margin-top:6px">Adicionales no registrados en este cajón: <b>${fmtNum(selExtra,0)}</b></div>` : "";
+    const penDatesNote = (selPen?.entryDate || selPen?.estimatedExitDate)
+      ? `<div class="muted" style="margin-top:6px">${selPen?.entryDate ? `Entrada: <b>${esc(selPen.entryDate)}</b>` : ``}${(selPen?.entryDate && selPen?.estimatedExitDate) ? ` &nbsp;•&nbsp; ` : ``}${selPen?.estimatedExitDate ? `Salida estimada: <b>${esc(selPen.estimatedExitDate)}</b>` : ``}</div>`
+      : "";
+    const extraNote = `${selExtra ? `<div class="muted" style="margin-top:6px">Adicionales no registrados en este cajón: <b>${fmtNum(selExtra,0)}</b></div>` : ""}${penDatesNote}`;
 
     let table = "";
 
@@ -6241,21 +6501,31 @@ function openPen(opts={}){
       </table></div>`;
 
     } else if(selType==="engorde"){
-      const penAnimals = animalsInPen(sowsPenId);
-      const anCount = penAnimals.length;
-      const anInv = invested.engorde(sowsPenId) + penAnimals.reduce((s,a)=>s+animalCost(a.id),0);
-      const anRow = anCount ? `<tr>
-            <td class="mono">INDIV</td>
-            <td class="muted">—</td>
-            <td class="muted">—</td>
-            <td><b>Cerdos individuales</b><div class="muted">Registrados manualmente (nombre/peso) • Útil para alimentar el cajón y vender por unidad</div></td>
-            <td class="mono">${fmtNum(anCount,0)}</td>
-            <td class="mono">${fmtCOP(anInv)}</td>
-            <td>
-              <button class="btn" data-act="gotoEngPen" data-id="${sowsPenId}">Ver</button>
-              <button class="btn" data-act="supplyEngPen" data-id="${sowsPenId}">Suministrar</button>
-            </td>
-          </tr>` : "";
+      const penAnimals = animalsInPen(sowsPenId)
+        .filter(a=>isAnimalActive(a))
+        .slice()
+        .sort((a,b)=>String(a.name||"").localeCompare(String(b.name||"")));
+
+      const animalRows = penAnimals.map((a, idx)=>{
+        const w = Math.max(0, num(a.weightKg));
+        const inDate = a.createdAt ? String(a.createdAt).slice(0,10) : "";
+        const age = inDate ? daysBetween(inDate, today()) : null;
+        const cost = animalCost(a.id);
+        return `<tr>
+          <td class="mono">CERDO ${idx+1}</td>
+          <td><b>${esc(a.name || ("Cerdo " + (idx+1)))}</b><div class="muted mono">${esc(String(a.id||"").slice(-8))}</div></td>
+          <td class="mono">${esc(inDate||"—")}</td>
+          <td class="mono">${age==null?"—":esc(age+" días")}</td>
+          <td class="mono">${w?fmtNum(w,1)+" kg":"—"}</td>
+          <td class="mono">${cost?fmtCOP(cost):"—"}</td>
+          <td>
+            <button class="btn" data-act="viewAnimal" data-id="${a.id}">Ver</button>
+            <button class="btn" data-act="weightAnimal" data-id="${a.id}">Peso</button>
+            <button class="btn" data-act="supplyAnimal" data-id="${a.id}">Suministrar</button>
+            <button class="btn" data-act="moveAnimal" data-id="${a.id}">Mover cajón</button>
+          </td>
+        </tr>`;
+      }).join("");
 
       const rows = engBatches
         .filter(x=>x.penId===sowsPenId)
@@ -6280,8 +6550,8 @@ function openPen(opts={}){
         }).join("");
 
       table = `<div class="wrap"><table>
-        <thead><tr><th>Lote</th><th>Cerda</th><th>Nac.</th><th>Destete</th><th>Stock</th><th>Inversión</th><th>Acciones</th></tr></thead>
-        <tbody>${(anRow || rows) ? (anRow + rows) : `<tr><td colspan="7" class="muted">Sin lechones en engorde en este cajón.</td></tr>`}</tbody>
+        <thead><tr><th>Registro</th><th>Detalle</th><th>Ingreso</th><th>Edad</th><th>Peso/Stock</th><th>Inversión</th><th>Acciones</th></tr></thead>
+        <tbody>${(animalRows || rows) ? (animalRows + rows) : `<tr><td colspan="7" class="muted">Sin lechones en engorde en este cajón.</td></tr>`}</tbody>
       </table></div>`;
 
     } else {
@@ -6311,20 +6581,34 @@ function openPen(opts={}){
       </table></div>`;
     }
 
+    const selectedCard = hasSelectedPen
+      ? `<div class="card" style="margin-top:12px">
+           <div class="cardHd engSelectedHd">
+             <div>
+               <b>${esc(selPen?.name||"Cajón")}</b>
+               <div class="muted" style="margin-top:4px">Tipo: <b>${esc(selPen?.type||"—")}</b></div>
+               ${extraNote}
+             </div>
+             <div class="miniRow" style="gap:8px;align-items:center">
+               <button class="btn" data-sows-close="1" aria-label="Cerrar tabla">✕</button>
+             </div>
+           </div>
+           <div style="margin-top:10px">${table}</div>
+         </div>`
+      : `<div class="card" style="margin-top:12px"><div class="cardHd"><b>Detalle del cajón</b></div><div class="wrap"><div class="muted">Presiona un cajón para ver su tabla. Cuando quieras ocultarla, usa la <b>X</b>.</div></div></div>`;
+
     view.innerHTML = shell(
       "Cerdas",
       "Organiza por cajones: gestación (cerdas), maternidad (madre+lechones) y engorde (lechones).",
       `<button class="btn primary" id="add"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-plus" xlink:href="#i-plus"></use></svg><span>Nueva cerda</span></button>
        <button class="btn" id="penAdd"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-plus" xlink:href="#i-plus"></use></svg><span>Nuevo cajón</span></button>
-       <button class="btn" id="penEdit">Editar cajón</button>
-       <button class="btn danger" id="penDel">Eliminar cajón</button>
+       <button class="btn" id="penEdit" ${hasSelectedPen?"":"disabled"}>Editar cajón</button>
+       <button class="btn danger" id="penDel" ${hasSelectedPen?"":"disabled"}>Eliminar cajón</button>
        <button class="btn" id="sowSupply">Suministrar cerda</button>
-       ${selType==="engorde" ? '<button class="btn" id="penSupply">Suministrar cajón</button>' : ""}
+       ${selType==="engorde" && hasSelectedPen ? '<button class="btn" id="penSupply">Suministrar cajón</button>' : ""}
        <button class="btn" id="svc"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-dna" xlink:href="#i-dna"></use></svg><span>Registrar servicio</span></button>`,
       `<div class="miniRow" style="flex-wrap:wrap;gap:8px">${penBtns}</div>
-       <div class="muted" style="margin-top:8px">Viendo: <b>${esc(selPen?.name||"Cajón")}</b> • Tipo: <b>${esc(selPen?.type||"—")}</b></div>
-       ${extraNote}
-       <div style="margin-top:10px">${table}</div>`
+       ${selectedCard}`
     );
 
     $("#add").onclick=()=>openSow();
@@ -6332,12 +6616,24 @@ function openPen(opts={}){
     const ps=$("#penSupply"); if(ps) ps.onclick=()=>openSupplyFor("engorde", sowsPenId);
     $("#svc").onclick=()=>openBreeding();
     const pa=$("#penAdd"); if(pa) pa.onclick=()=>openPen();
-    const pe=$("#penEdit"); if(pe) pe.onclick=()=>openEditPen(sowsPenId);
-    const pd=$("#penDel"); if(pd) pd.onclick=()=>deletePen(sowsPenId);
+    const pe=$("#penEdit"); if(pe) pe.onclick=()=>{ if(sowsPenId) openEditPen(sowsPenId); };
+    const pd=$("#penDel"); if(pd) pd.onclick=()=>{ if(sowsPenId) deletePen(sowsPenId); };
 
     view.onclick = (e)=>{
       const penBtn = e.target.closest("button[data-pen]");
-      if(penBtn){ sowsPenId = penBtn.dataset.pen; render(); return; }
+      if(penBtn){
+        const nextPen = penBtn.dataset.pen || "";
+        sowsPenId = (sowsPenId===nextPen) ? "" : nextPen;
+        renderSows();
+        return;
+      }
+
+      const closeBtn = e.target.closest("button[data-sows-close]");
+      if(closeBtn){
+        sowsPenId = "";
+        renderSows();
+        return;
+      }
 
       const b=e.target.closest("button[data-act]"); if(!b) return;
       const act=b.dataset.act;
@@ -6353,6 +6649,10 @@ function openPen(opts={}){
 
       if(act==="gotoEngPen"){ engPenId = b.dataset.id; goTab("engorde"); return; }
       if(act==="supplyEngPen") return openSupplyFor('engorde', b.dataset.id);
+      if(act==="viewAnimal") return openAnimalModal(b.dataset.id);
+      if(act==="weightAnimal") return openAnimalWeight(b.dataset.id);
+      if(act==="supplyAnimal") return openSupplyFor('animal', b.dataset.id);
+      if(act==="moveAnimal") return openMoveAnimal(b.dataset.id);
 
       if(act==="movePair") return openMoveToPen('pair', '', {sowId:b.dataset.sow, batchId:b.dataset.batch});
       if(act==="wean") return openWeanToEngorde(b.dataset.sow, b.dataset.batch);
@@ -6522,7 +6822,7 @@ function openPen(opts={}){
       "Reproducción",
       `Servicios e inseminaciones. Gestación por defecto: ${state.settings.gestationDays} días.`,
       `<button class="btn primary" id="add"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-dna" xlink:href="#i-dna"></use></svg><span>Registrar servicio</span></button>`,
-      `<div class="wrap"><table>
+      `<div class="wrap"><table class="tblBreedOptimized">
         <thead><tr><th>Servicio</th><th>Cerda</th><th>Método</th><th>Parto est.</th><th>Estado</th><th>Inversión</th><th>Acciones</th></tr></thead>
         <tbody>${rows||`<tr><td colspan="7" class="muted">Sin registros.</td></tr>`}</tbody>
       </table></div>`
@@ -6692,7 +6992,7 @@ function openPen(opts={}){
       "Camadas",
       "Cada parto crea un lote. Controla cantidad actual y disponibilidad.",
       `<button class="btn" id="far"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-users" xlink:href="#i-users"></use></svg><span>Registrar parto</span></button><button class="btn" id="manual"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-plus" xlink:href="#i-plus"></use></svg><span>Camada manual</span></button>`,
-      `<div class="wrap"><table>
+      `<div class="wrap"><table class="tblLittersOptimized">
         <thead><tr><th>Lote</th><th>Cerda</th><th>Nac.</th><th>Dest.</th><th>Inicial</th><th>Actual</th><th>Estado</th><th>Inversión</th><th>Acciones</th></tr></thead>
         <tbody>${rows||`<tr><td colspan="9" class="muted">Sin camadas.</td></tr>`}</tbody>
       </table></div>`
@@ -7096,29 +7396,134 @@ function openPen(opts={}){
     return map[k] || s;
   }
 
-  function promptNewInventoryOption(kind){
+  function inventoryOptionMeta(kind){
     const isUnit = kind === "unit";
-    const label = isUnit ? "unidad de medida" : "categoría";
-    const current = isUnit ? inventoryUnitsList() : inventoryCategoriesList();
-    const value = prompt(`Nueva ${label}:`,"");
+    return {
+      isUnit,
+      label: isUnit ? "unidad" : "categoría",
+      title: isUnit ? "Gestionar unidades" : "Gestionar categorías",
+      base: isUnit ? ["ml","cc","kg","g","l","und","lb","bulto","bolsa"] : ["alimento","medicamento","insumo"],
+      list: isUnit ? inventoryUnitsList() : inventoryCategoriesList(),
+      custom: ((state.settings && (isUnit ? state.settings.inventoryUnits : state.settings.inventoryCategories)) || []).map(x=>String(x??"").trim()).filter(Boolean),
+      labelFn: isUnit ? inventoryUnitLabel : (v)=>String(v||"")
+    };
+  }
+
+  function inventoryOptionUsage(kind, value){
+    const key = kind === "unit" ? "unit" : "category";
+    const needle = String(value||"").trim().toLowerCase();
+    return (state.inventory||[]).filter(item=>String(item?.[key]||"").trim().toLowerCase()===needle).length;
+  }
+
+  function createInventoryOption(kind, value){
+    const meta = inventoryOptionMeta(kind);
     const clean = String(value||"").trim();
-    if(!clean) return "";
-    const exists = current.find(x=>x.toLowerCase()===clean.toLowerCase());
+    if(!clean) return {ok:false, value:""};
+    const exists = meta.list.find(x=>x.toLowerCase()===clean.toLowerCase());
     if(exists){
-      toast("warn","Ya existe",`La ${label} ya está creada.`);
-      return exists;
+      toast("warn","Ya existe",`La ${meta.label} ya está creada.`);
+      return {ok:false, value:exists, exists:true};
     }
     state.settings = state.settings || defaults().settings;
-    if(isUnit){
-      state.settings.inventoryUnits = inventoryUnitsList(clean);
+    if(meta.isUnit){
+      state.settings.inventoryUnits = [...meta.custom, clean];
       save();
       toast("ok","Unidad creada", inventoryUnitLabel(clean));
-      return clean;
+    } else {
+      state.settings.inventoryCategories = [...meta.custom, clean];
+      save();
+      toast("ok","Categoría creada", clean);
     }
-    state.settings.inventoryCategories = inventoryCategoriesList(clean);
-    save();
-    toast("ok","Categoría creada", clean);
-    return clean;
+    return {ok:true, value:clean};
+  }
+
+  function deleteInventoryOption(kind, value){
+    const meta = inventoryOptionMeta(kind);
+    const clean = String(value||"").trim();
+    if(!clean) return {ok:false};
+    const lower = clean.toLowerCase();
+    if(meta.base.some(x=>x.toLowerCase()===lower)){
+      toast("warn","Protegida", `La ${meta.label} base no se puede borrar.`);
+      return {ok:false, protected:true};
+    }
+    const usage = inventoryOptionUsage(kind, clean);
+    if(usage>0){
+      toast("warn","En uso", `No puedes borrar esta ${meta.label} porque ${usage===1?"está usada en 1 insumo":"está usada en "+usage+" insumos"}.`);
+      return {ok:false, inUse:true};
+    }
+    state.settings = state.settings || defaults().settings;
+    if(meta.isUnit){
+      state.settings.inventoryUnits = meta.custom.filter(x=>x.toLowerCase()!==lower);
+      save();
+      toast("ok","Unidad borrada", inventoryUnitLabel(clean));
+    } else {
+      state.settings.inventoryCategories = meta.custom.filter(x=>x.toLowerCase()!==lower);
+      save();
+      toast("ok","Categoría borrada", clean);
+    }
+    return {ok:true, value:clean};
+  }
+
+  function openInventoryOptionManager(kind, onChange){
+    const renderManager = ()=>{
+      const meta = inventoryOptionMeta(kind);
+      const rows = meta.list.map(opt=>{
+        const lower = String(opt||"").trim().toLowerCase();
+        const isBase = meta.base.some(x=>x.toLowerCase()===lower);
+        const usage = inventoryOptionUsage(kind, opt);
+        return `<div class="row" style="gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)">
+          <div style="flex:1;min-width:0">
+            <b>${esc(meta.labelFn(opt))}</b>
+            <div class="muted" style="font-size:12px;margin-top:2px">${isBase?"Base del sistema":"Personalizada"}${usage?` • En uso: ${usage}`:""}</div>
+          </div>
+          ${isBase ? `<span class="tag">Base</span>` : `<button type="button" class="btn danger" data-delopt="${esc(opt)}" ${usage ? 'disabled title="En uso"' : ''}>Borrar</button>`}
+        </div>`;
+      }).join("") || `<div class="muted">Sin opciones registradas.</div>`;
+
+      openMiniModal({
+        title: meta.title,
+        sub: `Crea o borra ${meta.isUnit?"unidades de medida":"categorías"} del inventario.`,
+        body:`<div class="grid2">
+          <div class="f12">
+            <label>Nueva ${meta.label}</label>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+              <input id="invOptNew" placeholder="Escribe la nueva ${meta.label}" style="flex:1;min-width:220px"/>
+              <button type="button" class="btn primary" id="invOptCreate">Crear</button>
+            </div>
+            <div class="muted" style="margin-top:6px;font-size:12px">Las opciones base no se pueden borrar. Las opciones en uso tampoco.</div>
+          </div>
+          <div class="f12">
+            <div class="card" style="border:none;box-shadow:none;background:var(--panel2)">
+              <div class="bd" style="padding:8px 12px;max-height:320px;overflow:auto">${rows}</div>
+            </div>
+          </div>
+        </div>`,
+        footer:`<button class="btn" id="aOk">Cerrar</button>`,
+        onMount: ()=>{
+          const input = $("#invOptNew", dlg2Body);
+          const createBtn = $("#invOptCreate", dlg2Body);
+          const runCreate = ()=>{
+            const result = createInventoryOption(kind, input?.value || "");
+            if(!result.ok) return;
+            if(typeof onChange === "function") onChange({action:"create", value:result.value});
+            renderManager();
+          };
+          if(createBtn) createBtn.onclick = runCreate;
+          if(input) input.onkeydown = (e)=>{ if(e.key === "Enter"){ e.preventDefault(); runCreate(); } };
+          dlg2Body.querySelectorAll("button[data-delopt]").forEach(btn=>{
+            btn.onclick = ()=>{
+              const value = btn.dataset.delopt || "";
+              if(!confirm(`¿Borrar ${meta.label} "${value}"?`)) return;
+              const result = deleteInventoryOption(kind, value);
+              if(!result.ok) return;
+              if(typeof onChange === "function") onChange({action:"delete", value:result.value});
+              renderManager();
+            };
+          });
+        }
+      });
+    };
+    renderManager();
   }
 
   function invForm(i,isNew){
@@ -7250,8 +7655,24 @@ function openPen(opts={}){
           clampPaid();
         }
         if(reg){ reg.onchange=()=>{ clampPaid(); }; }
-        if(btnCat){ btnCat.onclick=()=>{ const added = promptNewInventoryOption("category"); if(added) refreshInvSelect(catSel, inventoryCategoriesList(added), added); }; }
-        if(btnUnit){ btnUnit.onclick=()=>{ const added = promptNewInventoryOption("unit"); if(added) refreshInvSelect(unitSel, inventoryUnitsList(added), added, inventoryUnitLabel); }; }
+        if(btnCat){ btnCat.onclick=()=>{
+          openInventoryOptionManager("category", ({action, value})=>{
+            const values = inventoryCategoriesList();
+            const current = action==="delete" && String(catSel?.value||"").toLowerCase()===String(value||"").toLowerCase()
+              ? (values[0] || "")
+              : (catSel?.value || value || values[0] || "");
+            refreshInvSelect(catSel, values, current);
+          });
+        }; }
+        if(btnUnit){ btnUnit.onclick=()=>{
+          openInventoryOptionManager("unit", ({action, value})=>{
+            const values = inventoryUnitsList();
+            const current = action==="delete" && String(unitSel?.value||"").toLowerCase()===String(value||"").toLowerCase()
+              ? (values[0] || "")
+              : (unitSel?.value || value || values[0] || "");
+            refreshInvSelect(unitSel, values, current, inventoryUnitLabel);
+          });
+        }; }
         if(totalI){ totalI.oninput=recalcUnit; }
         if(qtyI){ qtyI.oninput=recalcUnit; }
         if(stI){ stI.onchange=clampPaid; }
@@ -7965,15 +8386,16 @@ if(mode==="salida"){
 
     view.innerHTML = shell(
       "Ventas",
-      "Venta de lechones con control de abonos (COP) y saldo pendiente.",
-      `<button class="btn primary" id="sale"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-card" xlink:href="#i-card"></use></svg><span>Nueva venta</span></button><button class="btn" id="client"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-user" xlink:href="#i-user"></use></svg><span>Nuevo cliente</span></button>`,
-      `<div class="wrap"><table>
+      "Ventas de lechones y acceso rápido a venta de engorde con control de abonos (COP).",
+      `<button class="btn primary" id="sale"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-card" xlink:href="#i-card"></use></svg><span>Nueva venta</span></button><button class="btn" id="saleEngorde"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-pig" xlink:href="#i-pig"></use></svg><span>Venta engorde</span></button><button class="btn" id="client"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-user" xlink:href="#i-user"></use></svg><span>Nuevo cliente</span></button>`,
+      `<div class="salesModule"><div class="wrap salesTableWrap"><table>
         <thead><tr><th>Fecha</th><th>Cliente</th><th>Camada</th><th>Cant.</th><th>Total</th><th>Estado</th><th>Inversión</th><th>Acciones</th></tr></thead>
         <tbody>${rows||`<tr><td colspan="8" class="muted">Sin ventas.</td></tr>`}</tbody>
-      </table></div>`
+      </table></div></div>`
     );
 
     $("#sale").onclick=()=>openSale();
+    $("#saleEngorde").onclick=()=>openMeatSale();
     $("#client").onclick=()=>openClient();
 
     view.onclick=(e)=>{
@@ -8065,26 +8487,26 @@ if(mode==="salida"){
         return `<option value="${b.id}" ${s.batchId===b.id?"selected":""}>${esc(b.birthDate||"—")} • ${esc(sow?.tag||"cerda")} • Disp ${esc(b.countCurrent)}</option>`;
       }).join("");
 
-    return `<form id="saleForm" class="grid2">
-      <div class="f4"><label>Fecha *</label><input type="date" name="date" required value="${esc(s.date)}"/></div>
+    return `<form id="saleForm" class="grid2 saleFormGrid">
+      <div class="f3"><label>Fecha *</label><input type="date" name="date" required value="${esc(s.date)}"/></div>
 
-      <div class="f8"><label>Cliente *</label>
+      <div class="f3"><label>Cliente *</label>
         <select name="clientId" required><option value="">Selecciona</option>${clientOps}</select>
       </div>
 
-      <div class="f8"><label>Cerda *</label>
+      <div class="f3"><label>Cerda *</label>
         <select name="sowId" id="saleSow" required><option value="">Selecciona</option>${sowOps}</select>
-        <div class="muted" style="margin-top:6px;font-size:12px">Se llena para asociar la ganancia a la cerda.</div>
       </div>
 
-      <div class="f8"><label>Camada *</label>
+      <div class="f3"><label>Camada *</label>
         <select name="batchId" id="saleBatch" required><option value="">Selecciona</option>${batchOps}</select>
-        <div class="muted" style="margin-top:6px;font-size:12px">Solo camadas con stock disponible.</div>
       </div>
 
-      <div class="f4"><label>Cantidad *</label><input type="number" name="qty" id="sq" required min="1" value="${esc(s.qty)}"/></div>
-      <div class="f4"><label>Precio unitario (COP) *</label><input type="number" name="unitPrice" id="su" required min="0" value="${esc(s.unitPrice)}"/></div>
-      <div class="f4"><label>Total (auto)</label><input type="number" name="total" id="st" readonly value="${esc(s.total)}"/></div>
+      <div class="f12 muted saleHint">La cerda se usa para asociar la ganancia, y la camada solo muestra opciones con stock disponible.</div>
+
+      <div class="f3"><label>Cantidad *</label><input type="number" name="qty" id="sq" required min="1" value="${esc(s.qty)}"/></div>
+      <div class="f3"><label>Precio unitario (COP) *</label><input type="number" name="unitPrice" id="su" required min="0" value="${esc(s.unitPrice)}"/></div>
+      <div class="f3"><label>Total (auto)</label><input type="number" name="total" id="st" readonly value="${esc(s.total)}"/></div>
 
       <div class="f3"><label>Estado</label>
         <select name="status" id="ss">
@@ -8092,15 +8514,15 @@ if(mode==="salida"){
         </select>
       </div>
 
-      <div class="f3"><label>Pagado hoy (COP)</label><input type="number" name="paidAmount" id="sp" min="0" value="${esc(s.paidAmount)}"/></div>
+      <div class="f4"><label>Pagado hoy (COP)</label><input type="number" name="paidAmount" id="sp" min="0" value="${esc(s.paidAmount)}"/></div>
 
-      <div class="f3"><label>Método (pagado hoy)</label>
+      <div class="f4"><label>Método (pagado hoy)</label>
         <select name="paidMethod" id="spm">
           ${payMethodOptions("efectivo")}
         </select>
       </div>
 
-      <div class="f3"><label>Vence</label><input type="date" name="dueDate" value="${esc(s.dueDate)}"/></div>
+      <div class="f4"><label>Vence</label><input type="date" name="dueDate" value="${esc(s.dueDate)}"/></div>
 
       <div class="f12"><label>Notas</label><textarea name="notes">${esc(s.notes||"")}</textarea></div>
     </form>`;
@@ -8779,7 +9201,7 @@ if(mode==="salida"){
       <div class="card" style="margin-top:12px">
         <div class="cardHd"><b>Ventas de carne</b></div>
         <div class="wrap">
-          <table>
+          <table class="tblMeatSalesOptimized">
             <thead>
               <tr>
                 <th>Fecha</th><th>Cliente</th><th>Cajón</th><th>Tipo</th><th>Cantidad</th><th>Precio/u</th><th>Total</th><th>Abonado</th><th>Estado</th><th class="r">Acciones</th>
@@ -8869,7 +9291,7 @@ if(mode==="salida"){
               </div>
             </div>
             <div class="wrap" style="margin-top:8px">
-              <table>
+              <table class="tblMeatPenOptimized">
                 <thead>
                   <tr>
                     <th>#</th>
@@ -8949,11 +9371,14 @@ if(mode==="salida"){
   function openMeatSale(id, ctx={}){
     if(!state.clients.length){ openAlert({title:"Faltan datos", message:"Primero crea un cliente.", kind:"bad"}); return; }
 
-    const pens = (state.pens||[]).filter(p=>String(p.type||"").toLowerCase()==="engorde" && penAcceptsBatch(p));
-    if(!pens.length){ openAlert({title:"Sin cajones", message:"Crea un cajón de engorde primero.", kind:"bad"}); navTo("engorde"); return; }
+    const allPens = (state.pens||[]).filter(p=>String(p.type||"").toLowerCase()==="engorde" && penAcceptsBatch(p));
+    if(!allPens.length){ openAlert({title:"Sin cajones", message:"Crea un cajón de engorde primero.", kind:"bad"}); navTo("engorde"); return; }
 
     const ms = state.meatSales || [];
     let s = id ? ms.find(x=>x.id===id) : null;
+
+    const pens = allPens.filter(p=>penHeadsAvailable(p.id)>0 || (s && String(s.penId||"")===String(p.id)));
+    if(!pens.length){ openAlert({title:"Sin cerdos en engorde", message:"No hay cajones de engorde con cerdos disponibles para vender.", kind:"warn"}); navTo("engorde"); return; }
 
     // default pen (prioridad: ctx.penId, luego primer pen con stock, luego el primero)
     const penWithStock = pens.find(p=>penHeadsAvailable(p.id)>0);
@@ -9792,7 +10217,7 @@ if(!inRange(tx?.date, from, to)) return;
     const quickBtns = `
       <div class="miniRow" style="gap:8px;flex-wrap:wrap;margin-top:10px">
         ${line==="monta"?`<button class="btn" id="goSales">Ir a Ventas</button>`:""}
-        ${line==="engorde"?`<button class="btn" id="goMeat">Ir a Carne</button> <button class="btn" id="goEng">Ir a Engorde</button>`:""}
+        ${line==="engorde"?`<button class="btn" id="goSales">Ir a Ventas</button> <button class="btn" id="goEng">Ir a Engorde</button>`:""}
         <button class="btn" id="goInv">Ir a Inventario</button>
       </div>
     `;
@@ -9862,8 +10287,6 @@ if(!inRange(tx?.date, from, to)) return;
       onMount: ()=>{
         const b1 = document.getElementById("goSales");
         if(b1) b1.onclick=()=>{ dlg.close(); goTab("sales"); };
-        const b2 = document.getElementById("goMeat");
-        if(b2) b2.onclick=()=>{ dlg.close(); goTab("meat"); };
         const b3 = document.getElementById("goEng");
         if(b3) b3.onclick=()=>{ dlg.close(); goTab("engorde"); };
         const b4 = document.getElementById("goInv");
@@ -10916,6 +11339,330 @@ $("#newSale").onclick=()=>openSale();
 
 })();
 </script>
+
+
+<style id="patch-responsive-tables-desktop-tablet">
+/* =========================================================
+   PATCH — Tablas responsivas para portátil, escritorio y tablet
+   ========================================================= */
+
+/* Más ancho útil para zonas con tablas sin romper el centrado */
+:root{
+  --maxw: min(1680px, calc(100vw - 18px)) !important;
+}
+
+header .bar,
+.layout{
+  width: 100%;
+}
+
+main.content,
+#view,
+.card,
+.helpCard,
+.wrap,
+.tablewrap{
+  min-width: 0 !important;
+  max-width: 100%;
+}
+
+/* En portátil/escritorio, el menú lateral cede un poco de espacio a las tablas */
+@media (min-width: 901px){
+  .layout{
+    gap: 12px !important;
+    align-items: flex-start;
+  }
+  .sidebar{
+    width: 232px !important;
+    flex: 0 0 232px !important;
+  }
+  main.content{
+    flex: 1 1 auto;
+    width: min(100%, calc(100vw - 300px));
+  }
+}
+
+/* Contenedores de tabla: scroll fino si hace falta, pero sin reventar el layout */
+.wrap,
+.tablewrap,
+.helpCard .wrap,
+.card .wrap{
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-gutter: stable both-edges;
+}
+
+/* Tablas más cómodas de leer */
+.wrap table,
+.tablewrap table,
+.helpCard table,
+.card table,
+table{
+  width: max(100%, 940px) !important;
+  min-width: 0 !important;
+  table-layout: auto !important;
+}
+
+.wrap table th, .wrap table td,
+.tablewrap th, .tablewrap td,
+.helpCard th, .helpCard td,
+.card table th, .card table td,
+table th, table td{
+  font-size: clamp(10.6px, 0.78vw, 12px) !important;
+  line-height: 1.28 !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+  hyphens: auto;
+  vertical-align: top;
+}
+
+.wrap table th,
+.tablewrap th,
+.helpCard th,
+.card table th,
+table th{
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+/* Laptop: aprovecha mejor el espacio sin verse apretado */
+@media (min-width: 901px) and (max-width: 1366px){
+  :root{
+    --maxw: min(1540px, calc(100vw - 14px)) !important;
+  }
+  .sidebar{
+    width: 220px !important;
+    flex-basis: 220px !important;
+  }
+  .wrap table,
+  .tablewrap table,
+  .helpCard table,
+  .card table,
+  table{
+    width: max(100%, 860px) !important;
+  }
+  .wrap table th, .wrap table td,
+  .tablewrap th, .tablewrap td,
+  .helpCard th, .helpCard td,
+  .card table th, .card table td,
+  table th, table td{
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+    font-size: 10.8px !important;
+  }
+}
+
+/* Tablet: la tabla sigue legible y, si no cabe completa, desplaza horizontal */
+@media (min-width: 681px) and (max-width: 900px){
+  :root{
+    --maxw: 100% !important;
+    --gutter: 12px !important;
+  }
+  .layout{
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+  .sidebar{
+    width: 100% !important;
+    flex: 0 0 auto !important;
+    position: static !important;
+    height: auto !important;
+  }
+  .sideNav{
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+  }
+  .sidebar nav button{
+    width: auto !important;
+  }
+  main.content{
+    width: 100% !important;
+  }
+  .wrap,
+  .tablewrap{
+    border-radius: 14px !important;
+  }
+  .wrap table,
+  .tablewrap table,
+  .helpCard table,
+  .card table,
+  table{
+    width: max(100%, 760px) !important;
+  }
+  .wrap table th, .wrap table td,
+  .tablewrap th, .tablewrap td,
+  .helpCard th, .helpCard td,
+  .card table th, .card table td,
+  table th, table td{
+    font-size: 10.7px !important;
+    padding: 10px 12px !important;
+  }
+}
+
+/* Refuerzo para tablets pequeñas y pantallas medianas */
+@media (min-width: 681px) and (max-width: 1180px){
+  .kpi,
+  .metric,
+  .pigCard,
+  .card{
+    min-width: 0 !important;
+  }
+}
+
+/* ===== Optimización puntual de tablas clave para portátil/tablet ===== */
+.tblBreedOptimized,
+.tblLittersOptimized,
+.tblEngordeOptimized,
+.tblMeatSalesOptimized,
+.tblMeatPenOptimized{
+  table-layout: auto !important;
+}
+
+.tblBreedOptimized td:nth-child(1),
+.tblBreedOptimized td:nth-child(3),
+.tblBreedOptimized td:nth-child(4),
+.tblBreedOptimized td:nth-child(5),
+.tblBreedOptimized td:nth-child(6),
+.tblBreedOptimized th,
+.tblLittersOptimized td:nth-child(1),
+.tblLittersOptimized td:nth-child(3),
+.tblLittersOptimized td:nth-child(4),
+.tblLittersOptimized td:nth-child(5),
+.tblLittersOptimized td:nth-child(6),
+.tblLittersOptimized td:nth-child(7),
+.tblLittersOptimized td:nth-child(8),
+.tblLittersOptimized th,
+.tblEngordeOptimized td:nth-child(1),
+.tblEngordeOptimized td:nth-child(3),
+.tblEngordeOptimized td:nth-child(4),
+.tblEngordeOptimized td:nth-child(5),
+.tblEngordeOptimized td:nth-child(6),
+.tblEngordeOptimized td:nth-child(7),
+.tblEngordeOptimized td:nth-child(8),
+.tblEngordeOptimized td:nth-child(9),
+.tblEngordeOptimized td:nth-child(10),
+.tblEngordeOptimized th,
+.tblMeatSalesOptimized td:nth-child(1),
+.tblMeatSalesOptimized td:nth-child(3),
+.tblMeatSalesOptimized td:nth-child(4),
+.tblMeatSalesOptimized td:nth-child(5),
+.tblMeatSalesOptimized td:nth-child(6),
+.tblMeatSalesOptimized td:nth-child(7),
+.tblMeatSalesOptimized td:nth-child(8),
+.tblMeatSalesOptimized td:nth-child(9),
+.tblMeatSalesOptimized th,
+.tblMeatPenOptimized td:nth-child(1),
+.tblMeatPenOptimized td:nth-child(3),
+.tblMeatPenOptimized td:nth-child(4),
+.tblMeatPenOptimized td:nth-child(5),
+.tblMeatPenOptimized td:nth-child(6),
+.tblMeatPenOptimized td:nth-child(7),
+.tblMeatPenOptimized td:nth-child(8),
+.tblMeatPenOptimized th{
+  white-space: nowrap !important;
+  word-break: normal !important;
+  overflow-wrap: normal !important;
+}
+
+.tblBreedOptimized td:last-child,
+.tblLittersOptimized td:last-child,
+.tblEngordeOptimized td:last-child,
+.tblMeatSalesOptimized td:last-child,
+.tblMeatPenOptimized td:last-child{
+  white-space: nowrap !important;
+}
+
+.tblBreedOptimized .btn,
+.tblLittersOptimized .btn,
+.tblEngordeOptimized .btn,
+.tblMeatSalesOptimized .btn,
+.tblMeatPenOptimized .btn{
+  white-space: nowrap !important;
+}
+
+.tblEngordeOptimized td:last-child > div,
+.tblMeatPenOptimized td:last-child > div{
+  flex-wrap: nowrap !important;
+}
+
+
+.tblBreedOptimized td:nth-child(2),
+.tblLittersOptimized td:nth-child(2),
+.tblEngordeOptimized td:nth-child(2),
+.tblMeatSalesOptimized td:nth-child(2),
+.tblMeatPenOptimized td:nth-child(2){
+  min-width: 130px;
+}
+
+.tblEngordeOptimized td:nth-child(2),
+.tblMeatPenOptimized td:nth-child(2){
+  min-width: 170px;
+}
+
+.tblBreedOptimized{ min-width: 980px !important; }
+.tblLittersOptimized{ min-width: 1080px !important; }
+.tblEngordeOptimized{ min-width: 1420px !important; }
+.tblMeatSalesOptimized{ min-width: 1180px !important; }
+.tblMeatPenOptimized{ min-width: 1100px !important; }
+
+@media (min-width: 901px) and (max-width: 1366px){
+  .tblBreedOptimized,
+  .tblLittersOptimized,
+  .tblEngordeOptimized,
+  .tblMeatSalesOptimized,
+  .tblMeatPenOptimized{
+    width: max-content !important;
+  }
+
+  .tblBreedOptimized th, .tblBreedOptimized td,
+  .tblLittersOptimized th, .tblLittersOptimized td,
+  .tblEngordeOptimized th, .tblEngordeOptimized td,
+  .tblMeatSalesOptimized th, .tblMeatSalesOptimized td,
+  .tblMeatPenOptimized th, .tblMeatPenOptimized td{
+    font-size: 10.2px !important;
+    line-height: 1.18 !important;
+    padding: 8px 10px !important;
+    hyphens: none !important;
+  }
+
+  .tblBreedOptimized td .muted,
+  .tblLittersOptimized td .muted,
+  .tblEngordeOptimized td .muted,
+  .tblMeatSalesOptimized td .muted,
+  .tblMeatPenOptimized td .muted{
+    white-space: nowrap !important;
+    overflow-wrap: normal !important;
+    word-break: normal !important;
+  }
+}
+
+@media (min-width: 681px) and (max-width: 900px){
+  .tblBreedOptimized,
+  .tblLittersOptimized,
+  .tblEngordeOptimized,
+  .tblMeatSalesOptimized,
+  .tblMeatPenOptimized{
+    width: max-content !important;
+  }
+
+  .tblBreedOptimized th, .tblBreedOptimized td,
+  .tblLittersOptimized th, .tblLittersOptimized td,
+  .tblEngordeOptimized th, .tblEngordeOptimized td,
+  .tblMeatSalesOptimized th, .tblMeatSalesOptimized td,
+  .tblMeatPenOptimized th, .tblMeatPenOptimized td{
+    font-size: 10px !important;
+    line-height: 1.16 !important;
+    padding: 8px 9px !important;
+    hyphens: none !important;
+  }
+}
+
+</style>
 
 </body>
 </html>

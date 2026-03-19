@@ -1634,10 +1634,19 @@ select{
 select::-ms-expand{display:none}
 
 /* Finanzas / histórico: controles más compactos para que las flechas queden cómodas */
+.dashboard-top-alert-row{
+  display:flex;
+  justify-content:flex-end;
+  align-items:stretch;
+  gap:12px;
+  margin-bottom:12px;
+  flex-wrap:wrap;
+}
 .finance-period-wrap{
   display:flex;
   justify-content:flex-end;
-  margin-bottom:12px;
+  margin-bottom:0;
+  flex:0 1 520px;
 }
 .finance-period-card{
   width:min(100%, 520px);
@@ -1695,6 +1704,9 @@ select::-ms-expand{display:none}
   font-size:12px;
 }
 @media (max-width:700px){
+  .dashboard-top-alert-row{
+    display:block;
+  }
   .finance-period-wrap{
     display:block;
   }
@@ -4654,6 +4666,127 @@ function normalizeState(){
     state.settings.inventoryUnits = (state.settings.inventoryUnits || defaults().settings.inventoryUnits || ["ml","cc","kg","g","l","und","lb","bulto","bolsa"]).map(x=>String(x??"").trim()).filter(Boolean);
   }
 
+  const SANITARY_PROTOCOLS = {
+    gestation: [
+      {code:"g75_eco_coli", day:75, stageLabel:"Gestación día 75", shortLabel:"Vacuna ECO COLI - diarrea", medication:"VACUNA ECO COLI - DIARREA", priority:"alta"},
+      {code:"g85_febendazol", day:85, stageLabel:"Gestación día 85", shortLabel:"Febendazol oral", medication:"FEBENDAZOL ORAL 10 % 1 ML X 20 KG", priority:"media"},
+      {code:"g90_eco_coli", day:90, stageLabel:"Gestación día 90", shortLabel:"Vacuna ECO COLI - diarrea", medication:"VACUNA ECO COLI - DIARREA", priority:"alta"}
+    ],
+    lactation: [
+      {code:"l00_oxitocina", day:0, stageLabel:"Lactancia día del parto", shortLabel:"Oxitocina", medication:"3 ML DE OXITOCINA CUANDO ESTA PARIENDO", priority:"alta"},
+      {code:"l00_ceftiser", day:0, stageLabel:"Lactancia día del parto", shortLabel:"Ceftiser", medication:"10 ML CEFTISER CUANDO VOTA PLACENTA", priority:"alta"},
+      {code:"l08_parvo", day:8, stageLabel:"Lactancia día 8 post-parto", shortLabel:"Vacuna parvovirus / leptopirosis / erispela", medication:"VACUNA CONTRA PARVOVIRUS 2 ML - LEPTOPOROSIS - ERISPELA", priority:"media"},
+      {code:"l21_circo", day:21, stageLabel:"Lactancia día 21 post-parto", shortLabel:"Circovirus y microplasma", medication:"VACUNA CIRCOVIRUS Y MICROPLASMA 2 ML CADA UNA", priority:"alta"},
+      {code:"l22_porsix", day:22, stageLabel:"Lactancia día 22", shortLabel:"Purgante oral Porsix", medication:"PURGANTE ORAL PORSIX UNA PAPELETA", priority:"media"},
+      {code:"l24_vitasel", day:24, stageLabel:"Lactancia día 24", shortLabel:"Vitamina Vitasel", medication:"VITAMINA VITASEL 7 ML", priority:"media"},
+      {code:"l25_vigantol", day:25, stageLabel:"Lactancia día 25", shortLabel:"Vigantol", medication:"VIGANTOL 5 ML", priority:"media"}
+    ],
+    piglets: [
+      {code:"p03_hierro1", day:3, stageLabel:"Lechones día 3", shortLabel:"Hierro 1 ml", medication:"VACUNA - HIERRO 1 ML", priority:"alta"},
+      {code:"p04_genzuril", day:4, stageLabel:"Lechones día 4", shortLabel:"Genzuril oral", medication:"SUMINISTRAR ORAL GENZURIL 1.5 ML", priority:"media"},
+      {code:"p07_castrar", day:7, stageLabel:"Lechones día 7", shortLabel:"Castrar", medication:"CASTRAR", priority:"alta"},
+      {code:"p15_hierro2", day:15, stageLabel:"Lechones día 15", shortLabel:"Hierro 2 ml", medication:"VACUNA HIERRO 2 ML", priority:"media"},
+      {code:"p21_circo_micro", day:21, stageLabel:"Lechones día 21", shortLabel:"Circovirus y microplasma", medication:"VACUNA 2 ML DE CIRCOVIRUS Y 2 ML DE MICROPLASMA", priority:"alta"},
+      {code:"p30_complejob", day:30, stageLabel:"Lechones día 30", shortLabel:"Complejo B", medication:"VACUNA COMPLEJO B", priority:"media"},
+      {code:"p40_levamisol", day:40, stageLabel:"Lechones día 40", shortLabel:"Purgante Levamisol", medication:"VACUNA PURGANTE 1 ML LEVAMISOL", priority:"media"},
+      {code:"p45_peste", day:45, stageLabel:"Lechones día 45", shortLabel:"Peste porcina ICA", medication:"VACUNA PESTE PORCINA ICA", priority:"alta"},
+      {code:"p50_fortigan", day:50, stageLabel:"Lechones día 50", shortLabel:"Fortigan vitamina", medication:"VACUNA FORTIGAN 2 ML VITAMINA", priority:"media"}
+    ]
+  };
+
+  function syncSanitaryProtocolTasks(){
+    state.tasks = state.tasks || [];
+    const existing = new Map();
+    state.tasks.forEach(t=>{
+      if(t && t.autoKind === "sanitary_protocol" && t.protocolTaskKey) existing.set(String(t.protocolTaskKey), t);
+    });
+    const nextAuto = [];
+    const expected = new Set();
+    const closedBreedings = new Set((state.farrowings||[]).map(f=>String(f.breedingId||"")).filter(Boolean));
+
+    function upsertAutoTask(spec){
+      expected.add(spec.key);
+      let t = existing.get(spec.key);
+      if(!t){
+        t = {id:uid("tsk"), autoKind:"sanitary_protocol", protocolTaskKey:spec.key, status:"pendiente", priority:spec.priority||"media"};
+      }
+      t.title = spec.title;
+      t.dueDate = spec.dueDate;
+      t.priority = spec.priority || t.priority || "media";
+      t.relatedType = spec.relatedType || "";
+      t.relatedId = spec.relatedId || "";
+      t.notes = spec.notes || "";
+      t.protocolGroup = spec.group || "";
+      nextAuto.push(t);
+    }
+
+    (state.breedings||[]).forEach(br=>{
+      const id = String(br.id||"");
+      const baseDate = String(br.date||"");
+      if(!id || !baseDate || closedBreedings.has(id)) return;
+      const sow = get.sow(br.sowId);
+      const sowLabel = (sow?.tag || sow?.name || "cerda").toString();
+      SANITARY_PROTOCOLS.gestation.forEach(item=>{
+        const due = addDays(baseDate, num(item.day));
+        upsertAutoTask({
+          key:`sanitary:gestation:${id}:${item.code}`,
+          group:"gestation",
+          title:`${item.stageLabel} — ${item.shortLabel} — ${sowLabel}`,
+          dueDate:due,
+          priority:item.priority || "media",
+          relatedType:"breeding",
+          relatedId:id,
+          notes:`${item.medication}`
+        });
+      });
+    });
+
+    const batchesByFarrowing = new Map((state.batches||[]).map(b=>[String(b.farrowingId||""), b]));
+    (state.farrowings||[]).forEach(far=>{
+      const farId = String(far.id||"");
+      const baseDate = String(far.date||"");
+      if(!farId || !baseDate) return;
+      const batch = batchesByFarrowing.get(farId) || (state.batches||[]).find(b=>String(b.farrowingId||"")===farId);
+      if(!batch) return;
+      const batchId = String(batch.id||"");
+      const currentCount = num(batch.countCurrent);
+      const batchClosed = (String(batch.status||"disponible").toLowerCase()==="cerrado") || currentCount<=0;
+      if(batchClosed) return;
+      const sow = get.sow(far.sowId || batch.sowId);
+      const sowLabel = (sow?.tag || sow?.name || "cerda").toString();
+      SANITARY_PROTOCOLS.lactation.forEach(item=>{
+        const due = addDays(baseDate, num(item.day));
+        upsertAutoTask({
+          key:`sanitary:lactation:${batchId}:${item.code}`,
+          group:"lactation",
+          title:`${item.stageLabel} — ${item.shortLabel} — ${sowLabel}`,
+          dueDate:due,
+          priority:item.priority || "media",
+          relatedType:"batch",
+          relatedId:batchId,
+          notes:`${item.medication}`
+        });
+      });
+      SANITARY_PROTOCOLS.piglets.forEach(item=>{
+        const due = addDays(baseDate, num(item.day));
+        upsertAutoTask({
+          key:`sanitary:piglets:${batchId}:${item.code}`,
+          group:"piglets",
+          title:`${item.stageLabel} — ${item.shortLabel} — ${sowLabel}`,
+          dueDate:due,
+          priority:item.priority || "media",
+          relatedType:"batch",
+          relatedId:batchId,
+          notes:`${item.medication}`
+        });
+      });
+    });
+
+    state.tasks = state.tasks.filter(t=>!(t && t.autoKind === "sanitary_protocol" && t.protocolTaskKey && !expected.has(String(t.protocolTaskKey))));
+    const manual = state.tasks.filter(t=>!(t && t.autoKind === "sanitary_protocol"));
+    state.tasks = manual.concat(nextAuto);
+  }
+
   function auditState(){
     normalizeState();
 
@@ -4732,6 +4865,8 @@ function normalizeState(){
       if(t.done===undefined) t.done = false;
       if(!t.priority) t.priority = "media";
     });
+
+    syncSanitaryProtocolTasks();
 
     state.stockMovements.forEach(m=>{
       // Mantener signo: entradas (+), salidas (-).
@@ -5833,17 +5968,34 @@ return list;
         <button class="btn" id="dashInventory">Inventario</button>
       </div>`,
       `
-      <div class="finance-period-wrap">
-        <div class="helpCard finance-period-card" style="margin-top:0">
-          <div class="helpHd">
-            <div>
-              <b>Periodo de consulta</b>
-              <div class="muted">Cambia el mes para revisar cierres, cartera y movimientos históricos.</div>
-            </div>
-            <div class="finance-period-controls">
-              <button class="btn" id="dashPrevM" type="button">◀</button>
-              <select id="dashMonthSel" style="min-width:150px">${monthOps}</select>
-              <button class="btn" id="dashNextM" type="button">▶</button>
+      <div class="dashboard-top-alert-row">
+        <div class="dashboard-task-alert-wrap">
+          <button
+            class="dashboard-task-alert-btn ${tasksPending.length ? "is-alert" : "is-ok"}"
+            id="dashTaskPendingBtn"
+            type="button"
+            title="Abrir tareas pendientes"
+          >
+            <span class="dashboard-task-alert-title">Tareas pendientes</span>
+            <span class="dashboard-task-alert-count">${fmtNum(tasksPending.length,0)}</span>
+            <span class="dashboard-task-alert-sub">${tasksPending.length
+              ? `${tasksOverdue.length ? `${fmtNum(tasksOverdue.length,0)} vencida(s) · ` : ""}${fmtNum(tasksSoon.length,0)} por vencer en 7 días`
+              : "Sin tareas pendientes por ahora"}</span>
+          </button>
+        </div>
+
+        <div class="finance-period-wrap">
+          <div class="helpCard finance-period-card" style="margin-top:0">
+            <div class="helpHd">
+              <div>
+                <b>Periodo de consulta</b>
+                <div class="muted">Cambia el mes para revisar cierres, cartera y movimientos históricos.</div>
+              </div>
+              <div class="finance-period-controls">
+                <button class="btn" id="dashPrevM" type="button">◀</button>
+                <select id="dashMonthSel" style="min-width:150px">${monthOps}</select>
+                <button class="btn" id="dashNextM" type="button">▶</button>
+              </div>
             </div>
           </div>
         </div>
@@ -5892,19 +6044,6 @@ return list;
 
       ${lineCard}
 
-      <div class="helpCard" style="margin-top:12px">
-        <div class="helpHd">
-          <div>
-            <b>Alertas relevantes</b>
-            <div class="muted">Solo las incidencias que impactan control, cartera o cierres.</div>
-          </div>
-          <button class="btn" data-go="tasks">Ver tareas</button>
-        </div>
-        <div class="wrap"><table class="execTableCompact">
-          <thead><tr><th>Nivel</th><th>Detalle</th><th>Acción</th></tr></thead>
-          <tbody>${warningsRows || `<tr><td colspan="3" class="muted">Sin alertas críticas por ahora.</td></tr>`}</tbody>
-        </table></div>
-      </div>
       `
     );
 
@@ -5918,6 +6057,16 @@ return list;
     const be = $("#dashExpense"); if(be) be.onclick=()=>openTx("gasto");
     const bs = $("#dashSales"); if(bs) bs.onclick=()=>goTab("sales");
     const bv = $("#dashInventory"); if(bv) bv.onclick=()=>goTab("inv");
+    const bt = $("#dashTaskPendingBtn");
+    if(bt){
+      bt.onclick=()=>goTab("tasks");
+      if(bt.classList.contains("is-alert")){
+        bt.style.setProperty("animation", "dashTaskBlink 1s steps(1,end) infinite, dashTaskBuzz 5s ease-in-out infinite", "important");
+        bt.style.setProperty("transform-origin", "center", "important");
+      }else{
+        bt.style.removeProperty("animation");
+      }
+    }
 
     view.onclick = (e)=>{
       const b = e.target.closest("button[data-go]");
@@ -7032,7 +7181,7 @@ function openPen(opts={}){
     const penSel = batch?.penId || preset.penId || "";
     const penOps = (state.pens||[]).filter(p=>p.type==="maternidad").map(p=>{ const occ=penOccupancy(p.id); return `<option value="${p.id}" ${penSel===p.id?"selected":""}>${esc(p.name)} • ${esc(occ.sows)} cerdas / ${esc(occ.batches)} camadas</option>`; }).join("");
     const wVal = String(batch?.weaningDate || "");
-    const wSug = f.date ? addDays(f.date, 28) : "";
+    const wSug = f.date ? addDays(f.date, 21) : "";
     return `<form id="farForm" class="grid2">
       <div class="f12"><label>Servicio asociado (opcional)</label><select name="breedingId" id="ffBr"><option value="">(Sin servicio)</option>${brOps}</select></div>
       <div class="f6"><label>Cerda *</label><select name="sowId" id="ffSow" required><option value="">Selecciona</option>${sowOps}</select></div>
@@ -7079,11 +7228,11 @@ function openPen(opts={}){
         const sug = $("#ffWeanSug");
         const use = $("#ffWeanUse");
         const refreshSug = ()=>{
-          const s = (dateI && dateI.value) ? addDays(dateI.value, 28) : "";
+          const s = (dateI && dateI.value) ? addDays(dateI.value, 21) : "";
           if(sug) sug.textContent = s || "";
         };
         if(dateI) dateI.addEventListener("change", refreshSug);
-        if(use && weanI) use.onclick=()=>{ const s=(dateI && dateI.value)?addDays(dateI.value,28):""; if(s) weanI.value=s; };
+        if(use && weanI) use.onclick=()=>{ const s=(dateI && dateI.value)?addDays(dateI.value,21):""; if(s) weanI.value=s; };
         refreshSug();
 
         $("#save").onclick=()=>saveFarrowing(id);
@@ -7157,14 +7306,14 @@ function openPen(opts={}){
     const sowTag = get.sow(sowId)?.tag||"cerda";
     let t=state.tasks.find(x=>x.relatedType==="batch" && x.relatedId===batch.id && (x.title||"").toLowerCase().includes("destete"));
     if(!t){
-      t={id:uid("tsk"),title:`Destete sugerido — ${sowTag}`,dueDate:addDays(date,28),priority:"media",status:"pendiente",relatedType:"batch",relatedId:batch.id,notes:"Ajusta 21–35 días según manejo."};
+      t={id:uid("tsk"),title:`Destete sugerido — ${sowTag}`,dueDate:addDays(date,21),priority:"media",status:"pendiente",relatedType:"batch",relatedId:batch.id,notes:"Ajusta la fecha real según tu manejo."};
       state.tasks.push(t);
     } else {
       // actualizar sugerencia si el parto cambió (solo si no está marcada como hecha)
       if((t.status||"pendiente")!=="hecha"){
-        t.dueDate = addDays(date,28);
+        t.dueDate = addDays(date,21);
         if(!(t.title||"").toLowerCase().includes("registrado")) t.title = `Destete sugerido — ${sowTag}`;
-        if(!t.notes) t.notes = "Ajusta 21–35 días según manejo.";
+        if(!t.notes) t.notes = "Ajusta la fecha real según tu manejo.";
       }
     }
     if(batch.weaningDate){
@@ -7185,7 +7334,7 @@ function openPen(opts={}){
     // weaningDate es la fecha REAL de destete (opcional). Si está vacío, no se asume automáticamente.
     b=b||{sowId:"",birthDate:today(),weaningDate:"",countInitial:0,countCurrent:0,status:"disponible",notes:""};
     const sowOps=state.sows.slice().sort((a,b)=>(a.tag||"").localeCompare(b.tag||"")).map(s=>`<option value="${s.id}" ${b.sowId===s.id?"selected":""}>${esc(s.tag||s.name||"—")}</option>`).join("");
-    const sug = b.birthDate ? addDays(b.birthDate,28) : addDays(today(),28);
+    const sug = b.birthDate ? addDays(b.birthDate,21) : addDays(today(),21);
     return `<form id="batchForm" class="grid2">
       <div class="f6"><label>Cerda *</label><select name="sowId" required><option value="">Selecciona</option>${sowOps}</select></div>
       <div class="f6"><label>Estado</label><select name="status">${["disponible","reservado","vendido","cerrado"].map(x=>`<option ${b.status===x?"selected":""} value="${x}">${x}</option>`).join("")}</select></div>
@@ -7229,11 +7378,11 @@ function openPen(opts={}){
         const sug = $("#batchWeanSug");
         const use = $("#batchWeanUse");
         const refreshSug = ()=>{
-          const s = birth.value ? addDays(birth.value,28) : "";
+          const s = birth.value ? addDays(birth.value,21) : "";
           if(sug) sug.textContent = s || "";
         };
         if(birth) birth.onchange=refreshSug;
-        if(use && wean) use.onclick=()=>{ const s = birth.value ? addDays(birth.value,28) : ""; if(s) wean.value = s; };
+        if(use && wean) use.onclick=()=>{ const s = birth.value ? addDays(birth.value,21) : ""; if(s) wean.value = s; };
         refreshSug();
         // Botón dentro del historial de suministros
         dlgBody.querySelectorAll("button[data-supply]").forEach(b=>{
@@ -10871,36 +11020,111 @@ view.innerHTML = shell(
   // ------- Tareas -------
   function renderTasks(){
     const now=today();
-    const rows=state.tasks
+    const allTasks=(state.tasks||[])
       .filter(t=>matchQ(t.title,t.dueDate,t.priority,t.status,t.notes))
-      .sort((a,b)=>(a.status||"").localeCompare(b.status||"") || (a.dueDate||"").localeCompare(b.dueDate||""))
-      .map(t=>{
-        const dueIn=t.dueDate?daysBetween(now,t.dueDate):null;
-        const st=t.status||"pendiente";
-        const tag=st==="hecha"?`<span class="tag ok">Hecha</span>`:(dueIn!==null&&dueIn<0?`<span class="tag bad">Vencida</span>`:`<span class="tag warn">Pendiente</span>`);
-        return `<tr>
-          <td>${tag} <span class="tag">${esc(t.priority||"media")}</span></td>
-          <td><b>${esc(t.title)}</b><div class="muted">${esc(t.notes||"")}</div></td>
-          <td class="mono">${esc(t.dueDate||"—")}<div class="muted">${dueIn!==null?(dueIn>=0?`${dueIn} días`:`${Math.abs(dueIn)} días tarde`):""}</div></td>
-          <td class="mono">${esc(t.relatedType||"—")} ${t.relatedId?esc(t.relatedId.slice(-6)):""}</td>
-          <td>
-            ${st!=="hecha"?`<button class="btn" data-act="done" data-id="${t.id}">Hecha</button>`:`<button class="btn" data-act="undo" data-id="${t.id}">Reabrir</button>`}
-            <button class="btn danger" data-act="del" data-id="${t.id}">Eliminar</button>
-          </td>
-        </tr>`;
-      }).join("");
+      .sort((a,b)=>(a.status||"").localeCompare(b.status||"") || (a.dueDate||"").localeCompare(b.dueDate||""));
+
+    const taskGroups=[
+      {
+        key:"general",
+        label:"Alertas generales",
+        sub:"Destete, cobros, chequeos, tareas manuales y otras alertas existentes.",
+        filter:(t)=>!(t && t.autoKind==="sanitary_protocol")
+      },
+      {
+        key:"gestation",
+        label:"Cerdas gestantes",
+        sub:"Protocolos y alertas sanitarias de gestación.",
+        filter:(t)=>!!(t && t.autoKind==="sanitary_protocol" && t.protocolGroup==="gestation")
+      },
+      {
+        key:"lactation",
+        label:"Cerdas en lactancia",
+        sub:"Protocolos y alertas sanitarias post-parto.",
+        filter:(t)=>!!(t && t.autoKind==="sanitary_protocol" && t.protocolGroup==="lactation")
+      },
+      {
+        key:"piglets",
+        label:"Lechones",
+        sub:"Vacunas, procedimientos y alertas sanitarias de lechones.",
+        filter:(t)=>!!(t && t.autoKind==="sanitary_protocol" && t.protocolGroup==="piglets")
+      }
+    ];
+
+    const taskRow=(t)=>{
+      const dueIn=t.dueDate?daysBetween(now,t.dueDate):null;
+      const st=t.status||"pendiente";
+      const tag=st==="hecha"?`<span class="tag ok">Hecha</span>`:(dueIn!==null&&dueIn<0?`<span class="tag bad">Vencida</span>`:`<span class="tag warn">Pendiente</span>`);
+      return `<tr>
+        <td>${tag} <span class="tag">${esc(t.priority||"media")}</span></td>
+        <td><b>${esc(t.title)}</b><div class="muted">${esc(t.notes||"")}</div></td>
+        <td class="mono">${esc(t.dueDate||"—")}<div class="muted">${dueIn!==null?(dueIn>=0?`${dueIn} días`:`${Math.abs(dueIn)} días tarde`):""}</div></td>
+        <td class="mono">${esc(t.relatedType||"—")} ${t.relatedId?esc(t.relatedId.slice(-6)):""}</td>
+        <td>
+          ${st!=="hecha"?`<button class="btn" data-act="done" data-id="${t.id}">Hecha</button>`:`<button class="btn" data-act="undo" data-id="${t.id}">Reabrir</button>`}
+          <button class="btn danger" data-act="del" data-id="${t.id}">Eliminar</button>
+        </td>
+      </tr>`;
+    };
+
+    const counts={};
+    taskGroups.forEach(g=>counts[g.key]=allTasks.filter(g.filter).length);
+    const currentGroup=(window.__taskGroupOpen && taskGroups.some(g=>g.key===window.__taskGroupOpen)) ? window.__taskGroupOpen : "";
+
+    function renderGroupTable(key){
+      const group=taskGroups.find(g=>g.key===key);
+      if(!group) return "";
+      const rows=allTasks.filter(group.filter).map(taskRow).join("");
+      return `<div class="helpCard" style="margin-top:14px">
+        <div class="row" style="justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:10px">
+          <div>
+            <div class="title" style="margin-bottom:4px">${esc(group.label)}</div>
+            <div class="muted">${esc(group.sub)}</div>
+          </div>
+          <button class="btn" data-close-task-group="${group.key}">✕ Cerrar</button>
+        </div>
+        <div class="wrap"><table>
+          <thead><tr><th>Estado</th><th>Tarea</th><th>Vence</th><th>Relacionado</th><th>Acciones</th></tr></thead>
+          <tbody>${rows||`<tr><td colspan="5" class="muted">Sin tareas en este grupo.</td></tr>`}</tbody>
+        </table></div>
+      </div>`;
+    }
+
+    const groupButtons = taskGroups.map(g=>{
+      const active = currentGroup===g.key ? "primary" : "";
+      return `<button class="btn ${active}" data-task-group="${g.key}">${esc(g.label)} <span class="tag">${counts[g.key]||0}</span></button>`;
+    }).join("");
+
+    const tableBlock = currentGroup
+      ? renderGroupTable(currentGroup)
+      : `<div class="helpCard" style="margin-top:14px"><div class="muted">Presiona uno de los botones para abrir la tabla correspondiente.</div></div>`;
 
     view.innerHTML = shell(
       "Tareas",
-      "Agenda destete, chequeos, vacunación y cobros (algunas se crean automáticamente).",
-      `<button class="btn primary" id="add"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-plus" xlink:href="#i-plus"></use></svg><span>Nueva tarea</span></button>`,
-      `<div class="wrap"><table>
-        <thead><tr><th>Estado</th><th>Tarea</th><th>Vence</th><th>Relacionado</th><th>Acciones</th></tr></thead>
-        <tbody>${rows||`<tr><td colspan="5" class="muted">Sin tareas.</td></tr>`}</tbody>
-      </table></div>`
+      "Agenda destete, chequeos, vacunación, cobros y alertas sanitarias automáticas para gestación, lactancia y lechones.",
+      `<div class="row" style="gap:10px;flex-wrap:wrap;justify-content:flex-end"><button class="btn primary" id="add"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-plus" xlink:href="#i-plus"></use></svg><span>Nueva tarea</span></button></div>`,
+      `<div class="helpCard">
+        <div class="title" style="margin-bottom:8px">Tablas de tareas</div>
+        <div class="muted" style="margin-bottom:10px">Abre cada tabla por botón: alertas generales, cerdas gestantes, cerdas en lactancia o lechones.</div>
+        <div class="row" style="gap:10px;flex-wrap:wrap">${groupButtons}</div>
+      </div>
+      ${tableBlock}`
     );
     $("#add").onclick=()=>openTask();
     view.onclick=(e)=>{
+      const groupBtn=e.target.closest("button[data-task-group]");
+      if(groupBtn){
+        const key=groupBtn.dataset.taskGroup||"";
+        window.__taskGroupOpen = window.__taskGroupOpen===key ? "" : key;
+        render();
+        return;
+      }
+      const closeBtn=e.target.closest("button[data-close-task-group]");
+      if(closeBtn){
+        window.__taskGroupOpen="";
+        render();
+        return;
+      }
       const b=e.target.closest("button[data-act]"); if(!b) return;
       const id=b.dataset.id, act=b.dataset.act;
       if(act==="del"){ state.tasks=state.tasks.filter(t=>t.id!==id); save(); toast("ok","Eliminada","Tarea eliminada."); render(); }
@@ -11659,6 +11883,143 @@ table th{
     line-height: 1.16 !important;
     padding: 8px 9px !important;
     hyphens: none !important;
+  }
+}
+
+
+.dashboard-task-alert-wrap{
+  margin-top:0;
+  display:flex;
+  justify-content:flex-end;
+  flex:0 0 auto;
+}
+
+.dashboard-task-alert-btn{
+  width:min(100%, 300px);
+  min-height:104px;
+  border:1px solid var(--line);
+  border-radius:20px;
+  padding:16px 18px;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  justify-content:center;
+  gap:6px;
+  box-shadow:0 12px 28px rgba(10,81,59,.12);
+  transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+  cursor:pointer;
+  font-family:inherit;
+  text-align:left;
+}
+
+.dashboard-task-alert-btn:hover{
+  transform:translateY(-1px);
+  box-shadow:0 16px 30px rgba(10,81,59,.16);
+}
+
+.dashboard-task-alert-btn.is-ok{
+  background:#f3fbf6;
+  color:#0b6b49;
+  border-color:#bfe1c8;
+}
+
+.dashboard-task-alert-btn.is-alert{
+  animation:dashTaskBlink 1s steps(1,end) infinite, dashTaskBuzz 5s ease-in-out infinite !important;
+  transform-origin:center !important;
+}
+
+.dashboard-task-alert-title{
+  font-size:13px;
+  font-weight:700;
+  letter-spacing:.02em;
+  text-transform:uppercase;
+  opacity:.92;
+}
+
+.dashboard-task-alert-count{
+  font-size:34px;
+  line-height:1;
+  font-weight:800;
+}
+
+.dashboard-task-alert-sub{
+  font-size:13px;
+  line-height:1.32;
+  opacity:.96;
+}
+
+
+@keyframes dashTaskBuzz{
+  0%, 90%, 100%{
+    transform:translateX(0) rotate(0deg);
+  }
+  91%{
+    transform:translateX(-1px) rotate(-0.6deg);
+  }
+  92%{
+    transform:translateX(2px) rotate(0.6deg);
+  }
+  93%{
+    transform:translateX(-3px) rotate(-0.9deg);
+  }
+  94%{
+    transform:translateX(3px) rotate(0.9deg);
+  }
+  95%{
+    transform:translateX(-2px) rotate(-0.6deg);
+  }
+  96%{
+    transform:translateX(2px) rotate(0.6deg);
+  }
+  97%{
+    transform:translateX(-1px) rotate(-0.3deg);
+  }
+  98%{
+    transform:translateX(1px) rotate(0.3deg);
+  }
+}
+
+@keyframes dashTaskBlink{
+  0%{
+    background:#fff4d7;
+    color:#8a4b00;
+    border-color:#f2d189;
+    box-shadow:0 12px 28px rgba(217,119,6,.18);
+  }
+  33%{
+    background:#ffe0e0;
+    color:#991b1b;
+    border-color:#ef9a9a;
+    box-shadow:0 12px 28px rgba(220,38,38,.18);
+  }
+  66%{
+    background:#dff4ff;
+    color:#0b5d8b;
+    border-color:#90d0f5;
+    box-shadow:0 12px 28px rgba(14,116,144,.18);
+  }
+  100%{
+    background:#fff4d7;
+    color:#8a4b00;
+    border-color:#f2d189;
+    box-shadow:0 12px 28px rgba(217,119,6,.18);
+  }
+}
+
+@media (max-width: 900px){
+  .dashboard-top-alert-row{
+    align-items:stretch;
+  }
+  .dashboard-task-alert-wrap{
+    justify-content:stretch;
+    flex:1 1 260px;
+  }
+  .dashboard-task-alert-btn{
+    width:100%;
+    min-height:96px;
+  }
+  .dashboard-task-alert-count{
+    font-size:30px;
   }
 }
 

@@ -2721,6 +2721,11 @@ table td{
   .contaReport .wrap table th{white-space:nowrap}
   .contaSplit{display:grid;grid-template-columns:1fr 1fr;gap:12px}
   .contaBalanceCols{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+  .contaBalanceBtns{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:12px}
+  .contaBalanceBtns .btn{width:100%;justify-content:space-between;display:flex;align-items:center;gap:8px;padding:12px 14px}
+  .contaBalanceBtns .btn .tag{margin-left:auto}
+  .contaBalancePanel{margin-top:0}
+  .contaCloseMini{width:34px;height:34px;min-width:34px;padding:0;display:inline-flex;align-items:center;justify-content:center;border-radius:12px;font-size:18px;line-height:1}
   .contaStickyTop{display:flex;gap:10px;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-bottom:12px}
   .contaBadge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;border:1px solid var(--line);font-size:12px;background:rgba(255,255,255,.03)}
   .contaMono{font-variant-numeric:tabular-nums;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
@@ -2731,7 +2736,7 @@ table td{
     .contaIntro,.contaGrid2,.contaBalanceCols{grid-template-columns:1fr}
   }
   @media (max-width:820px){
-    .contaKpis,.contaGrid3,.contaSplit{grid-template-columns:1fr}
+    .contaKpis,.contaGrid3,.contaSplit,.contaBalanceBtns{grid-template-columns:1fr}
   }
 </style>
 
@@ -3930,6 +3935,8 @@ const defaults = () => ({
   // Contable
   let accountingView = "summary";
   let accountingPeriod = "__all__";
+  let accountingBalanceOpen = "";
+  let accountingSummaryOpen = "";
 
   function getAvailableMonths(){
     const set = new Set();
@@ -5926,6 +5933,115 @@ return list;
     else if(current==="tasks") renderTasks();
     else if(current==="settings") renderSettings();
     bindMoneyInputs(view);
+    enhanceViewTables();
+  }
+
+
+  const tableToggleState = window.__tableToggleState || (window.__tableToggleState = {});
+
+  function tableToggleSkip(table){
+    if(!table) return true;
+    if(table.closest('.tableTogglePanel')) return true;
+    if(table.closest('.contaBalancePanel')) return true;
+    if(table.closest('[data-table-collapse-exempt="1"]')) return true;
+    if(table.closest('.modal,.modalCard,.modalBox,#modal,.sheet')) return true;
+    if(table.closest('.card,.helpCard')?.querySelector('button[data-sows-close],button[data-eng-close],button[data-close-task-group],button[data-conta-balance-close]')) return true;
+    return false;
+  }
+
+  function tableToggleTitle(table, idx){
+    const wrap = table.closest('.wrap');
+    const card = table.closest('.helpCard,.card');
+    let title = '';
+    const heading = card?.querySelector('.helpHd b, .cardHd b, .title, .hd h2');
+    if(heading) title = (heading.textContent||'').trim();
+    if(!title){
+      const ths = Array.from(table.querySelectorAll('thead th')).map(th => (th.textContent||'').trim()).filter(Boolean);
+      if(ths.length) title = 'Tabla: ' + ths.slice(0,2).join(' / ');
+    }
+    if(!title) title = 'Tabla ' + idx;
+    const owner = wrap?.parentElement;
+    if(owner){
+      const peers = Array.from(owner.querySelectorAll(':scope > .wrap > table')).filter(t=>!tableToggleSkip(t));
+      if(peers.length > 1){
+        const pos = peers.indexOf(table) + 1;
+        if(pos > 0) title += ' · ' + pos;
+      }
+    }
+    return title;
+  }
+
+  function tableToggleKey(table, idx){
+    const title = tableToggleTitle(table, idx)
+      .toLowerCase()
+      .normalize('NFD').replace(/[̀-ͯ]/g,'')
+      .replace(/[^a-z0-9]+/g,'-')
+      .replace(/^-+|-+$/g,'') || ('tabla-' + idx);
+    return current + '::' + title + '::' + idx;
+  }
+
+  function updateTableToggleMount(mount, open){
+    const btn = mount.querySelector('.tableToggleBtn');
+    const panel = mount.querySelector('.tableTogglePanel');
+    const close = mount.querySelector('.tableToggleClose');
+    if(btn){
+      btn.classList.toggle('primary', !!open);
+      btn.querySelector('.tableToggleLabel').textContent = open ? 'Ocultar tabla' : 'Ver tabla';
+    }
+    if(panel){
+      panel.classList.toggle('open', !!open);
+      panel.hidden = !open;
+    }
+    if(close) close.hidden = !open;
+  }
+
+  function enhanceViewTables(){
+    const tables = Array.from(view.querySelectorAll('.wrap > table'));
+    let visibleIndex = 0;
+    tables.forEach((table, rawIndex)=>{
+      if(tableToggleSkip(table)) return;
+      visibleIndex += 1;
+      const wrap = table.closest('.wrap');
+      if(!wrap || wrap.dataset.tableToggleDone === '1') return;
+      const key = tableToggleKey(table, visibleIndex || rawIndex + 1);
+      const title = tableToggleTitle(table, visibleIndex || rawIndex + 1);
+      const open = !!tableToggleState[key];
+
+      const mount = document.createElement('div');
+      mount.className = 'tableToggleMount';
+      mount.dataset.tableToggleKey = key;
+      mount.innerHTML = `
+        <div class="tableToggleBar">
+          <button type="button" class="btn tableToggleBtn ${open ? 'primary' : ''}">
+            <span class="tableToggleLabel">${open ? 'Ocultar tabla' : 'Ver tabla'}</span>
+            <span class="tag info">${esc(title)}</span>
+          </button>
+          <button type="button" class="btn tableToggleClose" ${open ? '' : 'hidden'}>✕</button>
+        </div>
+        <div class="tableTogglePanel ${open ? 'open' : ''}" ${open ? '' : 'hidden'}>
+          <div class="tableTogglePanelHd">
+            <div>
+              <b>${esc(title)}</b>
+              <div class="muted">Presiona el botón para abrir u ocultar esta tabla.</div>
+            </div>
+          </div>
+        </div>`;
+
+      wrap.parentNode.insertBefore(mount, wrap);
+      mount.querySelector('.tableTogglePanel').appendChild(wrap);
+      wrap.dataset.tableToggleDone = '1';
+
+      const toggle = () => {
+        tableToggleState[key] = !tableToggleState[key];
+        updateTableToggleMount(mount, !!tableToggleState[key]);
+      };
+      mount.querySelector('.tableToggleBtn').addEventListener('click', toggle);
+      mount.querySelector('.tableToggleClose').addEventListener('click', ()=>{
+        tableToggleState[key] = false;
+        updateTableToggleMount(mount, false);
+      });
+      updateTableToggleMount(mount, open);
+    });
   }
 
   // ------- Dashboard -------
@@ -11732,6 +11848,49 @@ view.innerHTML = shell(
       .concat((state.meatSales||[]).map(s=>({type:"Engorde", date:s.date, client:get.client(s.clientId)?.name||"—", ref:s.id, pending:Math.max(0,num(s.total)-num(s.paidAmount))})))
       .filter(x=>x.pending>0).sort((a,b)=>b.pending-a.pending).slice(0,6);
     const cxpRows = (state.payables||[]).map(p=>({date:p.date, supplier:p.supplier||"—", item:p.itemName||"Compra", pending:Math.max(0,num(p.total)-num(p.paid))})).filter(x=>x.pending>0).sort((a,b)=>b.pending-a.pending).slice(0,6);
+    const summarySections = {
+      journal: {
+        key:"journal",
+        title:"Libro diario reciente",
+        subtitle:"Últimos asientos del periodo",
+        tagClass:"info",
+        tagText:String(latest.length),
+        body:`<div class="wrap"><table>
+          <thead><tr><th>Fecha</th><th>Cuenta</th><th>Concepto</th><th>Débito</th><th>Crédito</th><th>Origen</th></tr></thead>
+          <tbody>${latest.length ? latest.map(e=>contableJournalRows(e)).join("") : `<tr><td colspan="6" class="muted">Sin asientos para el periodo seleccionado.</td></tr>`}</tbody>
+        </table></div>`
+      },
+      receivables: {
+        key:"receivables",
+        title:"Top cuentas por cobrar",
+        subtitle:"Ventas con saldo",
+        tagClass:"warn",
+        tagText:String(cxcRows.length),
+        body:`<div class="wrap"><table><thead><tr><th>Fecha</th><th>Cliente</th><th>Tipo</th><th>Saldo</th></tr></thead><tbody>${cxcRows.length ? cxcRows.map(x=>`<tr><td class="mono">${esc(x.date||"—")}</td><td>${esc(x.client||"—")}</td><td>${esc(x.type)}</td><td class="contaMono">${fmtCOP(x.pending)}</td></tr>`).join("") : `<tr><td colspan="4" class="muted">Sin cartera abierta.</td></tr>`}</tbody></table></div>`
+      },
+      payables: {
+        key:"payables",
+        title:"Top cuentas por pagar",
+        subtitle:"Compras pendientes",
+        tagClass:"bad",
+        tagText:String(cxpRows.length),
+        body:`<div class="wrap"><table><thead><tr><th>Fecha</th><th>Proveedor</th><th>Compra</th><th>Saldo</th></tr></thead><tbody>${cxpRows.length ? cxpRows.map(x=>`<tr><td class="mono">${esc(x.date||"—")}</td><td>${esc(x.supplier||"—")}</td><td>${esc(x.item||"Compra")}</td><td class="contaMono">${fmtCOP(x.pending)}</td></tr>`).join("") : `<tr><td colspan="4" class="muted">Sin cuentas por pagar abiertas.</td></tr>`}</tbody></table></div>`
+      },
+      result: {
+        key:"result",
+        title:"Resultado del periodo",
+        subtitle:"Ingresos y gastos reconocidos",
+        tagClass:pnl.net>=0?'ok':'bad',
+        tagText:pnl.net>=0?'positivo':'negativo',
+        body:`<div class="wrap"><table><thead><tr><th>Concepto</th><th>Valor</th></tr></thead><tbody>
+          <tr><td>Ingresos</td><td class="contaMono">${fmtCOP(pnl.totalIncome)}</td></tr>
+          <tr><td>Gastos</td><td class="contaMono">${fmtCOP(pnl.totalExpense)}</td></tr>
+          <tr><td>${pnl.net>=0?'Utilidad':'Pérdida'} neta</td><td class="contaMono">${fmtCOP(Math.abs(pnl.net))}</td></tr>
+        </tbody></table></div>`
+      }
+    };
+    const selected = summarySections[accountingSummaryOpen] || null;
+    const renderSummaryPanel = (section)=>`<div class="helpCard contaReport" style="margin-top:12px"><div class="helpHd"><div><b>${section.title}</b><div class="muted">${section.subtitle}</div></div><div style="display:flex;align-items:center;gap:8px"><span class="tag ${section.tagClass}">${section.tagText}</span><button class="btn contaCloseMini" data-conta-summary-close="1" aria-label="Cerrar">×</button></div></div>${section.body}</div>`;
     return `
       <div class="contaKpis">
         <div class="contaKpi"><small>Efectivo y bancos</small><b class="contaMono">${fmtCOP(cash)}</b></div>
@@ -11759,31 +11918,13 @@ view.innerHTML = shell(
         </div>
       </div>
 
-      <div class="contaGrid2" style="margin-top:12px">
-        <div class="helpCard contaReport">
-          <div class="helpHd"><div><b>Libro diario reciente</b><div class="muted">Últimos asientos del periodo</div></div><span class="tag info">${latest.length}</span></div>
-          <div class="wrap"><table>
-            <thead><tr><th>Fecha</th><th>Cuenta</th><th>Concepto</th><th>Débito</th><th>Crédito</th><th>Origen</th></tr></thead>
-            <tbody>${latest.length ? latest.map(e=>contableJournalRows(e)).join("") : `<tr><td colspan="6" class="muted">Sin asientos para el periodo seleccionado.</td></tr>`}</tbody>
-          </table></div>
-        </div>
-        <div class="contaGrid3">
-          <div class="helpCard contaReport">
-            <div class="helpHd"><div><b>Top cuentas por cobrar</b><div class="muted">Ventas con saldo</div></div><span class="tag warn">${cxcRows.length}</span></div>
-            <div class="wrap"><table><thead><tr><th>Fecha</th><th>Cliente</th><th>Tipo</th><th>Saldo</th></tr></thead><tbody>${cxcRows.length ? cxcRows.map(x=>`<tr><td class="mono">${esc(x.date||"—")}</td><td>${esc(x.client||"—")}</td><td>${esc(x.type)}</td><td class="contaMono">${fmtCOP(x.pending)}</td></tr>`).join("") : `<tr><td colspan="4" class="muted">Sin cartera abierta.</td></tr>`}</tbody></table></div>
-          </div>
-          <div class="helpCard contaReport">
-            <div class="helpHd"><div><b>Top cuentas por pagar</b><div class="muted">Compras pendientes</div></div><span class="tag bad">${cxpRows.length}</span></div>
-            <div class="wrap"><table><thead><tr><th>Fecha</th><th>Proveedor</th><th>Compra</th><th>Saldo</th></tr></thead><tbody>${cxpRows.length ? cxpRows.map(x=>`<tr><td class="mono">${esc(x.date||"—")}</td><td>${esc(x.supplier||"—")}</td><td>${esc(x.item||"Compra")}</td><td class="contaMono">${fmtCOP(x.pending)}</td></tr>`).join("") : `<tr><td colspan="4" class="muted">Sin cuentas por pagar abiertas.</td></tr>`}</tbody></table></div>
-          </div>
-          <div class="helpCard contaReport">
-            <div class="helpHd"><div><b>Resultado del periodo</b><div class="muted">Ingresos y gastos reconocidos</div></div><span class="tag ${pnl.net>=0?'ok':'bad'}">${pnl.net>=0?'positivo':'negativo'}</span></div>
-            <div class="muted" style="margin-top:8px">Ingresos: <b class="contaMono">${fmtCOP(pnl.totalIncome)}</b></div>
-            <div class="muted" style="margin-top:6px">Gastos: <b class="contaMono">${fmtCOP(pnl.totalExpense)}</b></div>
-            <div class="muted" style="margin-top:6px">Utilidad: <b class="contaMono">${fmtCOP(pnl.net)}</b></div>
-          </div>
-        </div>
-      </div>`;
+      <div class="contaBalanceBtns" style="margin-top:12px">
+        <button class="btn ${accountingSummaryOpen==="journal"?'primary':''}" data-conta-summary-toggle="journal">Libro diario reciente <span class="tag info">${latest.length}</span></button>
+        <button class="btn ${accountingSummaryOpen==="receivables"?'primary':''}" data-conta-summary-toggle="receivables">Top cuentas por cobrar <span class="tag warn">${cxcRows.length}</span></button>
+        <button class="btn ${accountingSummaryOpen==="payables"?'primary':''}" data-conta-summary-toggle="payables">Top cuentas por pagar <span class="tag bad">${cxpRows.length}</span></button>
+        <button class="btn ${accountingSummaryOpen==="result"?'primary':''}" data-conta-summary-toggle="result">Resultado del periodo <span class="tag ${pnl.net>=0?'ok':'bad'}">${pnl.net>=0?'positivo':'negativo'}</span></button>
+      </div>
+      ${selected ? renderSummaryPanel(selected) : `<div class="contaEmpty" style="margin-top:12px">Presiona uno de los botones para abrir su tabla con la información.</div>`}`;
   }
   function renderContableJournal(range){
     const journal = contableFilterEntries(contableBuildJournal(), range.from, range.to);
@@ -11845,12 +11986,19 @@ view.innerHTML = shell(
   }
   function renderContableBalance(range){
     const b = contableBalanceSheet(range.to);
-    const renderBlock = (title, rows, total, tag)=>`<div class="helpCard contaReport"><div class="helpHd"><div><b>${title}</b></div><span class="tag ${tag}">${rows.length}</span></div><div class="wrap"><table><thead><tr><th>Código</th><th>Cuenta</th><th>Valor</th></tr></thead><tbody>${rows.length ? rows.map(r=>`<tr><td class="mono">${esc(r.account.code||"—")}</td><td>${esc(r.account.name||"—")}</td><td class="contaMono">${fmtCOP(r.amount)}</td></tr>`).join("") : `<tr><td colspan="3" class="muted">Sin registros.</td></tr>`}</tbody><tfoot><tr><th colspan="2">Total</th><th class="contaMono">${fmtCOP(total)}</th></tr></tfoot></table></div></div>`;
-    return `<div class="contaBalanceCols">
-      ${renderBlock("Activos", b.assets, b.totalAssets, "info")}
-      ${renderBlock("Pasivos", b.liabilities, b.totalLiabilities, "bad")}
-      ${renderBlock("Patrimonio", b.equity, b.totalEquity, "ok")}
+    const sections = {
+      assets:{ key:"assets", title:"Activos", rows:b.assets, total:b.totalAssets, tag:"info" },
+      liabilities:{ key:"liabilities", title:"Pasivos", rows:b.liabilities, total:b.totalLiabilities, tag:"bad" },
+      equity:{ key:"equity", title:"Patrimonio", rows:b.equity, total:b.totalEquity, tag:"ok" }
+    };
+    const selected = sections[accountingBalanceOpen] || null;
+    const renderBlock = (section)=>`<div class="helpCard contaReport contaBalancePanel"><div class="helpHd"><div><b>${section.title}</b><div class="muted">Detalle del balance general</div></div><div style="display:flex;align-items:center;gap:8px"><span class="tag ${section.tag}">${section.rows.length}</span><button class="btn contaCloseMini" data-conta-balance-close="1" aria-label="Cerrar">×</button></div></div><div class="wrap"><table><thead><tr><th>Código</th><th>Cuenta</th><th>Valor</th></tr></thead><tbody>${section.rows.length ? section.rows.map(r=>`<tr><td class="mono">${esc(r.account.code||"—")}</td><td>${esc(r.account.name||"—")}</td><td class="contaMono">${fmtCOP(r.amount)}</td></tr>`).join("") : `<tr><td colspan="3" class="muted">Sin registros.</td></tr>`}</tbody><tfoot><tr><th colspan="2">Total</th><th class="contaMono">${fmtCOP(section.total)}</th></tr></tfoot></table></div></div>`;
+    return `<div class="contaBalanceBtns">
+      <button class="btn ${accountingBalanceOpen==="assets"?'primary':''}" data-conta-balance-toggle="assets">Activos <span class="tag info">${b.assets.length}</span></button>
+      <button class="btn ${accountingBalanceOpen==="liabilities"?'primary':''}" data-conta-balance-toggle="liabilities">Pasivos <span class="tag bad">${b.liabilities.length}</span></button>
+      <button class="btn ${accountingBalanceOpen==="equity"?'primary':''}" data-conta-balance-toggle="equity">Patrimonio <span class="tag ok">${b.equity.length}</span></button>
     </div>
+    ${selected ? renderBlock(selected) : `<div class="contaEmpty" style="margin-bottom:12px">Presiona Activos, Pasivos o Patrimonio para abrir su tabla.</div>`}
     <div class="helpCard contaReport" style="margin-top:12px"><div class="helpHd"><div><b>Ecuación contable</b><div class="muted">Comprobación rápida del balance general</div></div><span class="tag ${Math.abs(b.totalAssets-(b.totalLiabilities+b.totalEquity))<0.5?'ok':'warn'}">${Math.abs(b.totalAssets-(b.totalLiabilities+b.totalEquity))<0.5?'cuadra':'revisar'}</span></div><div class="contaKpis" style="margin-top:10px"><div class="contaKpi"><small>Activos</small><b class="contaMono">${fmtCOP(b.totalAssets)}</b></div><div class="contaKpi"><small>Pasivos</small><b class="contaMono">${fmtCOP(b.totalLiabilities)}</b></div><div class="contaKpi"><small>Patrimonio</small><b class="contaMono">${fmtCOP(b.totalEquity)}</b></div></div></div>`;
   }
   function renderContableAccounts(){
@@ -11959,6 +12107,10 @@ view.innerHTML = shell(
       const btn = e.target.closest("button");
       if(!btn) return;
       if(btn.dataset.contaView){ accountingView = btn.dataset.contaView; renderContable(); return; }
+      if(btn.dataset.contaSummaryToggle){ accountingSummaryOpen = accountingSummaryOpen===btn.dataset.contaSummaryToggle ? "" : btn.dataset.contaSummaryToggle; renderContable(); return; }
+      if(btn.dataset.contaSummaryClose){ accountingSummaryOpen = ""; renderContable(); return; }
+      if(btn.dataset.contaBalanceToggle){ accountingBalanceOpen = accountingBalanceOpen===btn.dataset.contaBalanceToggle ? "" : btn.dataset.contaBalanceToggle; renderContable(); return; }
+      if(btn.dataset.contaBalanceClose){ accountingBalanceOpen = ""; renderContable(); return; }
       if(btn.dataset.contaQuick==="entry"){ openContableEntry(); return; }
       if(btn.dataset.contaQuick==="account"){ openContableAccount(); return; }
       if(btn.dataset.contaQuick==="owner"){ openContableOwner(); return; }
@@ -12954,6 +13106,19 @@ table th{
     font-size:30px;
   }
 }
+
+
+/* Patch: tablas por botones en todo el sistema */
+.tableToggleMount{margin-top:12px}
+.tableToggleBar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.tableToggleBtn{display:inline-flex;align-items:center;gap:8px}
+.tableToggleBtn .tag{pointer-events:none}
+.tableTogglePanel{display:none}
+.tableTogglePanel.open{display:block}
+.tableTogglePanelHd{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:#fff}
+.tableTogglePanelHd b{display:block}
+.tableTogglePanelHd .muted{margin-top:4px}
+.tableToggleClose{min-width:42px}
 
 </style>
 

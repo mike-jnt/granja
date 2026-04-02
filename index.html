@@ -6494,6 +6494,45 @@ return list;
         <div class="muted" style="margin-top:8px;font-size:12px">“Resultado” = vendido − insumos. “Caja neta” = ingresos − gastos registrados.</div>
       </div>`;
 
+    const monthlyBirthMap = {};
+    (state.farrowings||[]).forEach(f=>{
+      const d = String(f?.date || "").slice(0,7);
+      if(!d) return;
+      if(!monthlyBirthMap[d]) monthlyBirthMap[d] = {farrowings:0, piglets:0};
+      monthlyBirthMap[d].farrowings += 1;
+      monthlyBirthMap[d].piglets += Math.max(0, num(f?.bornAlive));
+    });
+    const birthMonths = Object.keys(monthlyBirthMap).sort().reverse();
+    const thisMonthBirths = monthlyBirthMap[monthSel] || {farrowings:0, piglets:0};
+    const birthRows = birthMonths.slice(0,12).map(mm=>{
+      const row = monthlyBirthMap[mm] || {farrowings:0, piglets:0};
+      const avg = row.farrowings ? (row.piglets / row.farrowings) : 0;
+      return `<tr>
+        <td class="mono">${esc(mm)}</td>
+        <td class="mono">${fmtNum(row.farrowings,0)}</td>
+        <td class="mono">${fmtNum(row.piglets,0)}</td>
+        <td class="mono">${row.farrowings ? fmtNum(avg,1) : "—"}</td>
+      </tr>`;
+    }).join("");
+    const birthCard = `
+      <div class="helpCard" style="margin-top:12px">
+        <div class="helpHd">
+          <div>
+            <b>Reporte mensual de partos y lechones</b>
+            <div class="muted">Se toma de los partos registrados. “Lechones” = nacidos vivos por mes.</div>
+          </div>
+          <button class="btn" id="dashGoBirths">Ver partos</button>
+        </div>
+        <div class="kpis" style="margin-top:12px">
+          <div class="kpi"><small>Partos del mes (${esc(monthSel)})</small><b class="mono">${fmtNum(thisMonthBirths.farrowings,0)}</b><div class="muted">Registros de parto en el período</div></div>
+          <div class="kpi"><small>Lechones del mes (${esc(monthSel)})</small><b class="mono">${fmtNum(thisMonthBirths.piglets,0)}</b><div class="muted">Nacidos vivos registrados</div></div>
+        </div>
+        <div class="wrap" style="margin-top:12px"><table class="execTableCompact">
+          <thead><tr><th>Mes</th><th>Partos</th><th>Lechones</th><th>Prom. por parto</th></tr></thead>
+          <tbody>${birthRows || `<tr><td colspan="4" class="muted">Aún no hay partos registrados.</td></tr>`}</tbody>
+        </table></div>
+      </div>`;
+
     view.innerHTML = shell(
       "Panel ejecutivo",
       "Resumen financiero, cartera, proveedores y pendientes del período.",
@@ -6546,6 +6585,7 @@ return list;
         <div class="kpi"><small>Inventario valorizado</small><b class="mono">${fmtCOP(inventoryValue)}</b><div class="muted">Costo estimado actual</div></div>
       </div>
 
+      ${birthCard}
       ${controlHTML}
 
       <div class="execSplit">
@@ -6593,6 +6633,7 @@ return list;
     const be = $("#dashExpense"); if(be) be.onclick=()=>openTx("gasto");
     const bs = $("#dashSales"); if(bs) bs.onclick=()=>goTab("sales");
     const bv = $("#dashInventory"); if(bv) bv.onclick=()=>goTab("inv");
+    const db = $("#dashGoBirths"); if(db) db.onclick=()=>goTab("lit");
     const bt = $("#dashTaskPendingBtn");
     if(bt){
       bt.onclick=()=>goTab("tasks");

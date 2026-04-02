@@ -12287,6 +12287,112 @@ view.innerHTML = shell(
     state.accounting.entries = (state.accounting.entries||[]).filter(e=>String(e.id)!==String(id));
     save(); toast("ok","Eliminado","Asiento manual eliminado."); render();
   }
+  function parseContableImportText(text){
+    const raw = String(text||"").replace(/^﻿/, "").trim();
+    if(!raw) return [];
+    let rows = [];
+    if(raw.startsWith("[") || raw.startsWith("{")){
+      let data = JSON.parse(raw);
+      if(!Array.isArray(data)) data = Array.isArray(data.accounts) ? data.accounts : [];
+      rows = data.map(x=>({
+        code:String(x.code||x.codigo||"").trim(),
+        name:String(x.name||x.nombre||"").trim(),
+        class:String(x.class||x.clase||"").trim().toLowerCase(),
+        nature:String(x.nature||x.naturaleza||"").trim().toLowerCase(),
+        system: !!x.system
+      }));
+    } else {
+      const lines = raw.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+      if(!lines.length) return [];
+      const delim = (lines[0].split(';').length > lines[0].split(',').length) ? ';' : ',';
+      const split = (line)=>{
+        const out=[]; let cur=''; let q=false;
+        for(let i=0;i<line.length;i++){
+          const ch=line[i];
+          if(ch==='"'){
+            if(q && line[i+1]==='"'){ cur+='"'; i++; }
+            else q=!q;
+          } else if(ch===delim && !q){ out.push(cur.trim()); cur=''; }
+          else cur+=ch;
+        }
+        out.push(cur.trim());
+        return out.map(v=>v.replace(/^"|"$/g,''));
+      };
+      const headers = split(lines[0]).map(h=>String(h||"").trim().toLowerCase());
+      const mapIdx = (...names)=> names.map(n=>headers.indexOf(n)).find(i=>i>=0) ?? -1;
+      const iCode = mapIdx('code','codigo','cuenta');
+      const iName = mapIdx('name','nombre','descripcion');
+      const iClass = mapIdx('class','clase');
+      const iNature = mapIdx('nature','naturaleza');
+      const iSystem = mapIdx('system','sistema');
+      rows = lines.slice(1).map(line=>{
+        const cols = split(line);
+        return {
+          code:String(cols[iCode]||"").trim(),
+          name:String(cols[iName]||"").trim(),
+          class:String(cols[iClass]||"").trim().toLowerCase(),
+          nature:String(cols[iNature]||"").trim().toLowerCase(),
+          system:['1','true','si','sí','x'].includes(String(cols[iSystem]||"").trim().toLowerCase())
+        };
+      });
+    }
+    const validClasses = new Set(['activo','pasivo','patrimonio','ingreso','gasto']);
+    return rows.filter(r=>r.code && r.name).map(r=>{
+      const cls = validClasses.has(r.class) ? r.class : 'gasto';
+      const nat = (r.nature==='debito' || r.nature==='crédito' || r.nature==='credito') ? (r.nature==='crédito' ? 'credito' : r.nature) : contableNatureForClass(cls);
+      return { code:r.code, name:r.name, class:cls, nature:nat, system:!!r.system };
+    });
+  }
+  async function importContableAccountsFromFile(file){
+    if(!file) return;
+    try{
+      const content = await file.text();
+      const items = parseContableImportText(content);
+      if(!items.length){ toast('warn','Sin datos','El archivo no trae cuentas válidas para importar.'); return; }
+      normalizeAccountingState();
+      const chart = state.accounting.chartAccounts || [];
+      let created=0, updated=0;
+      items.forEach(item=>{
+        const byCode = chart.find(a=>String(a.code||'')===String(item.code));
+        if(byCode){
+          byCode.name = item.name;
+          byCode.class = item.class;
+          byCode.nature = item.nature || contableNatureForClass(item.class);
+          if(!byCode.system) byCode.system = !!item.system;
+          updated++;
+        } else {
+          chart.push({id:uid('acc'), code:item.code, name:item.name, class:item.class, nature:item.nature || contableNatureForClass(item.class), system:!!item.system});
+          created++;
+        }
+      });
+      state.accounting.chartAccounts = chart;
+      normalizeAccountingState();
+      save();
+      toast('ok','Importación lista', `${created} creadas • ${updated} actualizadas`);
+      renderContable();
+    }catch(err){
+      console.error(err);
+      toast('bad','Error al importar','Revisa el archivo. Usa CSV o JSON con código, nombre, clase y naturaleza opcional.');
+    }
+  }
+  function triggerContableImport(){
+    let input = document.getElementById('contaImportFile');
+    if(!input){
+      input = document.createElement('input');
+      input.type = 'file';
+      input.id = 'contaImportFile';
+      input.accept = '.csv,.json,text/csv,application/json';
+      input.style.display = 'none';
+      input.addEventListener('change', async ()=>{
+        const f = input.files && input.files[0];
+        await importContableAccountsFromFile(f);
+        input.value = '';
+      });
+      document.body.appendChild(input);
+    }
+    input.click();
+  }
+
   function renderContableSummary(range){
     const allEntries = contableBuildJournal();
     const journal = contableFilterEntries(allEntries, range.from, range.to);
@@ -12462,6 +12568,7 @@ view.innerHTML = shell(
     return `<div class="contaSplit">
       <div class="helpCard contaReport">
         <div class="helpHd"><div><b>Plan de cuentas</b><div class="muted">Catálogo base editable</div></div><span class="tag info">${accounts.length}</span></div>
+        <div class="muted" style="margin:8px 0 10px">Puedes importar cuentas contables en CSV o JSON con columnas: <b>code</b>, <b>name</b>, <b>class</b> y <b>nature</b> opcional.</div>
         <div class="wrap"><table>
           <thead><tr><th>Código</th><th>Cuenta</th><th>Clase</th><th>Naturaleza</th><th></th></tr></thead>
           <tbody>${accounts.map(a=>`<tr><td class="mono">${esc(a.code)}</td><td>${esc(a.name)}${a.system?`<div class="contaMini">Cuenta base del sistema</div>`:""}</td><td>${esc(contableClassLabel(a.class))}</td><td>${esc(a.nature)}</td><td style="white-space:nowrap"><button class="btn" data-conta-edit-account="${a.id}">Editar</button>${a.system?"":` <button class="btn danger" data-conta-del-account="${a.id}">Borrar</button>`}</td></tr>`).join("")}</tbody>
@@ -12546,6 +12653,7 @@ view.innerHTML = shell(
       `<div class="contaToolbar">
         <button class="btn" id="contaNewEntry">Nuevo asiento</button>
         <button class="btn" id="contaNewAccount">Nueva cuenta</button>
+        <button class="btn" id="contaImportAccounts">Importar cuentas</button>
         <button class="btn" id="contaOwnerBtn">Capital inicial</button>
         <span class="contaBadge">Periodo</span>${periodSel}
       </div>`,
@@ -12556,6 +12664,7 @@ view.innerHTML = shell(
     if(psel) psel.onchange = ()=>{ accountingPeriod = psel.value || "__all__"; renderContable(); };
     const ne = $("#contaNewEntry"); if(ne) ne.onclick = ()=>openContableEntry();
     const na = $("#contaNewAccount"); if(na) na.onclick = ()=>openContableAccount();
+    const ia = $("#contaImportAccounts"); if(ia) ia.onclick = ()=>triggerContableImport();
     const ob = $("#contaOwnerBtn"); if(ob) ob.onclick = ()=>openContableOwner();
 
     view.onclick = (e)=>{

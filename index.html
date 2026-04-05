@@ -7641,19 +7641,35 @@ function normalizeState(){
       });
     });
 
-    const batchesByFarrowing = new Map((state.batches||[]).map(b=>[String(b.farrowingId||""), b]));
+    const batchesByFarrowing = new Map();
+    (state.batches||[]).forEach(b=>{
+      const key = String(b.farrowingId||"");
+      if(!key) return;
+      const prev = batchesByFarrowing.get(key);
+      const prevScore = prev ? (((String(prev.status||"disponible").toLowerCase()!=="cerrado") ? 10 : 0) + (num(prev.countCurrent)>0 ? 5 : 0) + (String(prev.weaningDate||"") ? -20 : 0)) : -999;
+      const currScore = (((String(b.status||"disponible").toLowerCase()!=="cerrado") ? 10 : 0) + (num(b.countCurrent)>0 ? 5 : 0) + (String(b.weaningDate||"") ? -20 : 0));
+      if(!prev || currScore > prevScore) batchesByFarrowing.set(key, b);
+    });
+
     (state.farrowings||[]).forEach(far=>{
       const farId = String(far.id||"");
       const baseDate = String(far.date||"");
       if(!farId || !baseDate) return;
-      const batch = batchesByFarrowing.get(farId) || (state.batches||[]).find(b=>String(b.farrowingId||"")===farId);
-      if(!batch) return;
-      const batchId = String(batch.id||"");
-      const currentCount = num(batch.countCurrent);
-      const batchClosed = (String(batch.status||"disponible").toLowerCase()==="cerrado") || currentCount<=0;
+
+      const batch = batchesByFarrowing.get(farId) || (state.batches||[]).find(b=>String(b.farrowingId||"")===farId) || null;
+      const batchId = String(batch?.id || farId || "");
+      const batchStatus = String(batch?.status || "disponible").toLowerCase();
+      const currentCount = num(batch?.countCurrent);
+      const initialCount = num(batch?.countInitial ?? batch?.countBornAlive ?? batch?.bornAlive ?? far?.bornAlive);
+      const hasStock = currentCount > 0 || initialCount > 0 || num(far?.bornAlive) > 0;
+      const weaningDate = String(batch?.weaningDate || "");
+      const batchClosed = !!weaningDate || (batchStatus==="cerrado" && !hasStock);
+
       if(batchClosed) return;
-      const sow = get.sow(far.sowId || batch.sowId);
+
+      const sow = get.sow(far.sowId || batch?.sowId);
       const sowLabel = (sow?.tag || sow?.name || "cerda").toString();
+
       SANITARY_PROTOCOLS.lactation.forEach(item=>{
         const due = addDays(baseDate, num(item.day));
         upsertAutoTask({
@@ -7662,11 +7678,12 @@ function normalizeState(){
           title:`${item.stageLabel} — ${item.shortLabel} — ${sowLabel}`,
           dueDate:due,
           priority:item.priority || "media",
-          relatedType:"batch",
-          relatedId:batchId,
+          relatedType: batch ? "batch" : "farrowing",
+          relatedId: batch ? batchId : farId,
           notes:`${item.medication}`
         });
       });
+
       SANITARY_PROTOCOLS.piglets.forEach(item=>{
         const due = addDays(baseDate, num(item.day));
         upsertAutoTask({
@@ -7675,8 +7692,8 @@ function normalizeState(){
           title:`${item.stageLabel} — ${item.shortLabel} — ${sowLabel}`,
           dueDate:due,
           priority:item.priority || "media",
-          relatedType:"batch",
-          relatedId:batchId,
+          relatedType: batch ? "batch" : "farrowing",
+          relatedId: batch ? batchId : farId,
           notes:`${item.medication}`
         });
       });

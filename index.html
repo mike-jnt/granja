@@ -2440,6 +2440,531 @@ header .brand .logo img.headerBrandLogoImg{
   }
 }
 
+
+/* Mejoras visuales para alertas */
+.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:var(--shadow)}
+.kpi-label{font-size:12px;color:var(--muted);margin-bottom:6px}
+.kpi-value{font-size:24px;font-weight:900;line-height:1}
+@media (max-width: 980px){.grid4{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media (max-width: 560px){.grid4{grid-template-columns:1fr;}}
+
+
+/* Orden visual módulo alertas */
+.alertsTopbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:12px;
+}
+.alertsTopbarLeft{min-width:0}
+.alertsTopTitle{
+  font-size:15px;
+  font-weight:900;
+  line-height:1.1;
+}
+.alertsTopSub{
+  font-size:12px;
+  color:var(--muted);
+  margin-top:3px;
+}
+.alertsTopbarRight{
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+.alertsFilterCard{
+  margin-top:0 !important;
+}
+.alertsFilterHead{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+  margin-bottom:10px;
+  flex-wrap:wrap;
+}
+.alertsFilterGrid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+.alertsFilterBtn{
+  border:none;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:12px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  cursor:pointer;
+  font-weight:800;
+  text-align:left;
+  box-shadow:0 6px 18px rgba(2,6,23,.04);
+  transition:.15s ease;
+}
+.alertsFilterBtn:hover{
+  transform:translateY(-1px);
+  border-color:rgba(23,158,114,.25);
+  background:rgba(23,158,114,.04);
+}
+.alertsFilterBtn.primary{
+  background:rgba(23,158,114,.10);
+  border-color:rgba(23,158,114,.28);
+  box-shadow:0 0 0 3px rgba(23,158,114,.10);
+}
+.alertsFilterText{
+  min-width:0;
+  overflow-wrap:anywhere;
+}
+.alertsFilterBadge{
+  flex:0 0 auto;
+}
+.helpCard .wrap{
+  overflow:auto;
+}
+@media (max-width: 900px){
+  .alertsFilterGrid{
+    grid-template-columns:1fr;
+  }
+}
+@media (max-width: 560px){
+  .alertsTopbar{
+    align-items:flex-start;
+  }
+  .alertsTopbarRight{
+    width:100%;
+  }
+  .alertsTopbarRight .btn{
+    width:100%;
+    justify-content:center;
+  }
+}
+
+
+/* ===== Dashboard ordenado de izquierda a derecha ===== */
+.dashboardRow,
+.dashboardGrid,
+.resumeGrid,
+.summaryGrid{
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.dashboardRow3,
+.dashboardGrid3{
+  display:grid !important;
+  grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.dashboardRow4,
+.dashboardGrid4{
+  display:grid !important;
+  grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.reports-stack{
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.reports-stack > .card{
+  width:100% !important;
+  margin:0 !important;
+}
+.view[data-view="dashboard"] .row,
+#view-dashboard .row,
+section[data-view="dashboard"] .row{
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.view[data-view="dashboard"] .row > .col-12,
+.view[data-view="dashboard"] .row > .col-8,
+.view[data-view="dashboard"] .row > .col-6,
+.view[data-view="dashboard"] .row > .col-4,
+.view[data-view="dashboard"] .row > .col-3,
+.view[data-view="dashboard"] .row > .col-2,
+#view-dashboard .row > .col-12,
+#view-dashboard .row > .col-8,
+#view-dashboard .row > .col-6,
+#view-dashboard .row > .col-4,
+#view-dashboard .row > .col-3,
+#view-dashboard .row > .col-2,
+section[data-view="dashboard"] .row > .col-12,
+section[data-view="dashboard"] .row > .col-8,
+section[data-view="dashboard"] .row > .col-6,
+section[data-view="dashboard"] .row > .col-4,
+section[data-view="dashboard"] .row > .col-3,
+section[data-view="dashboard"] .row > .col-2{
+  grid-column:auto !important;
+}
+.view[data-view="dashboard"] .row > .col-12,
+#view-dashboard .row > .col-12,
+section[data-view="dashboard"] .row > .col-12{
+  grid-column:span 2 !important;
+}
+.view[data-view="dashboard"] .toolbar,
+#view-dashboard .toolbar,
+section[data-view="dashboard"] .toolbar{
+  display:flex !important;
+  gap:10px !important;
+  flex-wrap:wrap !important;
+  align-items:center !important;
+}
+.view[data-view="dashboard"] .toolbar > *,
+#view-dashboard .toolbar > *,
+section[data-view="dashboard"] .toolbar > *{
+  flex:0 1 auto !important;
+}
+@media (max-width: 980px){
+  .dashboardRow,
+  .dashboardGrid,
+  .resumeGrid,
+  .summaryGrid,
+  .reports-stack,
+  .view[data-view="dashboard"] .row,
+  #view-dashboard .row,
+  section[data-view="dashboard"] .row{
+    grid-template-columns:1fr !important;
+  }
+  .view[data-view="dashboard"] .row > .col-12,
+  #view-dashboard .row > .col-12,
+  section[data-view="dashboard"] .row > .col-12{
+    grid-column:span 1 !important;
+  }
+}
+
+
+/* Ajuste limpio del módulo tareas y alertas */
+.taskToolbar{
+  display:flex;
+  justify-content:flex-end;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.taskSummaryGrid{
+  margin-bottom:12px;
+}
+.taskFiltersCard{
+  margin-top:0 !important;
+}
+.taskFiltersRow{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+}
+.taskFilterBtn{
+  border:1px solid var(--line);
+  background:#fff;
+  border-radius:16px;
+  padding:12px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  cursor:pointer;
+  box-shadow:0 6px 18px rgba(2,6,23,.04);
+  transition:.15s ease;
+}
+.taskFilterBtn:hover{
+  border-color:rgba(23,158,114,.28);
+  background:rgba(23,158,114,.04);
+}
+.taskFilterBtn.is-active{
+  background:rgba(23,158,114,.10);
+  border-color:rgba(23,158,114,.28);
+  box-shadow:0 0 0 3px rgba(23,158,114,.10);
+}
+.taskFilterLabel{
+  font-weight:800;
+  text-align:left;
+}
+.taskFilterCount{
+  min-width:28px;
+  height:28px;
+  padding:0 8px;
+  border-radius:999px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-size:12px;
+  font-weight:900;
+  background:rgba(23,158,114,.10);
+  color:var(--green-900);
+  border:1px solid rgba(23,158,114,.18);
+}
+.taskSectionHead{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:10px;
+}
+.taskTableWrap{
+  max-height:420px;
+  overflow:auto;
+}
+@media (max-width: 980px){
+  .taskFiltersRow{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+@media (max-width: 560px){
+  .taskToolbar .btn{
+    width:100%;
+    justify-content:center;
+  }
+  .taskFiltersRow{
+    grid-template-columns:1fr;
+  }
+}
+
+
+/* Dashboard organizado sin tocar otras vistas */
+.dashboardStack{
+  display:grid;
+  gap:12px;
+}
+.dashboardPair{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+  align-items:start;
+}
+.dashboardPair > .helpCard{
+  margin-top:0 !important;
+  height:100%;
+}
+.dashboardPair .wrap{
+  overflow:auto;
+}
+@media (max-width: 980px){
+  .dashboardPair{
+    grid-template-columns:1fr;
+  }
+}
+
+
+/* ===== Tareas y alertas: panel horizontal ===== */
+.taskDashboardLayout{
+  display:grid;
+  grid-template-columns: 360px minmax(0, 1fr);
+  gap:14px;
+  align-items:start;
+  margin-top:12px;
+}
+.taskDashboardSide,
+.taskDashboardMain{
+  min-width:0;
+}
+.taskDashboardSide .helpCard,
+.taskDashboardMain .helpCard{
+  margin-top:0 !important;
+}
+.taskDashboardMain .taskOpenCard{
+  min-height:100%;
+}
+.taskFiltersRow{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:10px;
+}
+.taskSummaryGrid{
+  margin-bottom:12px;
+}
+.taskTableWrap{
+  max-height:460px;
+  overflow:auto;
+}
+@media (max-width: 1100px){
+  .taskDashboardLayout{
+    grid-template-columns: 320px minmax(0, 1fr);
+  }
+}
+@media (max-width: 980px){
+  .taskDashboardLayout{
+    grid-template-columns:1fr;
+  }
+}
+
+
+/* Arriba del módulo tareas: horizontal real */
+.taskSummaryRow{
+  display:grid !important;
+  grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+  gap:12px !important;
+  margin-bottom:12px !important;
+  align-items:stretch !important;
+}
+.taskSummaryRow .kpi{
+  margin:0 !important;
+  min-width:0 !important;
+}
+@media (max-width: 1100px){
+  .taskSummaryRow{
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  }
+}
+@media (max-width: 560px){
+  .taskSummaryRow{
+    grid-template-columns:1fr !important;
+  }
+}
+
+
+/* Forzar KPIs de tareas en horizontal */
+.taskSummaryRow{
+  display:flex !important;
+  flex-direction:row !important;
+  flex-wrap:nowrap !important;
+  gap:12px !important;
+  align-items:stretch !important;
+  justify-content:space-between !important;
+  width:100% !important;
+  margin-bottom:12px !important;
+}
+.taskSummaryRow .kpi{
+  flex:1 1 0 !important;
+  width:auto !important;
+  min-width:0 !important;
+  margin:0 !important;
+}
+@media (max-width: 980px){
+  .taskSummaryRow{
+    flex-wrap:wrap !important;
+  }
+  .taskSummaryRow .kpi{
+    flex:1 1 calc(50% - 12px) !important;
+  }
+}
+@media (max-width: 560px){
+  .taskSummaryRow .kpi{
+    flex:1 1 100% !important;
+  }
+}
+
+
+/* Grupo de alertas horizontal arriba, tabla abajo */
+.taskDashboardLayout{
+  display:grid !important;
+  grid-template-columns:1fr !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.taskDashboardSide,
+.taskDashboardMain{
+  min-width:0 !important;
+}
+.taskFiltersCard{
+  margin-top:0 !important;
+}
+.taskFiltersRow{
+  display:flex !important;
+  flex-direction:row !important;
+  flex-wrap:wrap !important;
+  gap:10px !important;
+  align-items:stretch !important;
+}
+.taskFiltersRow > *{
+  flex:1 1 220px !important;
+  min-width:180px !important;
+}
+.taskDashboardMain .taskOpenCard{
+  margin-top:0 !important;
+}
+@media (max-width: 560px){
+  .taskFiltersRow > *{
+    flex:1 1 100% !important;
+    min-width:0 !important;
+  }
+}
+
+
+/* Tabla cerrada en alertas */
+.taskClosedHint{
+  min-height: 120px;
+  display:flex;
+  align-items:center;
+}
+
+
+/* Lo más urgente: hint cuando está cerrado */
+.taskMiniClosedHint{
+  margin-top:10px;
+  padding:12px 14px;
+  border:1px dashed var(--line);
+  border-radius:14px;
+  background:rgba(248,250,252,1);
+  color:var(--muted);
+  font-size:12px;
+}
+
+
+/* Ajuste: Lo más urgente como botón junto a grupos */
+.taskDashboardLayout{
+  grid-template-columns: 1fr !important;
+}
+.taskDashboardSide,
+.taskDashboardMain{
+  width:100% !important;
+}
+.taskFiltersRow{
+  display:flex !important;
+  flex-direction:row !important;
+  flex-wrap:wrap !important;
+  gap:10px !important;
+}
+.taskFiltersRow > *{
+  flex:1 1 180px !important;
+  min-width:180px !important;
+}
+.taskDashboardMain .taskOpenCard{
+  margin-top:12px !important;
+}
+@media (max-width:560px){
+  .taskFiltersRow > *{
+    flex:1 1 100% !important;
+    min-width:0 !important;
+  }
+}
+
+
+/* Reporte mensual de nacimientos */
+.finance-births-controls{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+.finance-births-controls select{
+  min-width:150px;
+}
+@media (max-width: 700px){
+  .finance-births-controls{
+    width:100%;
+  }
+  .finance-births-controls select,
+  .finance-births-controls .btn{
+    width:100%;
+  }
+}
+
+
+/* Importación de balance inicial */
+.contaMini .mono{display:block;margin-top:2px;}
+
 </style>
 
 <style id="brand-white-green-v2">
@@ -2887,6 +3412,531 @@ header .brand .logo img.headerBrandLogoImg{
   }
 }
 
+
+/* Mejoras visuales para alertas */
+.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:var(--shadow)}
+.kpi-label{font-size:12px;color:var(--muted);margin-bottom:6px}
+.kpi-value{font-size:24px;font-weight:900;line-height:1}
+@media (max-width: 980px){.grid4{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media (max-width: 560px){.grid4{grid-template-columns:1fr;}}
+
+
+/* Orden visual módulo alertas */
+.alertsTopbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:12px;
+}
+.alertsTopbarLeft{min-width:0}
+.alertsTopTitle{
+  font-size:15px;
+  font-weight:900;
+  line-height:1.1;
+}
+.alertsTopSub{
+  font-size:12px;
+  color:var(--muted);
+  margin-top:3px;
+}
+.alertsTopbarRight{
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+.alertsFilterCard{
+  margin-top:0 !important;
+}
+.alertsFilterHead{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+  margin-bottom:10px;
+  flex-wrap:wrap;
+}
+.alertsFilterGrid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+.alertsFilterBtn{
+  border:none;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:12px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  cursor:pointer;
+  font-weight:800;
+  text-align:left;
+  box-shadow:0 6px 18px rgba(2,6,23,.04);
+  transition:.15s ease;
+}
+.alertsFilterBtn:hover{
+  transform:translateY(-1px);
+  border-color:rgba(23,158,114,.25);
+  background:rgba(23,158,114,.04);
+}
+.alertsFilterBtn.primary{
+  background:rgba(23,158,114,.10);
+  border-color:rgba(23,158,114,.28);
+  box-shadow:0 0 0 3px rgba(23,158,114,.10);
+}
+.alertsFilterText{
+  min-width:0;
+  overflow-wrap:anywhere;
+}
+.alertsFilterBadge{
+  flex:0 0 auto;
+}
+.helpCard .wrap{
+  overflow:auto;
+}
+@media (max-width: 900px){
+  .alertsFilterGrid{
+    grid-template-columns:1fr;
+  }
+}
+@media (max-width: 560px){
+  .alertsTopbar{
+    align-items:flex-start;
+  }
+  .alertsTopbarRight{
+    width:100%;
+  }
+  .alertsTopbarRight .btn{
+    width:100%;
+    justify-content:center;
+  }
+}
+
+
+/* ===== Dashboard ordenado de izquierda a derecha ===== */
+.dashboardRow,
+.dashboardGrid,
+.resumeGrid,
+.summaryGrid{
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.dashboardRow3,
+.dashboardGrid3{
+  display:grid !important;
+  grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.dashboardRow4,
+.dashboardGrid4{
+  display:grid !important;
+  grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.reports-stack{
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.reports-stack > .card{
+  width:100% !important;
+  margin:0 !important;
+}
+.view[data-view="dashboard"] .row,
+#view-dashboard .row,
+section[data-view="dashboard"] .row{
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.view[data-view="dashboard"] .row > .col-12,
+.view[data-view="dashboard"] .row > .col-8,
+.view[data-view="dashboard"] .row > .col-6,
+.view[data-view="dashboard"] .row > .col-4,
+.view[data-view="dashboard"] .row > .col-3,
+.view[data-view="dashboard"] .row > .col-2,
+#view-dashboard .row > .col-12,
+#view-dashboard .row > .col-8,
+#view-dashboard .row > .col-6,
+#view-dashboard .row > .col-4,
+#view-dashboard .row > .col-3,
+#view-dashboard .row > .col-2,
+section[data-view="dashboard"] .row > .col-12,
+section[data-view="dashboard"] .row > .col-8,
+section[data-view="dashboard"] .row > .col-6,
+section[data-view="dashboard"] .row > .col-4,
+section[data-view="dashboard"] .row > .col-3,
+section[data-view="dashboard"] .row > .col-2{
+  grid-column:auto !important;
+}
+.view[data-view="dashboard"] .row > .col-12,
+#view-dashboard .row > .col-12,
+section[data-view="dashboard"] .row > .col-12{
+  grid-column:span 2 !important;
+}
+.view[data-view="dashboard"] .toolbar,
+#view-dashboard .toolbar,
+section[data-view="dashboard"] .toolbar{
+  display:flex !important;
+  gap:10px !important;
+  flex-wrap:wrap !important;
+  align-items:center !important;
+}
+.view[data-view="dashboard"] .toolbar > *,
+#view-dashboard .toolbar > *,
+section[data-view="dashboard"] .toolbar > *{
+  flex:0 1 auto !important;
+}
+@media (max-width: 980px){
+  .dashboardRow,
+  .dashboardGrid,
+  .resumeGrid,
+  .summaryGrid,
+  .reports-stack,
+  .view[data-view="dashboard"] .row,
+  #view-dashboard .row,
+  section[data-view="dashboard"] .row{
+    grid-template-columns:1fr !important;
+  }
+  .view[data-view="dashboard"] .row > .col-12,
+  #view-dashboard .row > .col-12,
+  section[data-view="dashboard"] .row > .col-12{
+    grid-column:span 1 !important;
+  }
+}
+
+
+/* Ajuste limpio del módulo tareas y alertas */
+.taskToolbar{
+  display:flex;
+  justify-content:flex-end;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.taskSummaryGrid{
+  margin-bottom:12px;
+}
+.taskFiltersCard{
+  margin-top:0 !important;
+}
+.taskFiltersRow{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+}
+.taskFilterBtn{
+  border:1px solid var(--line);
+  background:#fff;
+  border-radius:16px;
+  padding:12px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  cursor:pointer;
+  box-shadow:0 6px 18px rgba(2,6,23,.04);
+  transition:.15s ease;
+}
+.taskFilterBtn:hover{
+  border-color:rgba(23,158,114,.28);
+  background:rgba(23,158,114,.04);
+}
+.taskFilterBtn.is-active{
+  background:rgba(23,158,114,.10);
+  border-color:rgba(23,158,114,.28);
+  box-shadow:0 0 0 3px rgba(23,158,114,.10);
+}
+.taskFilterLabel{
+  font-weight:800;
+  text-align:left;
+}
+.taskFilterCount{
+  min-width:28px;
+  height:28px;
+  padding:0 8px;
+  border-radius:999px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-size:12px;
+  font-weight:900;
+  background:rgba(23,158,114,.10);
+  color:var(--green-900);
+  border:1px solid rgba(23,158,114,.18);
+}
+.taskSectionHead{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:10px;
+}
+.taskTableWrap{
+  max-height:420px;
+  overflow:auto;
+}
+@media (max-width: 980px){
+  .taskFiltersRow{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+@media (max-width: 560px){
+  .taskToolbar .btn{
+    width:100%;
+    justify-content:center;
+  }
+  .taskFiltersRow{
+    grid-template-columns:1fr;
+  }
+}
+
+
+/* Dashboard organizado sin tocar otras vistas */
+.dashboardStack{
+  display:grid;
+  gap:12px;
+}
+.dashboardPair{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+  align-items:start;
+}
+.dashboardPair > .helpCard{
+  margin-top:0 !important;
+  height:100%;
+}
+.dashboardPair .wrap{
+  overflow:auto;
+}
+@media (max-width: 980px){
+  .dashboardPair{
+    grid-template-columns:1fr;
+  }
+}
+
+
+/* ===== Tareas y alertas: panel horizontal ===== */
+.taskDashboardLayout{
+  display:grid;
+  grid-template-columns: 360px minmax(0, 1fr);
+  gap:14px;
+  align-items:start;
+  margin-top:12px;
+}
+.taskDashboardSide,
+.taskDashboardMain{
+  min-width:0;
+}
+.taskDashboardSide .helpCard,
+.taskDashboardMain .helpCard{
+  margin-top:0 !important;
+}
+.taskDashboardMain .taskOpenCard{
+  min-height:100%;
+}
+.taskFiltersRow{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:10px;
+}
+.taskSummaryGrid{
+  margin-bottom:12px;
+}
+.taskTableWrap{
+  max-height:460px;
+  overflow:auto;
+}
+@media (max-width: 1100px){
+  .taskDashboardLayout{
+    grid-template-columns: 320px minmax(0, 1fr);
+  }
+}
+@media (max-width: 980px){
+  .taskDashboardLayout{
+    grid-template-columns:1fr;
+  }
+}
+
+
+/* Arriba del módulo tareas: horizontal real */
+.taskSummaryRow{
+  display:grid !important;
+  grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+  gap:12px !important;
+  margin-bottom:12px !important;
+  align-items:stretch !important;
+}
+.taskSummaryRow .kpi{
+  margin:0 !important;
+  min-width:0 !important;
+}
+@media (max-width: 1100px){
+  .taskSummaryRow{
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  }
+}
+@media (max-width: 560px){
+  .taskSummaryRow{
+    grid-template-columns:1fr !important;
+  }
+}
+
+
+/* Forzar KPIs de tareas en horizontal */
+.taskSummaryRow{
+  display:flex !important;
+  flex-direction:row !important;
+  flex-wrap:nowrap !important;
+  gap:12px !important;
+  align-items:stretch !important;
+  justify-content:space-between !important;
+  width:100% !important;
+  margin-bottom:12px !important;
+}
+.taskSummaryRow .kpi{
+  flex:1 1 0 !important;
+  width:auto !important;
+  min-width:0 !important;
+  margin:0 !important;
+}
+@media (max-width: 980px){
+  .taskSummaryRow{
+    flex-wrap:wrap !important;
+  }
+  .taskSummaryRow .kpi{
+    flex:1 1 calc(50% - 12px) !important;
+  }
+}
+@media (max-width: 560px){
+  .taskSummaryRow .kpi{
+    flex:1 1 100% !important;
+  }
+}
+
+
+/* Grupo de alertas horizontal arriba, tabla abajo */
+.taskDashboardLayout{
+  display:grid !important;
+  grid-template-columns:1fr !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.taskDashboardSide,
+.taskDashboardMain{
+  min-width:0 !important;
+}
+.taskFiltersCard{
+  margin-top:0 !important;
+}
+.taskFiltersRow{
+  display:flex !important;
+  flex-direction:row !important;
+  flex-wrap:wrap !important;
+  gap:10px !important;
+  align-items:stretch !important;
+}
+.taskFiltersRow > *{
+  flex:1 1 220px !important;
+  min-width:180px !important;
+}
+.taskDashboardMain .taskOpenCard{
+  margin-top:0 !important;
+}
+@media (max-width: 560px){
+  .taskFiltersRow > *{
+    flex:1 1 100% !important;
+    min-width:0 !important;
+  }
+}
+
+
+/* Tabla cerrada en alertas */
+.taskClosedHint{
+  min-height: 120px;
+  display:flex;
+  align-items:center;
+}
+
+
+/* Lo más urgente: hint cuando está cerrado */
+.taskMiniClosedHint{
+  margin-top:10px;
+  padding:12px 14px;
+  border:1px dashed var(--line);
+  border-radius:14px;
+  background:rgba(248,250,252,1);
+  color:var(--muted);
+  font-size:12px;
+}
+
+
+/* Ajuste: Lo más urgente como botón junto a grupos */
+.taskDashboardLayout{
+  grid-template-columns: 1fr !important;
+}
+.taskDashboardSide,
+.taskDashboardMain{
+  width:100% !important;
+}
+.taskFiltersRow{
+  display:flex !important;
+  flex-direction:row !important;
+  flex-wrap:wrap !important;
+  gap:10px !important;
+}
+.taskFiltersRow > *{
+  flex:1 1 180px !important;
+  min-width:180px !important;
+}
+.taskDashboardMain .taskOpenCard{
+  margin-top:12px !important;
+}
+@media (max-width:560px){
+  .taskFiltersRow > *{
+    flex:1 1 100% !important;
+    min-width:0 !important;
+  }
+}
+
+
+/* Reporte mensual de nacimientos */
+.finance-births-controls{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+.finance-births-controls select{
+  min-width:150px;
+}
+@media (max-width: 700px){
+  .finance-births-controls{
+    width:100%;
+  }
+  .finance-births-controls select,
+  .finance-births-controls .btn{
+    width:100%;
+  }
+}
+
+
+/* Importación de balance inicial */
+.contaMini .mono{display:block;margin-top:2px;}
+
 </style>
 
 
@@ -3300,6 +4350,531 @@ header .brand .logo img.headerBrandLogoImg{
   }
 }
 
+
+/* Mejoras visuales para alertas */
+.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:var(--shadow)}
+.kpi-label{font-size:12px;color:var(--muted);margin-bottom:6px}
+.kpi-value{font-size:24px;font-weight:900;line-height:1}
+@media (max-width: 980px){.grid4{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media (max-width: 560px){.grid4{grid-template-columns:1fr;}}
+
+
+/* Orden visual módulo alertas */
+.alertsTopbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:12px;
+}
+.alertsTopbarLeft{min-width:0}
+.alertsTopTitle{
+  font-size:15px;
+  font-weight:900;
+  line-height:1.1;
+}
+.alertsTopSub{
+  font-size:12px;
+  color:var(--muted);
+  margin-top:3px;
+}
+.alertsTopbarRight{
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+.alertsFilterCard{
+  margin-top:0 !important;
+}
+.alertsFilterHead{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+  margin-bottom:10px;
+  flex-wrap:wrap;
+}
+.alertsFilterGrid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+.alertsFilterBtn{
+  border:none;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:12px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  cursor:pointer;
+  font-weight:800;
+  text-align:left;
+  box-shadow:0 6px 18px rgba(2,6,23,.04);
+  transition:.15s ease;
+}
+.alertsFilterBtn:hover{
+  transform:translateY(-1px);
+  border-color:rgba(23,158,114,.25);
+  background:rgba(23,158,114,.04);
+}
+.alertsFilterBtn.primary{
+  background:rgba(23,158,114,.10);
+  border-color:rgba(23,158,114,.28);
+  box-shadow:0 0 0 3px rgba(23,158,114,.10);
+}
+.alertsFilterText{
+  min-width:0;
+  overflow-wrap:anywhere;
+}
+.alertsFilterBadge{
+  flex:0 0 auto;
+}
+.helpCard .wrap{
+  overflow:auto;
+}
+@media (max-width: 900px){
+  .alertsFilterGrid{
+    grid-template-columns:1fr;
+  }
+}
+@media (max-width: 560px){
+  .alertsTopbar{
+    align-items:flex-start;
+  }
+  .alertsTopbarRight{
+    width:100%;
+  }
+  .alertsTopbarRight .btn{
+    width:100%;
+    justify-content:center;
+  }
+}
+
+
+/* ===== Dashboard ordenado de izquierda a derecha ===== */
+.dashboardRow,
+.dashboardGrid,
+.resumeGrid,
+.summaryGrid{
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.dashboardRow3,
+.dashboardGrid3{
+  display:grid !important;
+  grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.dashboardRow4,
+.dashboardGrid4{
+  display:grid !important;
+  grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.reports-stack{
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.reports-stack > .card{
+  width:100% !important;
+  margin:0 !important;
+}
+.view[data-view="dashboard"] .row,
+#view-dashboard .row,
+section[data-view="dashboard"] .row{
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.view[data-view="dashboard"] .row > .col-12,
+.view[data-view="dashboard"] .row > .col-8,
+.view[data-view="dashboard"] .row > .col-6,
+.view[data-view="dashboard"] .row > .col-4,
+.view[data-view="dashboard"] .row > .col-3,
+.view[data-view="dashboard"] .row > .col-2,
+#view-dashboard .row > .col-12,
+#view-dashboard .row > .col-8,
+#view-dashboard .row > .col-6,
+#view-dashboard .row > .col-4,
+#view-dashboard .row > .col-3,
+#view-dashboard .row > .col-2,
+section[data-view="dashboard"] .row > .col-12,
+section[data-view="dashboard"] .row > .col-8,
+section[data-view="dashboard"] .row > .col-6,
+section[data-view="dashboard"] .row > .col-4,
+section[data-view="dashboard"] .row > .col-3,
+section[data-view="dashboard"] .row > .col-2{
+  grid-column:auto !important;
+}
+.view[data-view="dashboard"] .row > .col-12,
+#view-dashboard .row > .col-12,
+section[data-view="dashboard"] .row > .col-12{
+  grid-column:span 2 !important;
+}
+.view[data-view="dashboard"] .toolbar,
+#view-dashboard .toolbar,
+section[data-view="dashboard"] .toolbar{
+  display:flex !important;
+  gap:10px !important;
+  flex-wrap:wrap !important;
+  align-items:center !important;
+}
+.view[data-view="dashboard"] .toolbar > *,
+#view-dashboard .toolbar > *,
+section[data-view="dashboard"] .toolbar > *{
+  flex:0 1 auto !important;
+}
+@media (max-width: 980px){
+  .dashboardRow,
+  .dashboardGrid,
+  .resumeGrid,
+  .summaryGrid,
+  .reports-stack,
+  .view[data-view="dashboard"] .row,
+  #view-dashboard .row,
+  section[data-view="dashboard"] .row{
+    grid-template-columns:1fr !important;
+  }
+  .view[data-view="dashboard"] .row > .col-12,
+  #view-dashboard .row > .col-12,
+  section[data-view="dashboard"] .row > .col-12{
+    grid-column:span 1 !important;
+  }
+}
+
+
+/* Ajuste limpio del módulo tareas y alertas */
+.taskToolbar{
+  display:flex;
+  justify-content:flex-end;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.taskSummaryGrid{
+  margin-bottom:12px;
+}
+.taskFiltersCard{
+  margin-top:0 !important;
+}
+.taskFiltersRow{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+}
+.taskFilterBtn{
+  border:1px solid var(--line);
+  background:#fff;
+  border-radius:16px;
+  padding:12px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  cursor:pointer;
+  box-shadow:0 6px 18px rgba(2,6,23,.04);
+  transition:.15s ease;
+}
+.taskFilterBtn:hover{
+  border-color:rgba(23,158,114,.28);
+  background:rgba(23,158,114,.04);
+}
+.taskFilterBtn.is-active{
+  background:rgba(23,158,114,.10);
+  border-color:rgba(23,158,114,.28);
+  box-shadow:0 0 0 3px rgba(23,158,114,.10);
+}
+.taskFilterLabel{
+  font-weight:800;
+  text-align:left;
+}
+.taskFilterCount{
+  min-width:28px;
+  height:28px;
+  padding:0 8px;
+  border-radius:999px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-size:12px;
+  font-weight:900;
+  background:rgba(23,158,114,.10);
+  color:var(--green-900);
+  border:1px solid rgba(23,158,114,.18);
+}
+.taskSectionHead{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:10px;
+}
+.taskTableWrap{
+  max-height:420px;
+  overflow:auto;
+}
+@media (max-width: 980px){
+  .taskFiltersRow{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+@media (max-width: 560px){
+  .taskToolbar .btn{
+    width:100%;
+    justify-content:center;
+  }
+  .taskFiltersRow{
+    grid-template-columns:1fr;
+  }
+}
+
+
+/* Dashboard organizado sin tocar otras vistas */
+.dashboardStack{
+  display:grid;
+  gap:12px;
+}
+.dashboardPair{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+  align-items:start;
+}
+.dashboardPair > .helpCard{
+  margin-top:0 !important;
+  height:100%;
+}
+.dashboardPair .wrap{
+  overflow:auto;
+}
+@media (max-width: 980px){
+  .dashboardPair{
+    grid-template-columns:1fr;
+  }
+}
+
+
+/* ===== Tareas y alertas: panel horizontal ===== */
+.taskDashboardLayout{
+  display:grid;
+  grid-template-columns: 360px minmax(0, 1fr);
+  gap:14px;
+  align-items:start;
+  margin-top:12px;
+}
+.taskDashboardSide,
+.taskDashboardMain{
+  min-width:0;
+}
+.taskDashboardSide .helpCard,
+.taskDashboardMain .helpCard{
+  margin-top:0 !important;
+}
+.taskDashboardMain .taskOpenCard{
+  min-height:100%;
+}
+.taskFiltersRow{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:10px;
+}
+.taskSummaryGrid{
+  margin-bottom:12px;
+}
+.taskTableWrap{
+  max-height:460px;
+  overflow:auto;
+}
+@media (max-width: 1100px){
+  .taskDashboardLayout{
+    grid-template-columns: 320px minmax(0, 1fr);
+  }
+}
+@media (max-width: 980px){
+  .taskDashboardLayout{
+    grid-template-columns:1fr;
+  }
+}
+
+
+/* Arriba del módulo tareas: horizontal real */
+.taskSummaryRow{
+  display:grid !important;
+  grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+  gap:12px !important;
+  margin-bottom:12px !important;
+  align-items:stretch !important;
+}
+.taskSummaryRow .kpi{
+  margin:0 !important;
+  min-width:0 !important;
+}
+@media (max-width: 1100px){
+  .taskSummaryRow{
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  }
+}
+@media (max-width: 560px){
+  .taskSummaryRow{
+    grid-template-columns:1fr !important;
+  }
+}
+
+
+/* Forzar KPIs de tareas en horizontal */
+.taskSummaryRow{
+  display:flex !important;
+  flex-direction:row !important;
+  flex-wrap:nowrap !important;
+  gap:12px !important;
+  align-items:stretch !important;
+  justify-content:space-between !important;
+  width:100% !important;
+  margin-bottom:12px !important;
+}
+.taskSummaryRow .kpi{
+  flex:1 1 0 !important;
+  width:auto !important;
+  min-width:0 !important;
+  margin:0 !important;
+}
+@media (max-width: 980px){
+  .taskSummaryRow{
+    flex-wrap:wrap !important;
+  }
+  .taskSummaryRow .kpi{
+    flex:1 1 calc(50% - 12px) !important;
+  }
+}
+@media (max-width: 560px){
+  .taskSummaryRow .kpi{
+    flex:1 1 100% !important;
+  }
+}
+
+
+/* Grupo de alertas horizontal arriba, tabla abajo */
+.taskDashboardLayout{
+  display:grid !important;
+  grid-template-columns:1fr !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.taskDashboardSide,
+.taskDashboardMain{
+  min-width:0 !important;
+}
+.taskFiltersCard{
+  margin-top:0 !important;
+}
+.taskFiltersRow{
+  display:flex !important;
+  flex-direction:row !important;
+  flex-wrap:wrap !important;
+  gap:10px !important;
+  align-items:stretch !important;
+}
+.taskFiltersRow > *{
+  flex:1 1 220px !important;
+  min-width:180px !important;
+}
+.taskDashboardMain .taskOpenCard{
+  margin-top:0 !important;
+}
+@media (max-width: 560px){
+  .taskFiltersRow > *{
+    flex:1 1 100% !important;
+    min-width:0 !important;
+  }
+}
+
+
+/* Tabla cerrada en alertas */
+.taskClosedHint{
+  min-height: 120px;
+  display:flex;
+  align-items:center;
+}
+
+
+/* Lo más urgente: hint cuando está cerrado */
+.taskMiniClosedHint{
+  margin-top:10px;
+  padding:12px 14px;
+  border:1px dashed var(--line);
+  border-radius:14px;
+  background:rgba(248,250,252,1);
+  color:var(--muted);
+  font-size:12px;
+}
+
+
+/* Ajuste: Lo más urgente como botón junto a grupos */
+.taskDashboardLayout{
+  grid-template-columns: 1fr !important;
+}
+.taskDashboardSide,
+.taskDashboardMain{
+  width:100% !important;
+}
+.taskFiltersRow{
+  display:flex !important;
+  flex-direction:row !important;
+  flex-wrap:wrap !important;
+  gap:10px !important;
+}
+.taskFiltersRow > *{
+  flex:1 1 180px !important;
+  min-width:180px !important;
+}
+.taskDashboardMain .taskOpenCard{
+  margin-top:12px !important;
+}
+@media (max-width:560px){
+  .taskFiltersRow > *{
+    flex:1 1 100% !important;
+    min-width:0 !important;
+  }
+}
+
+
+/* Reporte mensual de nacimientos */
+.finance-births-controls{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+.finance-births-controls select{
+  min-width:150px;
+}
+@media (max-width: 700px){
+  .finance-births-controls{
+    width:100%;
+  }
+  .finance-births-controls select,
+  .finance-births-controls .btn{
+    width:100%;
+  }
+}
+
+
+/* Importación de balance inicial */
+.contaMini .mono{display:block;margin-top:2px;}
+
 </style>
 
 
@@ -3606,6 +5181,531 @@ header .brand .logo img.headerBrandLogoImg{
     max-width: 400px !important;
   }
 }
+
+
+/* Mejoras visuales para alertas */
+.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:var(--shadow)}
+.kpi-label{font-size:12px;color:var(--muted);margin-bottom:6px}
+.kpi-value{font-size:24px;font-weight:900;line-height:1}
+@media (max-width: 980px){.grid4{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media (max-width: 560px){.grid4{grid-template-columns:1fr;}}
+
+
+/* Orden visual módulo alertas */
+.alertsTopbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:12px;
+}
+.alertsTopbarLeft{min-width:0}
+.alertsTopTitle{
+  font-size:15px;
+  font-weight:900;
+  line-height:1.1;
+}
+.alertsTopSub{
+  font-size:12px;
+  color:var(--muted);
+  margin-top:3px;
+}
+.alertsTopbarRight{
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+.alertsFilterCard{
+  margin-top:0 !important;
+}
+.alertsFilterHead{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+  margin-bottom:10px;
+  flex-wrap:wrap;
+}
+.alertsFilterGrid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+.alertsFilterBtn{
+  border:none;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:12px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  cursor:pointer;
+  font-weight:800;
+  text-align:left;
+  box-shadow:0 6px 18px rgba(2,6,23,.04);
+  transition:.15s ease;
+}
+.alertsFilterBtn:hover{
+  transform:translateY(-1px);
+  border-color:rgba(23,158,114,.25);
+  background:rgba(23,158,114,.04);
+}
+.alertsFilterBtn.primary{
+  background:rgba(23,158,114,.10);
+  border-color:rgba(23,158,114,.28);
+  box-shadow:0 0 0 3px rgba(23,158,114,.10);
+}
+.alertsFilterText{
+  min-width:0;
+  overflow-wrap:anywhere;
+}
+.alertsFilterBadge{
+  flex:0 0 auto;
+}
+.helpCard .wrap{
+  overflow:auto;
+}
+@media (max-width: 900px){
+  .alertsFilterGrid{
+    grid-template-columns:1fr;
+  }
+}
+@media (max-width: 560px){
+  .alertsTopbar{
+    align-items:flex-start;
+  }
+  .alertsTopbarRight{
+    width:100%;
+  }
+  .alertsTopbarRight .btn{
+    width:100%;
+    justify-content:center;
+  }
+}
+
+
+/* ===== Dashboard ordenado de izquierda a derecha ===== */
+.dashboardRow,
+.dashboardGrid,
+.resumeGrid,
+.summaryGrid{
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.dashboardRow3,
+.dashboardGrid3{
+  display:grid !important;
+  grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.dashboardRow4,
+.dashboardGrid4{
+  display:grid !important;
+  grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.reports-stack{
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.reports-stack > .card{
+  width:100% !important;
+  margin:0 !important;
+}
+.view[data-view="dashboard"] .row,
+#view-dashboard .row,
+section[data-view="dashboard"] .row{
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.view[data-view="dashboard"] .row > .col-12,
+.view[data-view="dashboard"] .row > .col-8,
+.view[data-view="dashboard"] .row > .col-6,
+.view[data-view="dashboard"] .row > .col-4,
+.view[data-view="dashboard"] .row > .col-3,
+.view[data-view="dashboard"] .row > .col-2,
+#view-dashboard .row > .col-12,
+#view-dashboard .row > .col-8,
+#view-dashboard .row > .col-6,
+#view-dashboard .row > .col-4,
+#view-dashboard .row > .col-3,
+#view-dashboard .row > .col-2,
+section[data-view="dashboard"] .row > .col-12,
+section[data-view="dashboard"] .row > .col-8,
+section[data-view="dashboard"] .row > .col-6,
+section[data-view="dashboard"] .row > .col-4,
+section[data-view="dashboard"] .row > .col-3,
+section[data-view="dashboard"] .row > .col-2{
+  grid-column:auto !important;
+}
+.view[data-view="dashboard"] .row > .col-12,
+#view-dashboard .row > .col-12,
+section[data-view="dashboard"] .row > .col-12{
+  grid-column:span 2 !important;
+}
+.view[data-view="dashboard"] .toolbar,
+#view-dashboard .toolbar,
+section[data-view="dashboard"] .toolbar{
+  display:flex !important;
+  gap:10px !important;
+  flex-wrap:wrap !important;
+  align-items:center !important;
+}
+.view[data-view="dashboard"] .toolbar > *,
+#view-dashboard .toolbar > *,
+section[data-view="dashboard"] .toolbar > *{
+  flex:0 1 auto !important;
+}
+@media (max-width: 980px){
+  .dashboardRow,
+  .dashboardGrid,
+  .resumeGrid,
+  .summaryGrid,
+  .reports-stack,
+  .view[data-view="dashboard"] .row,
+  #view-dashboard .row,
+  section[data-view="dashboard"] .row{
+    grid-template-columns:1fr !important;
+  }
+  .view[data-view="dashboard"] .row > .col-12,
+  #view-dashboard .row > .col-12,
+  section[data-view="dashboard"] .row > .col-12{
+    grid-column:span 1 !important;
+  }
+}
+
+
+/* Ajuste limpio del módulo tareas y alertas */
+.taskToolbar{
+  display:flex;
+  justify-content:flex-end;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.taskSummaryGrid{
+  margin-bottom:12px;
+}
+.taskFiltersCard{
+  margin-top:0 !important;
+}
+.taskFiltersRow{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+}
+.taskFilterBtn{
+  border:1px solid var(--line);
+  background:#fff;
+  border-radius:16px;
+  padding:12px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  cursor:pointer;
+  box-shadow:0 6px 18px rgba(2,6,23,.04);
+  transition:.15s ease;
+}
+.taskFilterBtn:hover{
+  border-color:rgba(23,158,114,.28);
+  background:rgba(23,158,114,.04);
+}
+.taskFilterBtn.is-active{
+  background:rgba(23,158,114,.10);
+  border-color:rgba(23,158,114,.28);
+  box-shadow:0 0 0 3px rgba(23,158,114,.10);
+}
+.taskFilterLabel{
+  font-weight:800;
+  text-align:left;
+}
+.taskFilterCount{
+  min-width:28px;
+  height:28px;
+  padding:0 8px;
+  border-radius:999px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-size:12px;
+  font-weight:900;
+  background:rgba(23,158,114,.10);
+  color:var(--green-900);
+  border:1px solid rgba(23,158,114,.18);
+}
+.taskSectionHead{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:10px;
+}
+.taskTableWrap{
+  max-height:420px;
+  overflow:auto;
+}
+@media (max-width: 980px){
+  .taskFiltersRow{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+@media (max-width: 560px){
+  .taskToolbar .btn{
+    width:100%;
+    justify-content:center;
+  }
+  .taskFiltersRow{
+    grid-template-columns:1fr;
+  }
+}
+
+
+/* Dashboard organizado sin tocar otras vistas */
+.dashboardStack{
+  display:grid;
+  gap:12px;
+}
+.dashboardPair{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+  align-items:start;
+}
+.dashboardPair > .helpCard{
+  margin-top:0 !important;
+  height:100%;
+}
+.dashboardPair .wrap{
+  overflow:auto;
+}
+@media (max-width: 980px){
+  .dashboardPair{
+    grid-template-columns:1fr;
+  }
+}
+
+
+/* ===== Tareas y alertas: panel horizontal ===== */
+.taskDashboardLayout{
+  display:grid;
+  grid-template-columns: 360px minmax(0, 1fr);
+  gap:14px;
+  align-items:start;
+  margin-top:12px;
+}
+.taskDashboardSide,
+.taskDashboardMain{
+  min-width:0;
+}
+.taskDashboardSide .helpCard,
+.taskDashboardMain .helpCard{
+  margin-top:0 !important;
+}
+.taskDashboardMain .taskOpenCard{
+  min-height:100%;
+}
+.taskFiltersRow{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:10px;
+}
+.taskSummaryGrid{
+  margin-bottom:12px;
+}
+.taskTableWrap{
+  max-height:460px;
+  overflow:auto;
+}
+@media (max-width: 1100px){
+  .taskDashboardLayout{
+    grid-template-columns: 320px minmax(0, 1fr);
+  }
+}
+@media (max-width: 980px){
+  .taskDashboardLayout{
+    grid-template-columns:1fr;
+  }
+}
+
+
+/* Arriba del módulo tareas: horizontal real */
+.taskSummaryRow{
+  display:grid !important;
+  grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+  gap:12px !important;
+  margin-bottom:12px !important;
+  align-items:stretch !important;
+}
+.taskSummaryRow .kpi{
+  margin:0 !important;
+  min-width:0 !important;
+}
+@media (max-width: 1100px){
+  .taskSummaryRow{
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  }
+}
+@media (max-width: 560px){
+  .taskSummaryRow{
+    grid-template-columns:1fr !important;
+  }
+}
+
+
+/* Forzar KPIs de tareas en horizontal */
+.taskSummaryRow{
+  display:flex !important;
+  flex-direction:row !important;
+  flex-wrap:nowrap !important;
+  gap:12px !important;
+  align-items:stretch !important;
+  justify-content:space-between !important;
+  width:100% !important;
+  margin-bottom:12px !important;
+}
+.taskSummaryRow .kpi{
+  flex:1 1 0 !important;
+  width:auto !important;
+  min-width:0 !important;
+  margin:0 !important;
+}
+@media (max-width: 980px){
+  .taskSummaryRow{
+    flex-wrap:wrap !important;
+  }
+  .taskSummaryRow .kpi{
+    flex:1 1 calc(50% - 12px) !important;
+  }
+}
+@media (max-width: 560px){
+  .taskSummaryRow .kpi{
+    flex:1 1 100% !important;
+  }
+}
+
+
+/* Grupo de alertas horizontal arriba, tabla abajo */
+.taskDashboardLayout{
+  display:grid !important;
+  grid-template-columns:1fr !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.taskDashboardSide,
+.taskDashboardMain{
+  min-width:0 !important;
+}
+.taskFiltersCard{
+  margin-top:0 !important;
+}
+.taskFiltersRow{
+  display:flex !important;
+  flex-direction:row !important;
+  flex-wrap:wrap !important;
+  gap:10px !important;
+  align-items:stretch !important;
+}
+.taskFiltersRow > *{
+  flex:1 1 220px !important;
+  min-width:180px !important;
+}
+.taskDashboardMain .taskOpenCard{
+  margin-top:0 !important;
+}
+@media (max-width: 560px){
+  .taskFiltersRow > *{
+    flex:1 1 100% !important;
+    min-width:0 !important;
+  }
+}
+
+
+/* Tabla cerrada en alertas */
+.taskClosedHint{
+  min-height: 120px;
+  display:flex;
+  align-items:center;
+}
+
+
+/* Lo más urgente: hint cuando está cerrado */
+.taskMiniClosedHint{
+  margin-top:10px;
+  padding:12px 14px;
+  border:1px dashed var(--line);
+  border-radius:14px;
+  background:rgba(248,250,252,1);
+  color:var(--muted);
+  font-size:12px;
+}
+
+
+/* Ajuste: Lo más urgente como botón junto a grupos */
+.taskDashboardLayout{
+  grid-template-columns: 1fr !important;
+}
+.taskDashboardSide,
+.taskDashboardMain{
+  width:100% !important;
+}
+.taskFiltersRow{
+  display:flex !important;
+  flex-direction:row !important;
+  flex-wrap:wrap !important;
+  gap:10px !important;
+}
+.taskFiltersRow > *{
+  flex:1 1 180px !important;
+  min-width:180px !important;
+}
+.taskDashboardMain .taskOpenCard{
+  margin-top:12px !important;
+}
+@media (max-width:560px){
+  .taskFiltersRow > *{
+    flex:1 1 100% !important;
+    min-width:0 !important;
+  }
+}
+
+
+/* Reporte mensual de nacimientos */
+.finance-births-controls{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+.finance-births-controls select{
+  min-width:150px;
+}
+@media (max-width: 700px){
+  .finance-births-controls{
+    width:100%;
+  }
+  .finance-births-controls select,
+  .finance-births-controls .btn{
+    width:100%;
+  }
+}
+
+
+/* Importación de balance inicial */
+.contaMini .mono{display:block;margin-top:2px;}
 
 </style>
 
@@ -3955,6 +6055,531 @@ header .brand .logo img.headerBrandLogoImg{
   }
 }
 
+
+/* Mejoras visuales para alertas */
+.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:var(--shadow)}
+.kpi-label{font-size:12px;color:var(--muted);margin-bottom:6px}
+.kpi-value{font-size:24px;font-weight:900;line-height:1}
+@media (max-width: 980px){.grid4{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media (max-width: 560px){.grid4{grid-template-columns:1fr;}}
+
+
+/* Orden visual módulo alertas */
+.alertsTopbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:12px;
+}
+.alertsTopbarLeft{min-width:0}
+.alertsTopTitle{
+  font-size:15px;
+  font-weight:900;
+  line-height:1.1;
+}
+.alertsTopSub{
+  font-size:12px;
+  color:var(--muted);
+  margin-top:3px;
+}
+.alertsTopbarRight{
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+.alertsFilterCard{
+  margin-top:0 !important;
+}
+.alertsFilterHead{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+  margin-bottom:10px;
+  flex-wrap:wrap;
+}
+.alertsFilterGrid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+.alertsFilterBtn{
+  border:none;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:12px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  cursor:pointer;
+  font-weight:800;
+  text-align:left;
+  box-shadow:0 6px 18px rgba(2,6,23,.04);
+  transition:.15s ease;
+}
+.alertsFilterBtn:hover{
+  transform:translateY(-1px);
+  border-color:rgba(23,158,114,.25);
+  background:rgba(23,158,114,.04);
+}
+.alertsFilterBtn.primary{
+  background:rgba(23,158,114,.10);
+  border-color:rgba(23,158,114,.28);
+  box-shadow:0 0 0 3px rgba(23,158,114,.10);
+}
+.alertsFilterText{
+  min-width:0;
+  overflow-wrap:anywhere;
+}
+.alertsFilterBadge{
+  flex:0 0 auto;
+}
+.helpCard .wrap{
+  overflow:auto;
+}
+@media (max-width: 900px){
+  .alertsFilterGrid{
+    grid-template-columns:1fr;
+  }
+}
+@media (max-width: 560px){
+  .alertsTopbar{
+    align-items:flex-start;
+  }
+  .alertsTopbarRight{
+    width:100%;
+  }
+  .alertsTopbarRight .btn{
+    width:100%;
+    justify-content:center;
+  }
+}
+
+
+/* ===== Dashboard ordenado de izquierda a derecha ===== */
+.dashboardRow,
+.dashboardGrid,
+.resumeGrid,
+.summaryGrid{
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.dashboardRow3,
+.dashboardGrid3{
+  display:grid !important;
+  grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.dashboardRow4,
+.dashboardGrid4{
+  display:grid !important;
+  grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.reports-stack{
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.reports-stack > .card{
+  width:100% !important;
+  margin:0 !important;
+}
+.view[data-view="dashboard"] .row,
+#view-dashboard .row,
+section[data-view="dashboard"] .row{
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.view[data-view="dashboard"] .row > .col-12,
+.view[data-view="dashboard"] .row > .col-8,
+.view[data-view="dashboard"] .row > .col-6,
+.view[data-view="dashboard"] .row > .col-4,
+.view[data-view="dashboard"] .row > .col-3,
+.view[data-view="dashboard"] .row > .col-2,
+#view-dashboard .row > .col-12,
+#view-dashboard .row > .col-8,
+#view-dashboard .row > .col-6,
+#view-dashboard .row > .col-4,
+#view-dashboard .row > .col-3,
+#view-dashboard .row > .col-2,
+section[data-view="dashboard"] .row > .col-12,
+section[data-view="dashboard"] .row > .col-8,
+section[data-view="dashboard"] .row > .col-6,
+section[data-view="dashboard"] .row > .col-4,
+section[data-view="dashboard"] .row > .col-3,
+section[data-view="dashboard"] .row > .col-2{
+  grid-column:auto !important;
+}
+.view[data-view="dashboard"] .row > .col-12,
+#view-dashboard .row > .col-12,
+section[data-view="dashboard"] .row > .col-12{
+  grid-column:span 2 !important;
+}
+.view[data-view="dashboard"] .toolbar,
+#view-dashboard .toolbar,
+section[data-view="dashboard"] .toolbar{
+  display:flex !important;
+  gap:10px !important;
+  flex-wrap:wrap !important;
+  align-items:center !important;
+}
+.view[data-view="dashboard"] .toolbar > *,
+#view-dashboard .toolbar > *,
+section[data-view="dashboard"] .toolbar > *{
+  flex:0 1 auto !important;
+}
+@media (max-width: 980px){
+  .dashboardRow,
+  .dashboardGrid,
+  .resumeGrid,
+  .summaryGrid,
+  .reports-stack,
+  .view[data-view="dashboard"] .row,
+  #view-dashboard .row,
+  section[data-view="dashboard"] .row{
+    grid-template-columns:1fr !important;
+  }
+  .view[data-view="dashboard"] .row > .col-12,
+  #view-dashboard .row > .col-12,
+  section[data-view="dashboard"] .row > .col-12{
+    grid-column:span 1 !important;
+  }
+}
+
+
+/* Ajuste limpio del módulo tareas y alertas */
+.taskToolbar{
+  display:flex;
+  justify-content:flex-end;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.taskSummaryGrid{
+  margin-bottom:12px;
+}
+.taskFiltersCard{
+  margin-top:0 !important;
+}
+.taskFiltersRow{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+}
+.taskFilterBtn{
+  border:1px solid var(--line);
+  background:#fff;
+  border-radius:16px;
+  padding:12px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  cursor:pointer;
+  box-shadow:0 6px 18px rgba(2,6,23,.04);
+  transition:.15s ease;
+}
+.taskFilterBtn:hover{
+  border-color:rgba(23,158,114,.28);
+  background:rgba(23,158,114,.04);
+}
+.taskFilterBtn.is-active{
+  background:rgba(23,158,114,.10);
+  border-color:rgba(23,158,114,.28);
+  box-shadow:0 0 0 3px rgba(23,158,114,.10);
+}
+.taskFilterLabel{
+  font-weight:800;
+  text-align:left;
+}
+.taskFilterCount{
+  min-width:28px;
+  height:28px;
+  padding:0 8px;
+  border-radius:999px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-size:12px;
+  font-weight:900;
+  background:rgba(23,158,114,.10);
+  color:var(--green-900);
+  border:1px solid rgba(23,158,114,.18);
+}
+.taskSectionHead{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:10px;
+}
+.taskTableWrap{
+  max-height:420px;
+  overflow:auto;
+}
+@media (max-width: 980px){
+  .taskFiltersRow{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+@media (max-width: 560px){
+  .taskToolbar .btn{
+    width:100%;
+    justify-content:center;
+  }
+  .taskFiltersRow{
+    grid-template-columns:1fr;
+  }
+}
+
+
+/* Dashboard organizado sin tocar otras vistas */
+.dashboardStack{
+  display:grid;
+  gap:12px;
+}
+.dashboardPair{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+  align-items:start;
+}
+.dashboardPair > .helpCard{
+  margin-top:0 !important;
+  height:100%;
+}
+.dashboardPair .wrap{
+  overflow:auto;
+}
+@media (max-width: 980px){
+  .dashboardPair{
+    grid-template-columns:1fr;
+  }
+}
+
+
+/* ===== Tareas y alertas: panel horizontal ===== */
+.taskDashboardLayout{
+  display:grid;
+  grid-template-columns: 360px minmax(0, 1fr);
+  gap:14px;
+  align-items:start;
+  margin-top:12px;
+}
+.taskDashboardSide,
+.taskDashboardMain{
+  min-width:0;
+}
+.taskDashboardSide .helpCard,
+.taskDashboardMain .helpCard{
+  margin-top:0 !important;
+}
+.taskDashboardMain .taskOpenCard{
+  min-height:100%;
+}
+.taskFiltersRow{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:10px;
+}
+.taskSummaryGrid{
+  margin-bottom:12px;
+}
+.taskTableWrap{
+  max-height:460px;
+  overflow:auto;
+}
+@media (max-width: 1100px){
+  .taskDashboardLayout{
+    grid-template-columns: 320px minmax(0, 1fr);
+  }
+}
+@media (max-width: 980px){
+  .taskDashboardLayout{
+    grid-template-columns:1fr;
+  }
+}
+
+
+/* Arriba del módulo tareas: horizontal real */
+.taskSummaryRow{
+  display:grid !important;
+  grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+  gap:12px !important;
+  margin-bottom:12px !important;
+  align-items:stretch !important;
+}
+.taskSummaryRow .kpi{
+  margin:0 !important;
+  min-width:0 !important;
+}
+@media (max-width: 1100px){
+  .taskSummaryRow{
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  }
+}
+@media (max-width: 560px){
+  .taskSummaryRow{
+    grid-template-columns:1fr !important;
+  }
+}
+
+
+/* Forzar KPIs de tareas en horizontal */
+.taskSummaryRow{
+  display:flex !important;
+  flex-direction:row !important;
+  flex-wrap:nowrap !important;
+  gap:12px !important;
+  align-items:stretch !important;
+  justify-content:space-between !important;
+  width:100% !important;
+  margin-bottom:12px !important;
+}
+.taskSummaryRow .kpi{
+  flex:1 1 0 !important;
+  width:auto !important;
+  min-width:0 !important;
+  margin:0 !important;
+}
+@media (max-width: 980px){
+  .taskSummaryRow{
+    flex-wrap:wrap !important;
+  }
+  .taskSummaryRow .kpi{
+    flex:1 1 calc(50% - 12px) !important;
+  }
+}
+@media (max-width: 560px){
+  .taskSummaryRow .kpi{
+    flex:1 1 100% !important;
+  }
+}
+
+
+/* Grupo de alertas horizontal arriba, tabla abajo */
+.taskDashboardLayout{
+  display:grid !important;
+  grid-template-columns:1fr !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.taskDashboardSide,
+.taskDashboardMain{
+  min-width:0 !important;
+}
+.taskFiltersCard{
+  margin-top:0 !important;
+}
+.taskFiltersRow{
+  display:flex !important;
+  flex-direction:row !important;
+  flex-wrap:wrap !important;
+  gap:10px !important;
+  align-items:stretch !important;
+}
+.taskFiltersRow > *{
+  flex:1 1 220px !important;
+  min-width:180px !important;
+}
+.taskDashboardMain .taskOpenCard{
+  margin-top:0 !important;
+}
+@media (max-width: 560px){
+  .taskFiltersRow > *{
+    flex:1 1 100% !important;
+    min-width:0 !important;
+  }
+}
+
+
+/* Tabla cerrada en alertas */
+.taskClosedHint{
+  min-height: 120px;
+  display:flex;
+  align-items:center;
+}
+
+
+/* Lo más urgente: hint cuando está cerrado */
+.taskMiniClosedHint{
+  margin-top:10px;
+  padding:12px 14px;
+  border:1px dashed var(--line);
+  border-radius:14px;
+  background:rgba(248,250,252,1);
+  color:var(--muted);
+  font-size:12px;
+}
+
+
+/* Ajuste: Lo más urgente como botón junto a grupos */
+.taskDashboardLayout{
+  grid-template-columns: 1fr !important;
+}
+.taskDashboardSide,
+.taskDashboardMain{
+  width:100% !important;
+}
+.taskFiltersRow{
+  display:flex !important;
+  flex-direction:row !important;
+  flex-wrap:wrap !important;
+  gap:10px !important;
+}
+.taskFiltersRow > *{
+  flex:1 1 180px !important;
+  min-width:180px !important;
+}
+.taskDashboardMain .taskOpenCard{
+  margin-top:12px !important;
+}
+@media (max-width:560px){
+  .taskFiltersRow > *{
+    flex:1 1 100% !important;
+    min-width:0 !important;
+  }
+}
+
+
+/* Reporte mensual de nacimientos */
+.finance-births-controls{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+.finance-births-controls select{
+  min-width:150px;
+}
+@media (max-width: 700px){
+  .finance-births-controls{
+    width:100%;
+  }
+  .finance-births-controls select,
+  .finance-births-controls .btn{
+    width:100%;
+  }
+}
+
+
+/* Importación de balance inicial */
+.contaMini .mono{display:block;margin-top:2px;}
+
 </style>
 
 <style id="logo-font-fix-final">
@@ -4253,6 +6878,531 @@ header .brand .logo img.headerBrandLogoImg{
     max-width: 400px !important;
   }
 }
+
+
+/* Mejoras visuales para alertas */
+.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:var(--shadow)}
+.kpi-label{font-size:12px;color:var(--muted);margin-bottom:6px}
+.kpi-value{font-size:24px;font-weight:900;line-height:1}
+@media (max-width: 980px){.grid4{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media (max-width: 560px){.grid4{grid-template-columns:1fr;}}
+
+
+/* Orden visual módulo alertas */
+.alertsTopbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:12px;
+}
+.alertsTopbarLeft{min-width:0}
+.alertsTopTitle{
+  font-size:15px;
+  font-weight:900;
+  line-height:1.1;
+}
+.alertsTopSub{
+  font-size:12px;
+  color:var(--muted);
+  margin-top:3px;
+}
+.alertsTopbarRight{
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+.alertsFilterCard{
+  margin-top:0 !important;
+}
+.alertsFilterHead{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+  margin-bottom:10px;
+  flex-wrap:wrap;
+}
+.alertsFilterGrid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+.alertsFilterBtn{
+  border:none;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:12px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  cursor:pointer;
+  font-weight:800;
+  text-align:left;
+  box-shadow:0 6px 18px rgba(2,6,23,.04);
+  transition:.15s ease;
+}
+.alertsFilterBtn:hover{
+  transform:translateY(-1px);
+  border-color:rgba(23,158,114,.25);
+  background:rgba(23,158,114,.04);
+}
+.alertsFilterBtn.primary{
+  background:rgba(23,158,114,.10);
+  border-color:rgba(23,158,114,.28);
+  box-shadow:0 0 0 3px rgba(23,158,114,.10);
+}
+.alertsFilterText{
+  min-width:0;
+  overflow-wrap:anywhere;
+}
+.alertsFilterBadge{
+  flex:0 0 auto;
+}
+.helpCard .wrap{
+  overflow:auto;
+}
+@media (max-width: 900px){
+  .alertsFilterGrid{
+    grid-template-columns:1fr;
+  }
+}
+@media (max-width: 560px){
+  .alertsTopbar{
+    align-items:flex-start;
+  }
+  .alertsTopbarRight{
+    width:100%;
+  }
+  .alertsTopbarRight .btn{
+    width:100%;
+    justify-content:center;
+  }
+}
+
+
+/* ===== Dashboard ordenado de izquierda a derecha ===== */
+.dashboardRow,
+.dashboardGrid,
+.resumeGrid,
+.summaryGrid{
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.dashboardRow3,
+.dashboardGrid3{
+  display:grid !important;
+  grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.dashboardRow4,
+.dashboardGrid4{
+  display:grid !important;
+  grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.reports-stack{
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.reports-stack > .card{
+  width:100% !important;
+  margin:0 !important;
+}
+.view[data-view="dashboard"] .row,
+#view-dashboard .row,
+section[data-view="dashboard"] .row{
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.view[data-view="dashboard"] .row > .col-12,
+.view[data-view="dashboard"] .row > .col-8,
+.view[data-view="dashboard"] .row > .col-6,
+.view[data-view="dashboard"] .row > .col-4,
+.view[data-view="dashboard"] .row > .col-3,
+.view[data-view="dashboard"] .row > .col-2,
+#view-dashboard .row > .col-12,
+#view-dashboard .row > .col-8,
+#view-dashboard .row > .col-6,
+#view-dashboard .row > .col-4,
+#view-dashboard .row > .col-3,
+#view-dashboard .row > .col-2,
+section[data-view="dashboard"] .row > .col-12,
+section[data-view="dashboard"] .row > .col-8,
+section[data-view="dashboard"] .row > .col-6,
+section[data-view="dashboard"] .row > .col-4,
+section[data-view="dashboard"] .row > .col-3,
+section[data-view="dashboard"] .row > .col-2{
+  grid-column:auto !important;
+}
+.view[data-view="dashboard"] .row > .col-12,
+#view-dashboard .row > .col-12,
+section[data-view="dashboard"] .row > .col-12{
+  grid-column:span 2 !important;
+}
+.view[data-view="dashboard"] .toolbar,
+#view-dashboard .toolbar,
+section[data-view="dashboard"] .toolbar{
+  display:flex !important;
+  gap:10px !important;
+  flex-wrap:wrap !important;
+  align-items:center !important;
+}
+.view[data-view="dashboard"] .toolbar > *,
+#view-dashboard .toolbar > *,
+section[data-view="dashboard"] .toolbar > *{
+  flex:0 1 auto !important;
+}
+@media (max-width: 980px){
+  .dashboardRow,
+  .dashboardGrid,
+  .resumeGrid,
+  .summaryGrid,
+  .reports-stack,
+  .view[data-view="dashboard"] .row,
+  #view-dashboard .row,
+  section[data-view="dashboard"] .row{
+    grid-template-columns:1fr !important;
+  }
+  .view[data-view="dashboard"] .row > .col-12,
+  #view-dashboard .row > .col-12,
+  section[data-view="dashboard"] .row > .col-12{
+    grid-column:span 1 !important;
+  }
+}
+
+
+/* Ajuste limpio del módulo tareas y alertas */
+.taskToolbar{
+  display:flex;
+  justify-content:flex-end;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.taskSummaryGrid{
+  margin-bottom:12px;
+}
+.taskFiltersCard{
+  margin-top:0 !important;
+}
+.taskFiltersRow{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+}
+.taskFilterBtn{
+  border:1px solid var(--line);
+  background:#fff;
+  border-radius:16px;
+  padding:12px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  cursor:pointer;
+  box-shadow:0 6px 18px rgba(2,6,23,.04);
+  transition:.15s ease;
+}
+.taskFilterBtn:hover{
+  border-color:rgba(23,158,114,.28);
+  background:rgba(23,158,114,.04);
+}
+.taskFilterBtn.is-active{
+  background:rgba(23,158,114,.10);
+  border-color:rgba(23,158,114,.28);
+  box-shadow:0 0 0 3px rgba(23,158,114,.10);
+}
+.taskFilterLabel{
+  font-weight:800;
+  text-align:left;
+}
+.taskFilterCount{
+  min-width:28px;
+  height:28px;
+  padding:0 8px;
+  border-radius:999px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-size:12px;
+  font-weight:900;
+  background:rgba(23,158,114,.10);
+  color:var(--green-900);
+  border:1px solid rgba(23,158,114,.18);
+}
+.taskSectionHead{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:10px;
+}
+.taskTableWrap{
+  max-height:420px;
+  overflow:auto;
+}
+@media (max-width: 980px){
+  .taskFiltersRow{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+@media (max-width: 560px){
+  .taskToolbar .btn{
+    width:100%;
+    justify-content:center;
+  }
+  .taskFiltersRow{
+    grid-template-columns:1fr;
+  }
+}
+
+
+/* Dashboard organizado sin tocar otras vistas */
+.dashboardStack{
+  display:grid;
+  gap:12px;
+}
+.dashboardPair{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+  align-items:start;
+}
+.dashboardPair > .helpCard{
+  margin-top:0 !important;
+  height:100%;
+}
+.dashboardPair .wrap{
+  overflow:auto;
+}
+@media (max-width: 980px){
+  .dashboardPair{
+    grid-template-columns:1fr;
+  }
+}
+
+
+/* ===== Tareas y alertas: panel horizontal ===== */
+.taskDashboardLayout{
+  display:grid;
+  grid-template-columns: 360px minmax(0, 1fr);
+  gap:14px;
+  align-items:start;
+  margin-top:12px;
+}
+.taskDashboardSide,
+.taskDashboardMain{
+  min-width:0;
+}
+.taskDashboardSide .helpCard,
+.taskDashboardMain .helpCard{
+  margin-top:0 !important;
+}
+.taskDashboardMain .taskOpenCard{
+  min-height:100%;
+}
+.taskFiltersRow{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:10px;
+}
+.taskSummaryGrid{
+  margin-bottom:12px;
+}
+.taskTableWrap{
+  max-height:460px;
+  overflow:auto;
+}
+@media (max-width: 1100px){
+  .taskDashboardLayout{
+    grid-template-columns: 320px minmax(0, 1fr);
+  }
+}
+@media (max-width: 980px){
+  .taskDashboardLayout{
+    grid-template-columns:1fr;
+  }
+}
+
+
+/* Arriba del módulo tareas: horizontal real */
+.taskSummaryRow{
+  display:grid !important;
+  grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+  gap:12px !important;
+  margin-bottom:12px !important;
+  align-items:stretch !important;
+}
+.taskSummaryRow .kpi{
+  margin:0 !important;
+  min-width:0 !important;
+}
+@media (max-width: 1100px){
+  .taskSummaryRow{
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  }
+}
+@media (max-width: 560px){
+  .taskSummaryRow{
+    grid-template-columns:1fr !important;
+  }
+}
+
+
+/* Forzar KPIs de tareas en horizontal */
+.taskSummaryRow{
+  display:flex !important;
+  flex-direction:row !important;
+  flex-wrap:nowrap !important;
+  gap:12px !important;
+  align-items:stretch !important;
+  justify-content:space-between !important;
+  width:100% !important;
+  margin-bottom:12px !important;
+}
+.taskSummaryRow .kpi{
+  flex:1 1 0 !important;
+  width:auto !important;
+  min-width:0 !important;
+  margin:0 !important;
+}
+@media (max-width: 980px){
+  .taskSummaryRow{
+    flex-wrap:wrap !important;
+  }
+  .taskSummaryRow .kpi{
+    flex:1 1 calc(50% - 12px) !important;
+  }
+}
+@media (max-width: 560px){
+  .taskSummaryRow .kpi{
+    flex:1 1 100% !important;
+  }
+}
+
+
+/* Grupo de alertas horizontal arriba, tabla abajo */
+.taskDashboardLayout{
+  display:grid !important;
+  grid-template-columns:1fr !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.taskDashboardSide,
+.taskDashboardMain{
+  min-width:0 !important;
+}
+.taskFiltersCard{
+  margin-top:0 !important;
+}
+.taskFiltersRow{
+  display:flex !important;
+  flex-direction:row !important;
+  flex-wrap:wrap !important;
+  gap:10px !important;
+  align-items:stretch !important;
+}
+.taskFiltersRow > *{
+  flex:1 1 220px !important;
+  min-width:180px !important;
+}
+.taskDashboardMain .taskOpenCard{
+  margin-top:0 !important;
+}
+@media (max-width: 560px){
+  .taskFiltersRow > *{
+    flex:1 1 100% !important;
+    min-width:0 !important;
+  }
+}
+
+
+/* Tabla cerrada en alertas */
+.taskClosedHint{
+  min-height: 120px;
+  display:flex;
+  align-items:center;
+}
+
+
+/* Lo más urgente: hint cuando está cerrado */
+.taskMiniClosedHint{
+  margin-top:10px;
+  padding:12px 14px;
+  border:1px dashed var(--line);
+  border-radius:14px;
+  background:rgba(248,250,252,1);
+  color:var(--muted);
+  font-size:12px;
+}
+
+
+/* Ajuste: Lo más urgente como botón junto a grupos */
+.taskDashboardLayout{
+  grid-template-columns: 1fr !important;
+}
+.taskDashboardSide,
+.taskDashboardMain{
+  width:100% !important;
+}
+.taskFiltersRow{
+  display:flex !important;
+  flex-direction:row !important;
+  flex-wrap:wrap !important;
+  gap:10px !important;
+}
+.taskFiltersRow > *{
+  flex:1 1 180px !important;
+  min-width:180px !important;
+}
+.taskDashboardMain .taskOpenCard{
+  margin-top:12px !important;
+}
+@media (max-width:560px){
+  .taskFiltersRow > *{
+    flex:1 1 100% !important;
+    min-width:0 !important;
+  }
+}
+
+
+/* Reporte mensual de nacimientos */
+.finance-births-controls{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+.finance-births-controls select{
+  min-width:150px;
+}
+@media (max-width: 700px){
+  .finance-births-controls{
+    width:100%;
+  }
+  .finance-births-controls select,
+  .finance-births-controls .btn{
+    width:100%;
+  }
+}
+
+
+/* Importación de balance inicial */
+.contaMini .mono{display:block;margin-top:2px;}
 
 </style>
 
@@ -4587,6 +7737,531 @@ header .brand .logo img.headerBrandLogoImg{
     max-width: 400px !important;
   }
 }
+
+
+/* Mejoras visuales para alertas */
+.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:var(--shadow)}
+.kpi-label{font-size:12px;color:var(--muted);margin-bottom:6px}
+.kpi-value{font-size:24px;font-weight:900;line-height:1}
+@media (max-width: 980px){.grid4{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media (max-width: 560px){.grid4{grid-template-columns:1fr;}}
+
+
+/* Orden visual módulo alertas */
+.alertsTopbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:12px;
+}
+.alertsTopbarLeft{min-width:0}
+.alertsTopTitle{
+  font-size:15px;
+  font-weight:900;
+  line-height:1.1;
+}
+.alertsTopSub{
+  font-size:12px;
+  color:var(--muted);
+  margin-top:3px;
+}
+.alertsTopbarRight{
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+.alertsFilterCard{
+  margin-top:0 !important;
+}
+.alertsFilterHead{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+  margin-bottom:10px;
+  flex-wrap:wrap;
+}
+.alertsFilterGrid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+.alertsFilterBtn{
+  border:none;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:12px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  cursor:pointer;
+  font-weight:800;
+  text-align:left;
+  box-shadow:0 6px 18px rgba(2,6,23,.04);
+  transition:.15s ease;
+}
+.alertsFilterBtn:hover{
+  transform:translateY(-1px);
+  border-color:rgba(23,158,114,.25);
+  background:rgba(23,158,114,.04);
+}
+.alertsFilterBtn.primary{
+  background:rgba(23,158,114,.10);
+  border-color:rgba(23,158,114,.28);
+  box-shadow:0 0 0 3px rgba(23,158,114,.10);
+}
+.alertsFilterText{
+  min-width:0;
+  overflow-wrap:anywhere;
+}
+.alertsFilterBadge{
+  flex:0 0 auto;
+}
+.helpCard .wrap{
+  overflow:auto;
+}
+@media (max-width: 900px){
+  .alertsFilterGrid{
+    grid-template-columns:1fr;
+  }
+}
+@media (max-width: 560px){
+  .alertsTopbar{
+    align-items:flex-start;
+  }
+  .alertsTopbarRight{
+    width:100%;
+  }
+  .alertsTopbarRight .btn{
+    width:100%;
+    justify-content:center;
+  }
+}
+
+
+/* ===== Dashboard ordenado de izquierda a derecha ===== */
+.dashboardRow,
+.dashboardGrid,
+.resumeGrid,
+.summaryGrid{
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.dashboardRow3,
+.dashboardGrid3{
+  display:grid !important;
+  grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.dashboardRow4,
+.dashboardGrid4{
+  display:grid !important;
+  grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.reports-stack{
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.reports-stack > .card{
+  width:100% !important;
+  margin:0 !important;
+}
+.view[data-view="dashboard"] .row,
+#view-dashboard .row,
+section[data-view="dashboard"] .row{
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.view[data-view="dashboard"] .row > .col-12,
+.view[data-view="dashboard"] .row > .col-8,
+.view[data-view="dashboard"] .row > .col-6,
+.view[data-view="dashboard"] .row > .col-4,
+.view[data-view="dashboard"] .row > .col-3,
+.view[data-view="dashboard"] .row > .col-2,
+#view-dashboard .row > .col-12,
+#view-dashboard .row > .col-8,
+#view-dashboard .row > .col-6,
+#view-dashboard .row > .col-4,
+#view-dashboard .row > .col-3,
+#view-dashboard .row > .col-2,
+section[data-view="dashboard"] .row > .col-12,
+section[data-view="dashboard"] .row > .col-8,
+section[data-view="dashboard"] .row > .col-6,
+section[data-view="dashboard"] .row > .col-4,
+section[data-view="dashboard"] .row > .col-3,
+section[data-view="dashboard"] .row > .col-2{
+  grid-column:auto !important;
+}
+.view[data-view="dashboard"] .row > .col-12,
+#view-dashboard .row > .col-12,
+section[data-view="dashboard"] .row > .col-12{
+  grid-column:span 2 !important;
+}
+.view[data-view="dashboard"] .toolbar,
+#view-dashboard .toolbar,
+section[data-view="dashboard"] .toolbar{
+  display:flex !important;
+  gap:10px !important;
+  flex-wrap:wrap !important;
+  align-items:center !important;
+}
+.view[data-view="dashboard"] .toolbar > *,
+#view-dashboard .toolbar > *,
+section[data-view="dashboard"] .toolbar > *{
+  flex:0 1 auto !important;
+}
+@media (max-width: 980px){
+  .dashboardRow,
+  .dashboardGrid,
+  .resumeGrid,
+  .summaryGrid,
+  .reports-stack,
+  .view[data-view="dashboard"] .row,
+  #view-dashboard .row,
+  section[data-view="dashboard"] .row{
+    grid-template-columns:1fr !important;
+  }
+  .view[data-view="dashboard"] .row > .col-12,
+  #view-dashboard .row > .col-12,
+  section[data-view="dashboard"] .row > .col-12{
+    grid-column:span 1 !important;
+  }
+}
+
+
+/* Ajuste limpio del módulo tareas y alertas */
+.taskToolbar{
+  display:flex;
+  justify-content:flex-end;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.taskSummaryGrid{
+  margin-bottom:12px;
+}
+.taskFiltersCard{
+  margin-top:0 !important;
+}
+.taskFiltersRow{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+}
+.taskFilterBtn{
+  border:1px solid var(--line);
+  background:#fff;
+  border-radius:16px;
+  padding:12px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  cursor:pointer;
+  box-shadow:0 6px 18px rgba(2,6,23,.04);
+  transition:.15s ease;
+}
+.taskFilterBtn:hover{
+  border-color:rgba(23,158,114,.28);
+  background:rgba(23,158,114,.04);
+}
+.taskFilterBtn.is-active{
+  background:rgba(23,158,114,.10);
+  border-color:rgba(23,158,114,.28);
+  box-shadow:0 0 0 3px rgba(23,158,114,.10);
+}
+.taskFilterLabel{
+  font-weight:800;
+  text-align:left;
+}
+.taskFilterCount{
+  min-width:28px;
+  height:28px;
+  padding:0 8px;
+  border-radius:999px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-size:12px;
+  font-weight:900;
+  background:rgba(23,158,114,.10);
+  color:var(--green-900);
+  border:1px solid rgba(23,158,114,.18);
+}
+.taskSectionHead{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:10px;
+}
+.taskTableWrap{
+  max-height:420px;
+  overflow:auto;
+}
+@media (max-width: 980px){
+  .taskFiltersRow{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+@media (max-width: 560px){
+  .taskToolbar .btn{
+    width:100%;
+    justify-content:center;
+  }
+  .taskFiltersRow{
+    grid-template-columns:1fr;
+  }
+}
+
+
+/* Dashboard organizado sin tocar otras vistas */
+.dashboardStack{
+  display:grid;
+  gap:12px;
+}
+.dashboardPair{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+  align-items:start;
+}
+.dashboardPair > .helpCard{
+  margin-top:0 !important;
+  height:100%;
+}
+.dashboardPair .wrap{
+  overflow:auto;
+}
+@media (max-width: 980px){
+  .dashboardPair{
+    grid-template-columns:1fr;
+  }
+}
+
+
+/* ===== Tareas y alertas: panel horizontal ===== */
+.taskDashboardLayout{
+  display:grid;
+  grid-template-columns: 360px minmax(0, 1fr);
+  gap:14px;
+  align-items:start;
+  margin-top:12px;
+}
+.taskDashboardSide,
+.taskDashboardMain{
+  min-width:0;
+}
+.taskDashboardSide .helpCard,
+.taskDashboardMain .helpCard{
+  margin-top:0 !important;
+}
+.taskDashboardMain .taskOpenCard{
+  min-height:100%;
+}
+.taskFiltersRow{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:10px;
+}
+.taskSummaryGrid{
+  margin-bottom:12px;
+}
+.taskTableWrap{
+  max-height:460px;
+  overflow:auto;
+}
+@media (max-width: 1100px){
+  .taskDashboardLayout{
+    grid-template-columns: 320px minmax(0, 1fr);
+  }
+}
+@media (max-width: 980px){
+  .taskDashboardLayout{
+    grid-template-columns:1fr;
+  }
+}
+
+
+/* Arriba del módulo tareas: horizontal real */
+.taskSummaryRow{
+  display:grid !important;
+  grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+  gap:12px !important;
+  margin-bottom:12px !important;
+  align-items:stretch !important;
+}
+.taskSummaryRow .kpi{
+  margin:0 !important;
+  min-width:0 !important;
+}
+@media (max-width: 1100px){
+  .taskSummaryRow{
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  }
+}
+@media (max-width: 560px){
+  .taskSummaryRow{
+    grid-template-columns:1fr !important;
+  }
+}
+
+
+/* Forzar KPIs de tareas en horizontal */
+.taskSummaryRow{
+  display:flex !important;
+  flex-direction:row !important;
+  flex-wrap:nowrap !important;
+  gap:12px !important;
+  align-items:stretch !important;
+  justify-content:space-between !important;
+  width:100% !important;
+  margin-bottom:12px !important;
+}
+.taskSummaryRow .kpi{
+  flex:1 1 0 !important;
+  width:auto !important;
+  min-width:0 !important;
+  margin:0 !important;
+}
+@media (max-width: 980px){
+  .taskSummaryRow{
+    flex-wrap:wrap !important;
+  }
+  .taskSummaryRow .kpi{
+    flex:1 1 calc(50% - 12px) !important;
+  }
+}
+@media (max-width: 560px){
+  .taskSummaryRow .kpi{
+    flex:1 1 100% !important;
+  }
+}
+
+
+/* Grupo de alertas horizontal arriba, tabla abajo */
+.taskDashboardLayout{
+  display:grid !important;
+  grid-template-columns:1fr !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.taskDashboardSide,
+.taskDashboardMain{
+  min-width:0 !important;
+}
+.taskFiltersCard{
+  margin-top:0 !important;
+}
+.taskFiltersRow{
+  display:flex !important;
+  flex-direction:row !important;
+  flex-wrap:wrap !important;
+  gap:10px !important;
+  align-items:stretch !important;
+}
+.taskFiltersRow > *{
+  flex:1 1 220px !important;
+  min-width:180px !important;
+}
+.taskDashboardMain .taskOpenCard{
+  margin-top:0 !important;
+}
+@media (max-width: 560px){
+  .taskFiltersRow > *{
+    flex:1 1 100% !important;
+    min-width:0 !important;
+  }
+}
+
+
+/* Tabla cerrada en alertas */
+.taskClosedHint{
+  min-height: 120px;
+  display:flex;
+  align-items:center;
+}
+
+
+/* Lo más urgente: hint cuando está cerrado */
+.taskMiniClosedHint{
+  margin-top:10px;
+  padding:12px 14px;
+  border:1px dashed var(--line);
+  border-radius:14px;
+  background:rgba(248,250,252,1);
+  color:var(--muted);
+  font-size:12px;
+}
+
+
+/* Ajuste: Lo más urgente como botón junto a grupos */
+.taskDashboardLayout{
+  grid-template-columns: 1fr !important;
+}
+.taskDashboardSide,
+.taskDashboardMain{
+  width:100% !important;
+}
+.taskFiltersRow{
+  display:flex !important;
+  flex-direction:row !important;
+  flex-wrap:wrap !important;
+  gap:10px !important;
+}
+.taskFiltersRow > *{
+  flex:1 1 180px !important;
+  min-width:180px !important;
+}
+.taskDashboardMain .taskOpenCard{
+  margin-top:12px !important;
+}
+@media (max-width:560px){
+  .taskFiltersRow > *{
+    flex:1 1 100% !important;
+    min-width:0 !important;
+  }
+}
+
+
+/* Reporte mensual de nacimientos */
+.finance-births-controls{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+.finance-births-controls select{
+  min-width:150px;
+}
+@media (max-width: 700px){
+  .finance-births-controls{
+    width:100%;
+  }
+  .finance-births-controls select,
+  .finance-births-controls .btn{
+    width:100%;
+  }
+}
+
+
+/* Importación de balance inicial */
+.contaMini .mono{display:block;margin-top:2px;}
 
 </style>
 
@@ -4924,6 +8599,531 @@ header .brand .logo img.headerBrandLogoImg{
   }
 }
 
+
+/* Mejoras visuales para alertas */
+.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:var(--shadow)}
+.kpi-label{font-size:12px;color:var(--muted);margin-bottom:6px}
+.kpi-value{font-size:24px;font-weight:900;line-height:1}
+@media (max-width: 980px){.grid4{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media (max-width: 560px){.grid4{grid-template-columns:1fr;}}
+
+
+/* Orden visual módulo alertas */
+.alertsTopbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:12px;
+}
+.alertsTopbarLeft{min-width:0}
+.alertsTopTitle{
+  font-size:15px;
+  font-weight:900;
+  line-height:1.1;
+}
+.alertsTopSub{
+  font-size:12px;
+  color:var(--muted);
+  margin-top:3px;
+}
+.alertsTopbarRight{
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+.alertsFilterCard{
+  margin-top:0 !important;
+}
+.alertsFilterHead{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+  margin-bottom:10px;
+  flex-wrap:wrap;
+}
+.alertsFilterGrid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+.alertsFilterBtn{
+  border:none;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:12px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  cursor:pointer;
+  font-weight:800;
+  text-align:left;
+  box-shadow:0 6px 18px rgba(2,6,23,.04);
+  transition:.15s ease;
+}
+.alertsFilterBtn:hover{
+  transform:translateY(-1px);
+  border-color:rgba(23,158,114,.25);
+  background:rgba(23,158,114,.04);
+}
+.alertsFilterBtn.primary{
+  background:rgba(23,158,114,.10);
+  border-color:rgba(23,158,114,.28);
+  box-shadow:0 0 0 3px rgba(23,158,114,.10);
+}
+.alertsFilterText{
+  min-width:0;
+  overflow-wrap:anywhere;
+}
+.alertsFilterBadge{
+  flex:0 0 auto;
+}
+.helpCard .wrap{
+  overflow:auto;
+}
+@media (max-width: 900px){
+  .alertsFilterGrid{
+    grid-template-columns:1fr;
+  }
+}
+@media (max-width: 560px){
+  .alertsTopbar{
+    align-items:flex-start;
+  }
+  .alertsTopbarRight{
+    width:100%;
+  }
+  .alertsTopbarRight .btn{
+    width:100%;
+    justify-content:center;
+  }
+}
+
+
+/* ===== Dashboard ordenado de izquierda a derecha ===== */
+.dashboardRow,
+.dashboardGrid,
+.resumeGrid,
+.summaryGrid{
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.dashboardRow3,
+.dashboardGrid3{
+  display:grid !important;
+  grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.dashboardRow4,
+.dashboardGrid4{
+  display:grid !important;
+  grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.reports-stack{
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.reports-stack > .card{
+  width:100% !important;
+  margin:0 !important;
+}
+.view[data-view="dashboard"] .row,
+#view-dashboard .row,
+section[data-view="dashboard"] .row{
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.view[data-view="dashboard"] .row > .col-12,
+.view[data-view="dashboard"] .row > .col-8,
+.view[data-view="dashboard"] .row > .col-6,
+.view[data-view="dashboard"] .row > .col-4,
+.view[data-view="dashboard"] .row > .col-3,
+.view[data-view="dashboard"] .row > .col-2,
+#view-dashboard .row > .col-12,
+#view-dashboard .row > .col-8,
+#view-dashboard .row > .col-6,
+#view-dashboard .row > .col-4,
+#view-dashboard .row > .col-3,
+#view-dashboard .row > .col-2,
+section[data-view="dashboard"] .row > .col-12,
+section[data-view="dashboard"] .row > .col-8,
+section[data-view="dashboard"] .row > .col-6,
+section[data-view="dashboard"] .row > .col-4,
+section[data-view="dashboard"] .row > .col-3,
+section[data-view="dashboard"] .row > .col-2{
+  grid-column:auto !important;
+}
+.view[data-view="dashboard"] .row > .col-12,
+#view-dashboard .row > .col-12,
+section[data-view="dashboard"] .row > .col-12{
+  grid-column:span 2 !important;
+}
+.view[data-view="dashboard"] .toolbar,
+#view-dashboard .toolbar,
+section[data-view="dashboard"] .toolbar{
+  display:flex !important;
+  gap:10px !important;
+  flex-wrap:wrap !important;
+  align-items:center !important;
+}
+.view[data-view="dashboard"] .toolbar > *,
+#view-dashboard .toolbar > *,
+section[data-view="dashboard"] .toolbar > *{
+  flex:0 1 auto !important;
+}
+@media (max-width: 980px){
+  .dashboardRow,
+  .dashboardGrid,
+  .resumeGrid,
+  .summaryGrid,
+  .reports-stack,
+  .view[data-view="dashboard"] .row,
+  #view-dashboard .row,
+  section[data-view="dashboard"] .row{
+    grid-template-columns:1fr !important;
+  }
+  .view[data-view="dashboard"] .row > .col-12,
+  #view-dashboard .row > .col-12,
+  section[data-view="dashboard"] .row > .col-12{
+    grid-column:span 1 !important;
+  }
+}
+
+
+/* Ajuste limpio del módulo tareas y alertas */
+.taskToolbar{
+  display:flex;
+  justify-content:flex-end;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.taskSummaryGrid{
+  margin-bottom:12px;
+}
+.taskFiltersCard{
+  margin-top:0 !important;
+}
+.taskFiltersRow{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+}
+.taskFilterBtn{
+  border:1px solid var(--line);
+  background:#fff;
+  border-radius:16px;
+  padding:12px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  cursor:pointer;
+  box-shadow:0 6px 18px rgba(2,6,23,.04);
+  transition:.15s ease;
+}
+.taskFilterBtn:hover{
+  border-color:rgba(23,158,114,.28);
+  background:rgba(23,158,114,.04);
+}
+.taskFilterBtn.is-active{
+  background:rgba(23,158,114,.10);
+  border-color:rgba(23,158,114,.28);
+  box-shadow:0 0 0 3px rgba(23,158,114,.10);
+}
+.taskFilterLabel{
+  font-weight:800;
+  text-align:left;
+}
+.taskFilterCount{
+  min-width:28px;
+  height:28px;
+  padding:0 8px;
+  border-radius:999px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-size:12px;
+  font-weight:900;
+  background:rgba(23,158,114,.10);
+  color:var(--green-900);
+  border:1px solid rgba(23,158,114,.18);
+}
+.taskSectionHead{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:10px;
+}
+.taskTableWrap{
+  max-height:420px;
+  overflow:auto;
+}
+@media (max-width: 980px){
+  .taskFiltersRow{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+@media (max-width: 560px){
+  .taskToolbar .btn{
+    width:100%;
+    justify-content:center;
+  }
+  .taskFiltersRow{
+    grid-template-columns:1fr;
+  }
+}
+
+
+/* Dashboard organizado sin tocar otras vistas */
+.dashboardStack{
+  display:grid;
+  gap:12px;
+}
+.dashboardPair{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+  align-items:start;
+}
+.dashboardPair > .helpCard{
+  margin-top:0 !important;
+  height:100%;
+}
+.dashboardPair .wrap{
+  overflow:auto;
+}
+@media (max-width: 980px){
+  .dashboardPair{
+    grid-template-columns:1fr;
+  }
+}
+
+
+/* ===== Tareas y alertas: panel horizontal ===== */
+.taskDashboardLayout{
+  display:grid;
+  grid-template-columns: 360px minmax(0, 1fr);
+  gap:14px;
+  align-items:start;
+  margin-top:12px;
+}
+.taskDashboardSide,
+.taskDashboardMain{
+  min-width:0;
+}
+.taskDashboardSide .helpCard,
+.taskDashboardMain .helpCard{
+  margin-top:0 !important;
+}
+.taskDashboardMain .taskOpenCard{
+  min-height:100%;
+}
+.taskFiltersRow{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:10px;
+}
+.taskSummaryGrid{
+  margin-bottom:12px;
+}
+.taskTableWrap{
+  max-height:460px;
+  overflow:auto;
+}
+@media (max-width: 1100px){
+  .taskDashboardLayout{
+    grid-template-columns: 320px minmax(0, 1fr);
+  }
+}
+@media (max-width: 980px){
+  .taskDashboardLayout{
+    grid-template-columns:1fr;
+  }
+}
+
+
+/* Arriba del módulo tareas: horizontal real */
+.taskSummaryRow{
+  display:grid !important;
+  grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+  gap:12px !important;
+  margin-bottom:12px !important;
+  align-items:stretch !important;
+}
+.taskSummaryRow .kpi{
+  margin:0 !important;
+  min-width:0 !important;
+}
+@media (max-width: 1100px){
+  .taskSummaryRow{
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  }
+}
+@media (max-width: 560px){
+  .taskSummaryRow{
+    grid-template-columns:1fr !important;
+  }
+}
+
+
+/* Forzar KPIs de tareas en horizontal */
+.taskSummaryRow{
+  display:flex !important;
+  flex-direction:row !important;
+  flex-wrap:nowrap !important;
+  gap:12px !important;
+  align-items:stretch !important;
+  justify-content:space-between !important;
+  width:100% !important;
+  margin-bottom:12px !important;
+}
+.taskSummaryRow .kpi{
+  flex:1 1 0 !important;
+  width:auto !important;
+  min-width:0 !important;
+  margin:0 !important;
+}
+@media (max-width: 980px){
+  .taskSummaryRow{
+    flex-wrap:wrap !important;
+  }
+  .taskSummaryRow .kpi{
+    flex:1 1 calc(50% - 12px) !important;
+  }
+}
+@media (max-width: 560px){
+  .taskSummaryRow .kpi{
+    flex:1 1 100% !important;
+  }
+}
+
+
+/* Grupo de alertas horizontal arriba, tabla abajo */
+.taskDashboardLayout{
+  display:grid !important;
+  grid-template-columns:1fr !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.taskDashboardSide,
+.taskDashboardMain{
+  min-width:0 !important;
+}
+.taskFiltersCard{
+  margin-top:0 !important;
+}
+.taskFiltersRow{
+  display:flex !important;
+  flex-direction:row !important;
+  flex-wrap:wrap !important;
+  gap:10px !important;
+  align-items:stretch !important;
+}
+.taskFiltersRow > *{
+  flex:1 1 220px !important;
+  min-width:180px !important;
+}
+.taskDashboardMain .taskOpenCard{
+  margin-top:0 !important;
+}
+@media (max-width: 560px){
+  .taskFiltersRow > *{
+    flex:1 1 100% !important;
+    min-width:0 !important;
+  }
+}
+
+
+/* Tabla cerrada en alertas */
+.taskClosedHint{
+  min-height: 120px;
+  display:flex;
+  align-items:center;
+}
+
+
+/* Lo más urgente: hint cuando está cerrado */
+.taskMiniClosedHint{
+  margin-top:10px;
+  padding:12px 14px;
+  border:1px dashed var(--line);
+  border-radius:14px;
+  background:rgba(248,250,252,1);
+  color:var(--muted);
+  font-size:12px;
+}
+
+
+/* Ajuste: Lo más urgente como botón junto a grupos */
+.taskDashboardLayout{
+  grid-template-columns: 1fr !important;
+}
+.taskDashboardSide,
+.taskDashboardMain{
+  width:100% !important;
+}
+.taskFiltersRow{
+  display:flex !important;
+  flex-direction:row !important;
+  flex-wrap:wrap !important;
+  gap:10px !important;
+}
+.taskFiltersRow > *{
+  flex:1 1 180px !important;
+  min-width:180px !important;
+}
+.taskDashboardMain .taskOpenCard{
+  margin-top:12px !important;
+}
+@media (max-width:560px){
+  .taskFiltersRow > *{
+    flex:1 1 100% !important;
+    min-width:0 !important;
+  }
+}
+
+
+/* Reporte mensual de nacimientos */
+.finance-births-controls{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+.finance-births-controls select{
+  min-width:150px;
+}
+@media (max-width: 700px){
+  .finance-births-controls{
+    width:100%;
+  }
+  .finance-births-controls select,
+  .finance-births-controls .btn{
+    width:100%;
+  }
+}
+
+
+/* Importación de balance inicial */
+.contaMini .mono{display:block;margin-top:2px;}
+
 </style>
 
 
@@ -5239,6 +9439,531 @@ header .brand .logo img.headerBrandLogoImg{
     max-width: 400px !important;
   }
 }
+
+
+/* Mejoras visuales para alertas */
+.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:var(--shadow)}
+.kpi-label{font-size:12px;color:var(--muted);margin-bottom:6px}
+.kpi-value{font-size:24px;font-weight:900;line-height:1}
+@media (max-width: 980px){.grid4{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media (max-width: 560px){.grid4{grid-template-columns:1fr;}}
+
+
+/* Orden visual módulo alertas */
+.alertsTopbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:12px;
+}
+.alertsTopbarLeft{min-width:0}
+.alertsTopTitle{
+  font-size:15px;
+  font-weight:900;
+  line-height:1.1;
+}
+.alertsTopSub{
+  font-size:12px;
+  color:var(--muted);
+  margin-top:3px;
+}
+.alertsTopbarRight{
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+.alertsFilterCard{
+  margin-top:0 !important;
+}
+.alertsFilterHead{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+  margin-bottom:10px;
+  flex-wrap:wrap;
+}
+.alertsFilterGrid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+.alertsFilterBtn{
+  border:none;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:12px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  cursor:pointer;
+  font-weight:800;
+  text-align:left;
+  box-shadow:0 6px 18px rgba(2,6,23,.04);
+  transition:.15s ease;
+}
+.alertsFilterBtn:hover{
+  transform:translateY(-1px);
+  border-color:rgba(23,158,114,.25);
+  background:rgba(23,158,114,.04);
+}
+.alertsFilterBtn.primary{
+  background:rgba(23,158,114,.10);
+  border-color:rgba(23,158,114,.28);
+  box-shadow:0 0 0 3px rgba(23,158,114,.10);
+}
+.alertsFilterText{
+  min-width:0;
+  overflow-wrap:anywhere;
+}
+.alertsFilterBadge{
+  flex:0 0 auto;
+}
+.helpCard .wrap{
+  overflow:auto;
+}
+@media (max-width: 900px){
+  .alertsFilterGrid{
+    grid-template-columns:1fr;
+  }
+}
+@media (max-width: 560px){
+  .alertsTopbar{
+    align-items:flex-start;
+  }
+  .alertsTopbarRight{
+    width:100%;
+  }
+  .alertsTopbarRight .btn{
+    width:100%;
+    justify-content:center;
+  }
+}
+
+
+/* ===== Dashboard ordenado de izquierda a derecha ===== */
+.dashboardRow,
+.dashboardGrid,
+.resumeGrid,
+.summaryGrid{
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.dashboardRow3,
+.dashboardGrid3{
+  display:grid !important;
+  grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.dashboardRow4,
+.dashboardGrid4{
+  display:grid !important;
+  grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.reports-stack{
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.reports-stack > .card{
+  width:100% !important;
+  margin:0 !important;
+}
+.view[data-view="dashboard"] .row,
+#view-dashboard .row,
+section[data-view="dashboard"] .row{
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.view[data-view="dashboard"] .row > .col-12,
+.view[data-view="dashboard"] .row > .col-8,
+.view[data-view="dashboard"] .row > .col-6,
+.view[data-view="dashboard"] .row > .col-4,
+.view[data-view="dashboard"] .row > .col-3,
+.view[data-view="dashboard"] .row > .col-2,
+#view-dashboard .row > .col-12,
+#view-dashboard .row > .col-8,
+#view-dashboard .row > .col-6,
+#view-dashboard .row > .col-4,
+#view-dashboard .row > .col-3,
+#view-dashboard .row > .col-2,
+section[data-view="dashboard"] .row > .col-12,
+section[data-view="dashboard"] .row > .col-8,
+section[data-view="dashboard"] .row > .col-6,
+section[data-view="dashboard"] .row > .col-4,
+section[data-view="dashboard"] .row > .col-3,
+section[data-view="dashboard"] .row > .col-2{
+  grid-column:auto !important;
+}
+.view[data-view="dashboard"] .row > .col-12,
+#view-dashboard .row > .col-12,
+section[data-view="dashboard"] .row > .col-12{
+  grid-column:span 2 !important;
+}
+.view[data-view="dashboard"] .toolbar,
+#view-dashboard .toolbar,
+section[data-view="dashboard"] .toolbar{
+  display:flex !important;
+  gap:10px !important;
+  flex-wrap:wrap !important;
+  align-items:center !important;
+}
+.view[data-view="dashboard"] .toolbar > *,
+#view-dashboard .toolbar > *,
+section[data-view="dashboard"] .toolbar > *{
+  flex:0 1 auto !important;
+}
+@media (max-width: 980px){
+  .dashboardRow,
+  .dashboardGrid,
+  .resumeGrid,
+  .summaryGrid,
+  .reports-stack,
+  .view[data-view="dashboard"] .row,
+  #view-dashboard .row,
+  section[data-view="dashboard"] .row{
+    grid-template-columns:1fr !important;
+  }
+  .view[data-view="dashboard"] .row > .col-12,
+  #view-dashboard .row > .col-12,
+  section[data-view="dashboard"] .row > .col-12{
+    grid-column:span 1 !important;
+  }
+}
+
+
+/* Ajuste limpio del módulo tareas y alertas */
+.taskToolbar{
+  display:flex;
+  justify-content:flex-end;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.taskSummaryGrid{
+  margin-bottom:12px;
+}
+.taskFiltersCard{
+  margin-top:0 !important;
+}
+.taskFiltersRow{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+}
+.taskFilterBtn{
+  border:1px solid var(--line);
+  background:#fff;
+  border-radius:16px;
+  padding:12px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  cursor:pointer;
+  box-shadow:0 6px 18px rgba(2,6,23,.04);
+  transition:.15s ease;
+}
+.taskFilterBtn:hover{
+  border-color:rgba(23,158,114,.28);
+  background:rgba(23,158,114,.04);
+}
+.taskFilterBtn.is-active{
+  background:rgba(23,158,114,.10);
+  border-color:rgba(23,158,114,.28);
+  box-shadow:0 0 0 3px rgba(23,158,114,.10);
+}
+.taskFilterLabel{
+  font-weight:800;
+  text-align:left;
+}
+.taskFilterCount{
+  min-width:28px;
+  height:28px;
+  padding:0 8px;
+  border-radius:999px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-size:12px;
+  font-weight:900;
+  background:rgba(23,158,114,.10);
+  color:var(--green-900);
+  border:1px solid rgba(23,158,114,.18);
+}
+.taskSectionHead{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:10px;
+}
+.taskTableWrap{
+  max-height:420px;
+  overflow:auto;
+}
+@media (max-width: 980px){
+  .taskFiltersRow{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+@media (max-width: 560px){
+  .taskToolbar .btn{
+    width:100%;
+    justify-content:center;
+  }
+  .taskFiltersRow{
+    grid-template-columns:1fr;
+  }
+}
+
+
+/* Dashboard organizado sin tocar otras vistas */
+.dashboardStack{
+  display:grid;
+  gap:12px;
+}
+.dashboardPair{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+  align-items:start;
+}
+.dashboardPair > .helpCard{
+  margin-top:0 !important;
+  height:100%;
+}
+.dashboardPair .wrap{
+  overflow:auto;
+}
+@media (max-width: 980px){
+  .dashboardPair{
+    grid-template-columns:1fr;
+  }
+}
+
+
+/* ===== Tareas y alertas: panel horizontal ===== */
+.taskDashboardLayout{
+  display:grid;
+  grid-template-columns: 360px minmax(0, 1fr);
+  gap:14px;
+  align-items:start;
+  margin-top:12px;
+}
+.taskDashboardSide,
+.taskDashboardMain{
+  min-width:0;
+}
+.taskDashboardSide .helpCard,
+.taskDashboardMain .helpCard{
+  margin-top:0 !important;
+}
+.taskDashboardMain .taskOpenCard{
+  min-height:100%;
+}
+.taskFiltersRow{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:10px;
+}
+.taskSummaryGrid{
+  margin-bottom:12px;
+}
+.taskTableWrap{
+  max-height:460px;
+  overflow:auto;
+}
+@media (max-width: 1100px){
+  .taskDashboardLayout{
+    grid-template-columns: 320px minmax(0, 1fr);
+  }
+}
+@media (max-width: 980px){
+  .taskDashboardLayout{
+    grid-template-columns:1fr;
+  }
+}
+
+
+/* Arriba del módulo tareas: horizontal real */
+.taskSummaryRow{
+  display:grid !important;
+  grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+  gap:12px !important;
+  margin-bottom:12px !important;
+  align-items:stretch !important;
+}
+.taskSummaryRow .kpi{
+  margin:0 !important;
+  min-width:0 !important;
+}
+@media (max-width: 1100px){
+  .taskSummaryRow{
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  }
+}
+@media (max-width: 560px){
+  .taskSummaryRow{
+    grid-template-columns:1fr !important;
+  }
+}
+
+
+/* Forzar KPIs de tareas en horizontal */
+.taskSummaryRow{
+  display:flex !important;
+  flex-direction:row !important;
+  flex-wrap:nowrap !important;
+  gap:12px !important;
+  align-items:stretch !important;
+  justify-content:space-between !important;
+  width:100% !important;
+  margin-bottom:12px !important;
+}
+.taskSummaryRow .kpi{
+  flex:1 1 0 !important;
+  width:auto !important;
+  min-width:0 !important;
+  margin:0 !important;
+}
+@media (max-width: 980px){
+  .taskSummaryRow{
+    flex-wrap:wrap !important;
+  }
+  .taskSummaryRow .kpi{
+    flex:1 1 calc(50% - 12px) !important;
+  }
+}
+@media (max-width: 560px){
+  .taskSummaryRow .kpi{
+    flex:1 1 100% !important;
+  }
+}
+
+
+/* Grupo de alertas horizontal arriba, tabla abajo */
+.taskDashboardLayout{
+  display:grid !important;
+  grid-template-columns:1fr !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.taskDashboardSide,
+.taskDashboardMain{
+  min-width:0 !important;
+}
+.taskFiltersCard{
+  margin-top:0 !important;
+}
+.taskFiltersRow{
+  display:flex !important;
+  flex-direction:row !important;
+  flex-wrap:wrap !important;
+  gap:10px !important;
+  align-items:stretch !important;
+}
+.taskFiltersRow > *{
+  flex:1 1 220px !important;
+  min-width:180px !important;
+}
+.taskDashboardMain .taskOpenCard{
+  margin-top:0 !important;
+}
+@media (max-width: 560px){
+  .taskFiltersRow > *{
+    flex:1 1 100% !important;
+    min-width:0 !important;
+  }
+}
+
+
+/* Tabla cerrada en alertas */
+.taskClosedHint{
+  min-height: 120px;
+  display:flex;
+  align-items:center;
+}
+
+
+/* Lo más urgente: hint cuando está cerrado */
+.taskMiniClosedHint{
+  margin-top:10px;
+  padding:12px 14px;
+  border:1px dashed var(--line);
+  border-radius:14px;
+  background:rgba(248,250,252,1);
+  color:var(--muted);
+  font-size:12px;
+}
+
+
+/* Ajuste: Lo más urgente como botón junto a grupos */
+.taskDashboardLayout{
+  grid-template-columns: 1fr !important;
+}
+.taskDashboardSide,
+.taskDashboardMain{
+  width:100% !important;
+}
+.taskFiltersRow{
+  display:flex !important;
+  flex-direction:row !important;
+  flex-wrap:wrap !important;
+  gap:10px !important;
+}
+.taskFiltersRow > *{
+  flex:1 1 180px !important;
+  min-width:180px !important;
+}
+.taskDashboardMain .taskOpenCard{
+  margin-top:12px !important;
+}
+@media (max-width:560px){
+  .taskFiltersRow > *{
+    flex:1 1 100% !important;
+    min-width:0 !important;
+  }
+}
+
+
+/* Reporte mensual de nacimientos */
+.finance-births-controls{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+.finance-births-controls select{
+  min-width:150px;
+}
+@media (max-width: 700px){
+  .finance-births-controls{
+    width:100%;
+  }
+  .finance-births-controls select,
+  .finance-births-controls .btn{
+    width:100%;
+  }
+}
+
+
+/* Importación de balance inicial */
+.contaMini .mono{display:block;margin-top:2px;}
 
 </style>
 
@@ -5564,6 +10289,531 @@ header .brand .logo img.headerBrandLogoImg{
     max-width: 400px !important;
   }
 }
+
+
+/* Mejoras visuales para alertas */
+.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:var(--shadow)}
+.kpi-label{font-size:12px;color:var(--muted);margin-bottom:6px}
+.kpi-value{font-size:24px;font-weight:900;line-height:1}
+@media (max-width: 980px){.grid4{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media (max-width: 560px){.grid4{grid-template-columns:1fr;}}
+
+
+/* Orden visual módulo alertas */
+.alertsTopbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:12px;
+}
+.alertsTopbarLeft{min-width:0}
+.alertsTopTitle{
+  font-size:15px;
+  font-weight:900;
+  line-height:1.1;
+}
+.alertsTopSub{
+  font-size:12px;
+  color:var(--muted);
+  margin-top:3px;
+}
+.alertsTopbarRight{
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+.alertsFilterCard{
+  margin-top:0 !important;
+}
+.alertsFilterHead{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+  margin-bottom:10px;
+  flex-wrap:wrap;
+}
+.alertsFilterGrid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+.alertsFilterBtn{
+  border:none;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:12px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  cursor:pointer;
+  font-weight:800;
+  text-align:left;
+  box-shadow:0 6px 18px rgba(2,6,23,.04);
+  transition:.15s ease;
+}
+.alertsFilterBtn:hover{
+  transform:translateY(-1px);
+  border-color:rgba(23,158,114,.25);
+  background:rgba(23,158,114,.04);
+}
+.alertsFilterBtn.primary{
+  background:rgba(23,158,114,.10);
+  border-color:rgba(23,158,114,.28);
+  box-shadow:0 0 0 3px rgba(23,158,114,.10);
+}
+.alertsFilterText{
+  min-width:0;
+  overflow-wrap:anywhere;
+}
+.alertsFilterBadge{
+  flex:0 0 auto;
+}
+.helpCard .wrap{
+  overflow:auto;
+}
+@media (max-width: 900px){
+  .alertsFilterGrid{
+    grid-template-columns:1fr;
+  }
+}
+@media (max-width: 560px){
+  .alertsTopbar{
+    align-items:flex-start;
+  }
+  .alertsTopbarRight{
+    width:100%;
+  }
+  .alertsTopbarRight .btn{
+    width:100%;
+    justify-content:center;
+  }
+}
+
+
+/* ===== Dashboard ordenado de izquierda a derecha ===== */
+.dashboardRow,
+.dashboardGrid,
+.resumeGrid,
+.summaryGrid{
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.dashboardRow3,
+.dashboardGrid3{
+  display:grid !important;
+  grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.dashboardRow4,
+.dashboardGrid4{
+  display:grid !important;
+  grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.reports-stack{
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.reports-stack > .card{
+  width:100% !important;
+  margin:0 !important;
+}
+.view[data-view="dashboard"] .row,
+#view-dashboard .row,
+section[data-view="dashboard"] .row{
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.view[data-view="dashboard"] .row > .col-12,
+.view[data-view="dashboard"] .row > .col-8,
+.view[data-view="dashboard"] .row > .col-6,
+.view[data-view="dashboard"] .row > .col-4,
+.view[data-view="dashboard"] .row > .col-3,
+.view[data-view="dashboard"] .row > .col-2,
+#view-dashboard .row > .col-12,
+#view-dashboard .row > .col-8,
+#view-dashboard .row > .col-6,
+#view-dashboard .row > .col-4,
+#view-dashboard .row > .col-3,
+#view-dashboard .row > .col-2,
+section[data-view="dashboard"] .row > .col-12,
+section[data-view="dashboard"] .row > .col-8,
+section[data-view="dashboard"] .row > .col-6,
+section[data-view="dashboard"] .row > .col-4,
+section[data-view="dashboard"] .row > .col-3,
+section[data-view="dashboard"] .row > .col-2{
+  grid-column:auto !important;
+}
+.view[data-view="dashboard"] .row > .col-12,
+#view-dashboard .row > .col-12,
+section[data-view="dashboard"] .row > .col-12{
+  grid-column:span 2 !important;
+}
+.view[data-view="dashboard"] .toolbar,
+#view-dashboard .toolbar,
+section[data-view="dashboard"] .toolbar{
+  display:flex !important;
+  gap:10px !important;
+  flex-wrap:wrap !important;
+  align-items:center !important;
+}
+.view[data-view="dashboard"] .toolbar > *,
+#view-dashboard .toolbar > *,
+section[data-view="dashboard"] .toolbar > *{
+  flex:0 1 auto !important;
+}
+@media (max-width: 980px){
+  .dashboardRow,
+  .dashboardGrid,
+  .resumeGrid,
+  .summaryGrid,
+  .reports-stack,
+  .view[data-view="dashboard"] .row,
+  #view-dashboard .row,
+  section[data-view="dashboard"] .row{
+    grid-template-columns:1fr !important;
+  }
+  .view[data-view="dashboard"] .row > .col-12,
+  #view-dashboard .row > .col-12,
+  section[data-view="dashboard"] .row > .col-12{
+    grid-column:span 1 !important;
+  }
+}
+
+
+/* Ajuste limpio del módulo tareas y alertas */
+.taskToolbar{
+  display:flex;
+  justify-content:flex-end;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.taskSummaryGrid{
+  margin-bottom:12px;
+}
+.taskFiltersCard{
+  margin-top:0 !important;
+}
+.taskFiltersRow{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+}
+.taskFilterBtn{
+  border:1px solid var(--line);
+  background:#fff;
+  border-radius:16px;
+  padding:12px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  cursor:pointer;
+  box-shadow:0 6px 18px rgba(2,6,23,.04);
+  transition:.15s ease;
+}
+.taskFilterBtn:hover{
+  border-color:rgba(23,158,114,.28);
+  background:rgba(23,158,114,.04);
+}
+.taskFilterBtn.is-active{
+  background:rgba(23,158,114,.10);
+  border-color:rgba(23,158,114,.28);
+  box-shadow:0 0 0 3px rgba(23,158,114,.10);
+}
+.taskFilterLabel{
+  font-weight:800;
+  text-align:left;
+}
+.taskFilterCount{
+  min-width:28px;
+  height:28px;
+  padding:0 8px;
+  border-radius:999px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-size:12px;
+  font-weight:900;
+  background:rgba(23,158,114,.10);
+  color:var(--green-900);
+  border:1px solid rgba(23,158,114,.18);
+}
+.taskSectionHead{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:10px;
+}
+.taskTableWrap{
+  max-height:420px;
+  overflow:auto;
+}
+@media (max-width: 980px){
+  .taskFiltersRow{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+@media (max-width: 560px){
+  .taskToolbar .btn{
+    width:100%;
+    justify-content:center;
+  }
+  .taskFiltersRow{
+    grid-template-columns:1fr;
+  }
+}
+
+
+/* Dashboard organizado sin tocar otras vistas */
+.dashboardStack{
+  display:grid;
+  gap:12px;
+}
+.dashboardPair{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+  align-items:start;
+}
+.dashboardPair > .helpCard{
+  margin-top:0 !important;
+  height:100%;
+}
+.dashboardPair .wrap{
+  overflow:auto;
+}
+@media (max-width: 980px){
+  .dashboardPair{
+    grid-template-columns:1fr;
+  }
+}
+
+
+/* ===== Tareas y alertas: panel horizontal ===== */
+.taskDashboardLayout{
+  display:grid;
+  grid-template-columns: 360px minmax(0, 1fr);
+  gap:14px;
+  align-items:start;
+  margin-top:12px;
+}
+.taskDashboardSide,
+.taskDashboardMain{
+  min-width:0;
+}
+.taskDashboardSide .helpCard,
+.taskDashboardMain .helpCard{
+  margin-top:0 !important;
+}
+.taskDashboardMain .taskOpenCard{
+  min-height:100%;
+}
+.taskFiltersRow{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:10px;
+}
+.taskSummaryGrid{
+  margin-bottom:12px;
+}
+.taskTableWrap{
+  max-height:460px;
+  overflow:auto;
+}
+@media (max-width: 1100px){
+  .taskDashboardLayout{
+    grid-template-columns: 320px minmax(0, 1fr);
+  }
+}
+@media (max-width: 980px){
+  .taskDashboardLayout{
+    grid-template-columns:1fr;
+  }
+}
+
+
+/* Arriba del módulo tareas: horizontal real */
+.taskSummaryRow{
+  display:grid !important;
+  grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+  gap:12px !important;
+  margin-bottom:12px !important;
+  align-items:stretch !important;
+}
+.taskSummaryRow .kpi{
+  margin:0 !important;
+  min-width:0 !important;
+}
+@media (max-width: 1100px){
+  .taskSummaryRow{
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  }
+}
+@media (max-width: 560px){
+  .taskSummaryRow{
+    grid-template-columns:1fr !important;
+  }
+}
+
+
+/* Forzar KPIs de tareas en horizontal */
+.taskSummaryRow{
+  display:flex !important;
+  flex-direction:row !important;
+  flex-wrap:nowrap !important;
+  gap:12px !important;
+  align-items:stretch !important;
+  justify-content:space-between !important;
+  width:100% !important;
+  margin-bottom:12px !important;
+}
+.taskSummaryRow .kpi{
+  flex:1 1 0 !important;
+  width:auto !important;
+  min-width:0 !important;
+  margin:0 !important;
+}
+@media (max-width: 980px){
+  .taskSummaryRow{
+    flex-wrap:wrap !important;
+  }
+  .taskSummaryRow .kpi{
+    flex:1 1 calc(50% - 12px) !important;
+  }
+}
+@media (max-width: 560px){
+  .taskSummaryRow .kpi{
+    flex:1 1 100% !important;
+  }
+}
+
+
+/* Grupo de alertas horizontal arriba, tabla abajo */
+.taskDashboardLayout{
+  display:grid !important;
+  grid-template-columns:1fr !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.taskDashboardSide,
+.taskDashboardMain{
+  min-width:0 !important;
+}
+.taskFiltersCard{
+  margin-top:0 !important;
+}
+.taskFiltersRow{
+  display:flex !important;
+  flex-direction:row !important;
+  flex-wrap:wrap !important;
+  gap:10px !important;
+  align-items:stretch !important;
+}
+.taskFiltersRow > *{
+  flex:1 1 220px !important;
+  min-width:180px !important;
+}
+.taskDashboardMain .taskOpenCard{
+  margin-top:0 !important;
+}
+@media (max-width: 560px){
+  .taskFiltersRow > *{
+    flex:1 1 100% !important;
+    min-width:0 !important;
+  }
+}
+
+
+/* Tabla cerrada en alertas */
+.taskClosedHint{
+  min-height: 120px;
+  display:flex;
+  align-items:center;
+}
+
+
+/* Lo más urgente: hint cuando está cerrado */
+.taskMiniClosedHint{
+  margin-top:10px;
+  padding:12px 14px;
+  border:1px dashed var(--line);
+  border-radius:14px;
+  background:rgba(248,250,252,1);
+  color:var(--muted);
+  font-size:12px;
+}
+
+
+/* Ajuste: Lo más urgente como botón junto a grupos */
+.taskDashboardLayout{
+  grid-template-columns: 1fr !important;
+}
+.taskDashboardSide,
+.taskDashboardMain{
+  width:100% !important;
+}
+.taskFiltersRow{
+  display:flex !important;
+  flex-direction:row !important;
+  flex-wrap:wrap !important;
+  gap:10px !important;
+}
+.taskFiltersRow > *{
+  flex:1 1 180px !important;
+  min-width:180px !important;
+}
+.taskDashboardMain .taskOpenCard{
+  margin-top:12px !important;
+}
+@media (max-width:560px){
+  .taskFiltersRow > *{
+    flex:1 1 100% !important;
+    min-width:0 !important;
+  }
+}
+
+
+/* Reporte mensual de nacimientos */
+.finance-births-controls{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+.finance-births-controls select{
+  min-width:150px;
+}
+@media (max-width: 700px){
+  .finance-births-controls{
+    width:100%;
+  }
+  .finance-births-controls select,
+  .finance-births-controls .btn{
+    width:100%;
+  }
+}
+
+
+/* Importación de balance inicial */
+.contaMini .mono{display:block;margin-top:2px;}
 
 </style>
 
@@ -6710,6 +11960,7 @@ const defaults = () => ({
   let dashMonth = "";
   // Finanzas: "" = mes actual, "__all__" = todo el historial, "YYYY-MM" = mes específico
   let financePeriod = "";
+  let financeBirthsMonth = "";
   // Finanzas: año para la tabla de histórico
   let financeHistYear = "";
   // Contable
@@ -6731,6 +11982,55 @@ const defaults = () => ({
     (state.payables||[]).forEach(p=>add(p.date));
     if(!set.size) set.add(today().slice(0,7));
     return Array.from(set).sort((a,b)=>b.localeCompare(a));
+  }
+
+  function getBirthMonths(){
+    const set = new Set();
+    (state.farrowings||[]).forEach(f=>{
+      const m = monthKey(f.date);
+      if(/^\d{4}-\d{2}$/.test(m)) set.add(m);
+    });
+    if(!set.size) set.add(today().slice(0,7));
+    return Array.from(set).sort((a,b)=>b.localeCompare(a));
+  }
+
+  function getBirthRowsForMonth(mm){
+    const rows = (state.farrowings||[])
+      .filter(f=>monthKey(f.date)===mm)
+      .sort((a,b)=>`${b.date||""} ${b.hour||""}`.localeCompare(`${a.date||""} ${a.hour||""}`))
+      .map(f=>{
+        const sow = get.sow(f.sowId);
+        return {
+          fecha: String(f.date||""),
+          hora: String(f.hour || f.time || f.birthHour || ""),
+          cerda: String(sow?.tag || sow?.name || "—"),
+          cantidad: Math.max(0, num(f.bornAlive || f.bornTotal)),
+          total: Math.max(0, num(f.bornTotal)),
+          vivos: Math.max(0, num(f.bornAlive)),
+          observaciones: String(f.notes||"")
+        };
+      });
+    return rows;
+  }
+
+  function toHTMLTable(headers, rows){
+    const th = headers.map(h=>`<th style="border:1px solid #cbd5e1;padding:8px;background:#f8fafc;text-align:left">${esc(h)}</th>`).join("");
+    const body = rows.map(r=>`<tr>${r.map(v=>`<td style="border:1px solid #cbd5e1;padding:8px">${esc(v==null?"":String(v))}</td>`).join("")}</tr>`).join("");
+    return `<!doctype html><html><head><meta charset="utf-8"></head><body><table>${`<thead><tr>${th}</tr></thead>`}<tbody>${body}</tbody></table></body></html>`;
+  }
+
+  function downloadExcelHTML(name, headers, rows){
+    const content = toHTMLTable(headers, rows);
+    download(name, content, "application/vnd.ms-excel;charset=utf-8");
+  }
+
+  function exportBirthsMonthExcel(mm){
+    const month = String(mm||"");
+    if(!/^\d{4}-\d{2}$/.test(month)){ toast("warn","Mes inválido","Selecciona un mes válido."); return; }
+    const list = getBirthRowsForMonth(month);
+    const rows = list.map(x=>[x.fecha, x.hora || "—", x.cerda, x.cantidad, x.total, x.vivos, x.observaciones || ""]);
+    downloadExcelHTML(`lechones_nacidos_${month}.xls`, ["Fecha","Hora","Cerda","Cantidad","Total nacidos","Nacidos vivos","Observaciones"], rows.length ? rows : [["—","—","—",0,0,0,"Sin registros para este mes"]]);
+    toast("ok","Exportado","Reporte de nacimientos descargado.");
   }
 
   // Suma transacciones por tipo (ingreso/gasto). Si mKey es "YYYY-MM" filtra por mes; si no, suma todo.
@@ -7462,6 +12762,15 @@ if(typeof renderNavBadges==="function") renderNavBadges();
       costCenter:String(e.costCenter||"").trim(),
       notes:String(e.notes||"").trim()
     })).filter(e=>e.concept && e.debitAccountId && e.creditAccountId && e.amount>0);
+    state.accounting.openingBalances = (state.accounting.openingBalances || []).map(e=>({
+      id:String(e.id||uid("ob")),
+      date:String(e.date||state.accounting.owner.openingDate||today()),
+      accountId:String(e.accountId||""),
+      debit:Math.max(0, num(e.debit)),
+      credit:Math.max(0, num(e.credit)),
+      notes:String(e.notes||"").trim(),
+      imported: e.imported!==false
+    })).filter(e=>e.accountId && (e.debit>0 || e.credit>0));
     state.accounting.thirdParties = (state.accounting.thirdParties || []).map(x=>String(x||"").trim()).filter(Boolean);
     state.accounting.costCenters = (state.accounting.costCenters || ["General","Lechones","Engorde","Reproducción","Inventario"]).map(x=>String(x||"").trim()).filter(Boolean);
 
@@ -7651,23 +12960,19 @@ function normalizeState(){
       if(!prev || currScore > prevScore) batchesByFarrowing.set(key, b);
     });
 
-    (state.farrowings||[]).forEach(far=>{
-      const farId = String(far.id||"");
-      const baseDate = String(far.date||"");
-      if(!farId || !baseDate) return;
+    const linkedBatchIds = new Set();
 
-      const batch = batchesByFarrowing.get(farId) || (state.batches||[]).find(b=>String(b.farrowingId||"")===farId) || null;
-      const batchId = String(batch?.id || farId || "");
+    function emitLactationAndPiglets(baseDate, batch, far){
+      const batchId = String(batch?.id || far?.id || uid("tmp"));
       const batchStatus = String(batch?.status || "disponible").toLowerCase();
       const currentCount = num(batch?.countCurrent);
       const initialCount = num(batch?.countInitial ?? batch?.countBornAlive ?? batch?.bornAlive ?? far?.bornAlive);
       const hasStock = currentCount > 0 || initialCount > 0 || num(far?.bornAlive) > 0;
       const weaningDate = String(batch?.weaningDate || "");
       const batchClosed = !!weaningDate || (batchStatus==="cerrado" && !hasStock);
+      if(batchClosed || !baseDate) return;
 
-      if(batchClosed) return;
-
-      const sow = get.sow(far.sowId || batch?.sowId);
+      const sow = get.sow((far && far.sowId) || (batch && batch.sowId));
       const sowLabel = (sow?.tag || sow?.name || "cerda").toString();
 
       SANITARY_PROTOCOLS.lactation.forEach(item=>{
@@ -7679,7 +12984,7 @@ function normalizeState(){
           dueDate:due,
           priority:item.priority || "media",
           relatedType: batch ? "batch" : "farrowing",
-          relatedId: batch ? batchId : farId,
+          relatedId: batch ? batchId : String(far?.id||""),
           notes:`${item.medication}`
         });
       });
@@ -7693,10 +12998,38 @@ function normalizeState(){
           dueDate:due,
           priority:item.priority || "media",
           relatedType: batch ? "batch" : "farrowing",
-          relatedId: batch ? batchId : farId,
+          relatedId: batch ? batchId : String(far?.id||""),
           notes:`${item.medication}`
         });
       });
+    }
+
+    (state.farrowings||[]).forEach(far=>{
+      const farId = String(far.id||"");
+      const baseDate = String(far.date||"");
+      if(!farId || !baseDate) return;
+      const batch = batchesByFarrowing.get(farId) || (state.batches||[]).find(b=>String(b.farrowingId||"")===farId) || null;
+      if(batch?.id) linkedBatchIds.add(String(batch.id));
+      emitLactationAndPiglets(baseDate, batch, far);
+    });
+
+    // Respaldo: generar alertas desde camadas activas en maternidad aunque falte enlace exacto con parto.
+    (state.batches||[]).forEach(batch=>{
+      const batchId = String(batch.id||"");
+      if(!batchId || linkedBatchIds.has(batchId)) return;
+      const baseDate = String(batch.birthDate || "");
+      if(!baseDate) return;
+      const pen = getPen(batch.penId);
+      const penType = String(pen?.type || "").toLowerCase();
+      const batchStatus = String(batch.status || "disponible").toLowerCase();
+      const weaningDate = String(batch.weaningDate || "");
+      const hasStock = num(batch.countCurrent) > 0 || num(batch.countInitial) > 0;
+      if(weaningDate) return;
+      if(batchStatus === "cerrado" && !hasStock) return;
+      // Priorizar maternidad, pero permitir lote activo si aún no fue destetado/cerrado
+      if(penType && penType !== "maternidad" && batchStatus === "cerrado") return;
+
+      emitLactationAndPiglets(baseDate, batch, null);
     });
 
     state.tasks = state.tasks.filter(t=>!(t && t.autoKind === "sanitary_protocol" && t.protocolTaskKey && !expected.has(String(t.protocolTaskKey))));
@@ -9001,6 +14334,21 @@ return list;
         <div class="muted" style="margin-top:8px;font-size:12px">“Resultado” = vendido − insumos. “Caja neta” = ingresos − gastos registrados.</div>
       </div>`;
 
+    const warningCard = `
+      <div class="helpCard" style="margin-top:12px">
+        <div class="helpHd">
+          <div>
+            <b>Alertas clave</b>
+            <div class="muted">Resumen corto de avisos importantes del sistema.</div>
+          </div>
+          <button class="btn" id="dashGoTasks">Ver alertas</button>
+        </div>
+        <div class="wrap"><table class="execTableCompact">
+          <thead><tr><th>Nivel</th><th>Detalle</th><th>Acción</th></tr></thead>
+          <tbody>${warningsRows || `<tr><td colspan="3" class="muted">No hay alertas críticas por ahora.</td></tr>`}</tbody>
+        </table></div>
+      </div>`;
+
     const monthlyBirthMap = {};
     (state.farrowings||[]).forEach(f=>{
       const d = String(f?.date || "").slice(0,7);
@@ -9050,83 +14398,89 @@ return list;
         <button class="btn" id="dashInventory">Inventario</button>
       </div>`,
       `
-      <div class="dashboard-top-alert-row">
-        <div class="dashboard-task-alert-wrap">
-          <button
-            class="dashboard-task-alert-btn ${tasksPending.length ? "is-alert" : "is-ok"}"
-            id="dashTaskPendingBtn"
-            type="button"
-            title="Abrir tareas pendientes"
-          >
-            <span class="dashboard-task-alert-title">Tareas pendientes</span>
-            <span class="dashboard-task-alert-count">${fmtNum(tasksPending.length,0)}</span>
-            <span class="dashboard-task-alert-sub">${tasksPending.length
-              ? `${tasksOverdue.length ? `${fmtNum(tasksOverdue.length,0)} vencida(s) · ` : ""}${fmtNum(tasksSoon.length,0)} por vencer en 7 días`
-              : "Sin tareas pendientes por ahora"}</span>
-          </button>
+      <div class="dashboardStack">
+        <div class="dashboard-top-alert-row">
+          <div class="dashboard-task-alert-wrap">
+            <button
+              class="dashboard-task-alert-btn ${tasksPending.length ? "is-alert" : "is-ok"}"
+              id="dashTaskPendingBtn"
+              type="button"
+              title="Abrir tareas pendientes"
+            >
+              <span class="dashboard-task-alert-title">Tareas pendientes</span>
+              <span class="dashboard-task-alert-count">${fmtNum(tasksPending.length,0)}</span>
+              <span class="dashboard-task-alert-sub">${tasksPending.length
+                ? `${tasksOverdue.length ? `${fmtNum(tasksOverdue.length,0)} vencida(s) · ` : ""}${fmtNum(tasksSoon.length,0)} por vencer en 7 días`
+                : "Sin tareas pendientes por ahora"}</span>
+            </button>
+          </div>
+
+          <div class="finance-period-wrap">
+            <div class="helpCard finance-period-card" style="margin-top:0">
+              <div class="helpHd">
+                <div>
+                  <b>Periodo de consulta</b>
+                  <div class="muted">Cambia el mes para revisar cierres, cartera y movimientos históricos.</div>
+                </div>
+                <div class="finance-period-controls">
+                  <button class="btn" id="dashPrevM" type="button">◀</button>
+                  <select id="dashMonthSel" style="min-width:150px">${monthOps}</select>
+                  <button class="btn" id="dashNextM" type="button">▶</button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div class="finance-period-wrap">
-          <div class="helpCard finance-period-card" style="margin-top:0">
+        <div class="kpis">
+          <div class="kpi"><small>Ingresos (${esc(monthSel)})</small><b class="mono">${fmtCOP(inc)}</b><div class="muted">Caja registrada</div></div>
+          <div class="kpi"><small>Gastos (${esc(monthSel)})</small><b class="mono">${fmtCOP(exp)}</b><div class="muted">Egresos del período</div></div>
+          <div class="kpi"><small>Flujo neto</small><b class="mono">${fmtCOP(net)}</b><div class="muted">Ingresos − gastos</div></div>
+          <div class="kpi"><small>Por cobrar</small><b class="mono">${fmtCOP(recTotal)}</b><div class="muted">${fmtNum(recs.length,0)} venta(s) pendientes</div></div>
+          <div class="kpi"><small>Por pagar</small><b class="mono">${fmtCOP(payPending)}</b><div class="muted">${fmtNum(payOpen.length,0)} compra(s) abiertas</div></div>
+          <div class="kpi"><small>Inventario valorizado</small><b class="mono">${fmtCOP(inventoryValue)}</b><div class="muted">Costo estimado actual</div></div>
+        </div>
+
+        <div class="dashboardPair">
+          ${birthCard}
+          ${controlHTML}
+        </div>
+
+        <div class="dashboardPair">
+          <div class="helpCard">
             <div class="helpHd">
               <div>
-                <b>Periodo de consulta</b>
-                <div class="muted">Cambia el mes para revisar cierres, cartera y movimientos históricos.</div>
+                <b>Cuentas por cobrar</b>
+                <div class="muted">Ventas con saldo pendiente, ordenadas por mayor valor.</div>
               </div>
-              <div class="finance-period-controls">
-                <button class="btn" id="dashPrevM" type="button">◀</button>
-                <select id="dashMonthSel" style="min-width:150px">${monthOps}</select>
-                <button class="btn" id="dashNextM" type="button">▶</button>
+              <button class="btn" data-go="sales">Ver ventas</button>
+            </div>
+            <div class="wrap"><table class="execTableCompact">
+              <thead><tr><th>Fecha</th><th>Cliente</th><th>Total</th><th>Pendiente</th><th>Estado</th></tr></thead>
+              <tbody>${receivableRows || `<tr><td colspan="5" class="muted">No hay cartera pendiente.</td></tr>`}</tbody>
+            </table></div>
+          </div>
+
+          <div class="helpCard">
+            <div class="helpHd">
+              <div>
+                <b>Cuentas por pagar</b>
+                <div class="muted">Compras abiertas priorizadas por fecha de vencimiento.</div>
               </div>
+              <button class="btn" data-go="finance">Ver proveedores</button>
             </div>
+            <div class="wrap"><table class="execTableCompact">
+              <thead><tr><th>Vence</th><th>Compra</th><th>Pendiente</th><th>Estado</th></tr></thead>
+              <tbody>${payableRows || `<tr><td colspan="4" class="muted">No hay cuentas por pagar abiertas.</td></tr>`}</tbody>
+            </table></div>
           </div>
         </div>
-      </div>
 
-      <div class="kpis">
-        <div class="kpi"><small>Ingresos (${esc(monthSel)})</small><b class="mono">${fmtCOP(inc)}</b><div class="muted">Caja registrada</div></div>
-        <div class="kpi"><small>Gastos (${esc(monthSel)})</small><b class="mono">${fmtCOP(exp)}</b><div class="muted">Egresos del período</div></div>
-        <div class="kpi"><small>Flujo neto</small><b class="mono">${fmtCOP(net)}</b><div class="muted">Ingresos − gastos</div></div>
-        <div class="kpi"><small>Por cobrar</small><b class="mono">${fmtCOP(recTotal)}</b><div class="muted">${fmtNum(recs.length,0)} venta(s) pendientes</div></div>
-        <div class="kpi"><small>Por pagar</small><b class="mono">${fmtCOP(payPending)}</b><div class="muted">${fmtNum(payOpen.length,0)} compra(s) abiertas</div></div>
-        <div class="kpi"><small>Inventario valorizado</small><b class="mono">${fmtCOP(inventoryValue)}</b><div class="muted">Costo estimado actual</div></div>
-      </div>
-
-      ${birthCard}
-      ${controlHTML}
-
-      <div class="execSplit">
-        <div class="helpCard">
-          <div class="helpHd">
-            <div>
-              <b>Cuentas por cobrar</b>
-              <div class="muted">Ventas con saldo pendiente, ordenadas por mayor valor.</div>
-            </div>
-            <button class="btn" data-go="sales">Ver ventas</button>
-          </div>
-          <div class="wrap"><table class="execTableCompact">
-            <thead><tr><th>Fecha</th><th>Cliente</th><th>Total</th><th>Pendiente</th><th>Estado</th></tr></thead>
-            <tbody>${receivableRows || `<tr><td colspan="5" class="muted">No hay cartera pendiente.</td></tr>`}</tbody>
-          </table></div>
-        </div>
-
-        <div class="helpCard">
-          <div class="helpHd">
-            <div>
-              <b>Cuentas por pagar</b>
-              <div class="muted">Compras abiertas priorizadas por fecha de vencimiento.</div>
-            </div>
-            <button class="btn" data-go="finance">Ver proveedores</button>
-          </div>
-          <div class="wrap"><table class="execTableCompact">
-            <thead><tr><th>Vence</th><th>Compra</th><th>Pendiente</th><th>Estado</th></tr></thead>
-            <tbody>${payableRows || `<tr><td colspan="4" class="muted">No hay cuentas por pagar abiertas.</td></tr>`}</tbody>
-          </table></div>
+        <div class="dashboardPair">
+          ${lineCard}
+          ${warningCard}
         </div>
       </div>
-
-      ${lineCard}
-
       `
     );
 
@@ -9141,6 +14495,7 @@ return list;
     const bs = $("#dashSales"); if(bs) bs.onclick=()=>goTab("sales");
     const bv = $("#dashInventory"); if(bv) bv.onclick=()=>goTab("inv");
     const db = $("#dashGoBirths"); if(db) db.onclick=()=>goTab("lit");
+    const dgt = $("#dashGoTasks"); if(dgt) dgt.onclick=()=>goTab("tasks");
     const bt = $("#dashTaskPendingBtn");
     if(bt){
       bt.onclick=()=>goTab("tasks");
@@ -10272,7 +15627,7 @@ function openPen(opts={}){
     if(!state.sows.length) return `<div class="muted">Primero crea una cerda.</div>`;
     const closed=new Set(state.farrowings.map(x=>x.breedingId).filter(Boolean));
     const openBr=state.breedings.filter(b=>!closed.has(b.id));
-    f=f||{breedingId:preset.breedingId||"",sowId:preset.sowId||"",date:today(),bornTotal:0,bornAlive:0,stillborn:0,mummified:0,notes:""};
+    f=f||{breedingId:preset.breedingId||"",sowId:preset.sowId||"",date:today(),hour:"",bornTotal:0,bornAlive:0,stillborn:0,mummified:0,notes:""};
     const sowOps=state.sows.slice().sort((a,b)=>(a.tag||"").localeCompare(b.tag||"")).map(s=>`<option value="${s.id}" ${f.sowId===s.id?"selected":""}>${esc(s.tag||s.name||"—")}</option>`).join("");
     const brOps=openBr.slice().sort((a,b)=>(b.date||"").localeCompare(a.date||""))
       .map(b=>{ const s=get.sow(b.sowId); return `<option value="${b.id}" ${f.breedingId===b.id?"selected":""}>${esc(b.date)} • ${esc(s?.tag||"cerda")} • est ${esc(b.expectedFarrowing||"—")}</option>`; }).join("");
@@ -10284,7 +15639,8 @@ function openPen(opts={}){
     return `<form id="farForm" class="grid2">
       <div class="f12"><label>Servicio asociado (opcional)</label><select name="breedingId" id="ffBr"><option value="">(Sin servicio)</option>${brOps}</select></div>
       <div class="f6"><label>Cerda *</label><select name="sowId" id="ffSow" required><option value="">Selecciona</option>${sowOps}</select></div>
-      <div class="f6"><label>Fecha parto *</label><input type="date" name="date" value="${esc(f.date)}" required/></div>
+      <div class="f4"><label>Fecha parto *</label><input type="date" name="date" value="${esc(f.date)}" required/></div>
+      <div class="f2"><label>Hora</label><input type="time" name="hour" value="${esc(f.hour||"")}"/></div>
 
       <div class="f6">
         <label>Fecha destete (opcional)</label>
@@ -10358,6 +15714,7 @@ function openPen(opts={}){
       id:id||uid("far"),
       breedingId:breedingId||"",
       sowId, date,
+      hour:(fd.get("hour")||"").toString(),
       bornTotal:num(fd.get("bornTotal")),
       bornAlive:num(fd.get("bornAlive")),
       stillborn:num(fd.get("stillborn")),
@@ -13901,6 +19258,40 @@ if(!inRange(tx?.date, from, to)) return;
         <div class="muted" style="margin-top:8px;font-size:12px">Tip: toca “Ver” para filtrar ese mes y ajustar el rango del informe.</div>
       </div>
     `;
+    const birthMonths = getBirthMonths();
+    if(!financeBirthsMonth || !birthMonths.includes(financeBirthsMonth)) financeBirthsMonth = birthMonths[0] || curM;
+    const birthMonthOps = birthMonths.map(mm=>`<option value="${mm}" ${financeBirthsMonth===mm?"selected":""}>${mm}</option>`).join("");
+    const birthRowsList = getBirthRowsForMonth(financeBirthsMonth);
+    const birthQtyMonth = birthRowsList.reduce((s,x)=>s+num(x.cantidad),0);
+    const birthRowsHtml = birthRowsList.map(x=>`<tr>
+      <td class="mono">${esc(x.fecha||"—")}</td>
+      <td class="mono">${esc(x.hora||"—")}</td>
+      <td><b>${esc(x.cerda||"—")}</b></td>
+      <td class="mono">${fmtNum(x.cantidad,0)}</td>
+      <td class="muted">${esc(x.observaciones||"")}</td>
+    </tr>`).join("");
+    const birthsCard = `
+      <div class="helpCard finance-births-card" style="margin-top:12px">
+        <div class="helpHd">
+          <div>
+            <b>Reporte de lechones nacidos por mes</b>
+            <div class="muted">Selecciona un mes y descarga el reporte con cerda, hora, cantidad y observaciones.</div>
+          </div>
+          <div class="finance-births-controls">
+            <select id="birthsMonthSel">${birthMonthOps}</select>
+            <button class="btn primary" id="birthsExcelBtn">Descargar Excel</button>
+          </div>
+        </div>
+        <div class="kpis" style="margin-top:12px;margin-bottom:8px">
+          <div class="kpi" style="grid-column:span 6"><small>Partos del mes</small><b>${fmtNum(birthRowsList.length,0)}</b><div class="muted mono">${esc(financeBirthsMonth)}</div></div>
+          <div class="kpi" style="grid-column:span 6"><small>Lechones del mes</small><b>${fmtNum(birthQtyMonth,0)}</b><div class="muted mono">Nacidos vivos</div></div>
+        </div>
+        <div class="wrap" style="margin-top:10px"><table>
+          <thead><tr><th>Fecha</th><th>Hora</th><th>Cerda</th><th>Cantidad</th><th>Observaciones</th></tr></thead>
+          <tbody>${birthRowsHtml || `<tr><td colspan="5" class="muted">Sin nacimientos registrados para ese mes.</td></tr>`}</tbody>
+        </table></div>
+      </div>
+    `;
 view.innerHTML = shell(
       "Finanzas",
       "Ingresos y gastos (ventas e inventario alimentan automáticamente).",
@@ -13916,6 +19307,7 @@ view.innerHTML = shell(
       </div>
       ${reportCard}
       ${histCard}
+      ${birthsCard}
       <div class="wrap" style="margin-top:12px"><table>
         <thead><tr><th>Fecha</th><th>Tipo</th><th>Línea</th><th>Categoría</th><th>Valor</th><th>Notas</th><th>Acción</th></tr></thead>
         <tbody>${rows||`<tr><td colspan="7" class="muted">Sin transacciones.</td></tr>`}</tbody>
@@ -13970,7 +19362,10 @@ view.innerHTML = shell(
     const hy = $("#histYear");
     if(hy) hy.onchange=()=>{ financeHistYear = (hy.value||"").toString(); render(); };
 
-
+    const bms = $("#birthsMonthSel");
+    if(bms) bms.onchange=()=>{ financeBirthsMonth = (bms.value||"").toString(); render(); };
+    const bxl = $("#birthsExcelBtn");
+    if(bxl) bxl.onclick=()=>exportBirthsMonthExcel(financeBirthsMonth);
 
     const lf=$("#lineFrom");
     const lt=$("#lineTo");
@@ -14294,6 +19689,35 @@ view.innerHTML = shell(
         ]
       });
     }
+
+    const openingGroups = new Map();
+    (state.accounting.openingBalances||[]).forEach(e=>{
+      const dt = String(e.date || owner.openingDate || today());
+      if(!openingGroups.has(dt)) openingGroups.set(dt, []);
+      openingGroups.get(dt).push({
+        accountId:String(e.accountId||""),
+        debit:Math.max(0, num(e.debit)),
+        credit:Math.max(0, num(e.credit)),
+        notes:String(e.notes||"")
+      });
+    });
+    openingGroups.forEach((lines, dt)=>{
+      const deb = lines.reduce((s,x)=>s+num(x.debit),0);
+      const cre = lines.reduce((s,x)=>s+num(x.credit),0);
+      if(Math.abs(deb-cre)>0.01){
+        if(deb>cre) lines.push({accountId:"acc_310505", debit:0, credit:deb-cre, notes:"Ajuste automático balance inicial"});
+        else lines.push({accountId:"acc_310505", debit:cre-deb, credit:0, notes:"Ajuste automático balance inicial"});
+      }
+      contablePushEntry(entries, {
+        id:`opening_balance_${dt}`,
+        date: dt,
+        source:"apertura_balance",
+        concept:"Balance inicial importado",
+        sourceId:dt,
+        thirdParty:"Apertura",
+        lines
+      });
+    });
 
     (state.accounting.entries||[]).forEach(e=>{
       contablePushEntry(entries, {
@@ -14900,6 +20324,156 @@ view.innerHTML = shell(
     input.click();
   }
 
+  function parseContableOpeningImportText(text){
+    const raw = String(text||"").replace(/^﻿/, "").trim();
+    if(!raw) return [];
+    let rows = [];
+    if(raw.startsWith("[") || raw.startsWith("{")){
+      let data = JSON.parse(raw);
+      if(!Array.isArray(data)) data = Array.isArray(data.items) ? data.items : (Array.isArray(data.openingBalances) ? data.openingBalances : []);
+      rows = data.map(x=>{
+        const debit = Math.max(0, num(x.debit||x.debito));
+        const credit = Math.max(0, num(x.credit||x.credito||x.crédito));
+        const value = Math.max(0, num(x.value||x.valor));
+        const tp = String(x.type||x.tipo||x.nature||x.naturaleza||"").trim().toLowerCase();
+        return {
+          code:String(x.code||x.codigo||x.cuenta||"").trim(),
+          name:String(x.name||x.nombre||"").trim(),
+          class:String(x.class||x.clase||"").trim().toLowerCase(),
+          date:String(x.date||x.fecha||"").trim(),
+          notes:String(x.notes||x.observaciones||"").trim(),
+          debit: debit || ((!credit && value>0 && ['debito','débito','debit'].includes(tp)) ? value : 0),
+          credit: credit || ((!debit && value>0 && ['credito','crédito','credit'].includes(tp)) ? value : 0)
+        };
+      });
+    } else {
+      const lines = raw.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+      if(!lines.length) return [];
+      const delim = (lines[0].split(';').length > lines[0].split(',').length) ? ';' : ',';
+      const split = (line)=>{
+        const out=[]; let cur=''; let q=false;
+        for(let i=0;i<line.length;i++){
+          const ch=line[i];
+          if(ch==='"'){
+            if(q && line[i+1]==='"'){ cur+='"'; i++; }
+            else q=!q;
+          } else if(ch===delim && !q){ out.push(cur.trim()); cur=''; }
+          else cur+=ch;
+        }
+        out.push(cur.trim());
+        return out.map(v=>v.replace(/^"|"$/g,''));
+      };
+      const headers = split(lines[0]).map(h=>String(h||"").trim().toLowerCase());
+      const mapIdx = (...names)=> names.map(n=>headers.indexOf(n)).find(i=>i>=0) ?? -1;
+      const iCode = mapIdx('code','codigo','cuenta');
+      const iName = mapIdx('name','nombre','descripcion');
+      const iClass = mapIdx('class','clase');
+      const iDate = mapIdx('date','fecha');
+      const iNotes = mapIdx('notes','observaciones');
+      const iDebit = mapIdx('debit','debito','débito');
+      const iCredit = mapIdx('credit','credito','crédito');
+      const iValue = mapIdx('value','valor');
+      const iType = mapIdx('type','tipo','nature','naturaleza');
+      rows = lines.slice(1).map(line=>{
+        const cols = split(line);
+        const debit = Math.max(0, num(cols[iDebit]||0));
+        const credit = Math.max(0, num(cols[iCredit]||0));
+        const value = Math.max(0, num(cols[iValue]||0));
+        const tp = String(cols[iType]||"").trim().toLowerCase();
+        return {
+          code:String(cols[iCode]||"").trim(),
+          name:String(cols[iName]||"").trim(),
+          class:String(cols[iClass]||"").trim().toLowerCase(),
+          date:String(cols[iDate]||"").trim(),
+          notes:String(cols[iNotes]||"").trim(),
+          debit: debit || ((!credit && value>0 && ['debito','débito','debit'].includes(tp)) ? value : 0),
+          credit: credit || ((!debit && value>0 && ['credito','crédito','credit'].includes(tp)) ? value : 0)
+        };
+      });
+    }
+    const validClasses = new Set(['activo','pasivo','patrimonio','ingreso','gasto']);
+    return rows
+      .filter(r=>r.code && (num(r.debit)>0 || num(r.credit)>0))
+      .map(r=>({
+        code:r.code,
+        name:r.name,
+        class: validClasses.has(r.class) ? r.class : '',
+        date:r.date,
+        notes:r.notes,
+        debit:Math.max(0, num(r.debit)),
+        credit:Math.max(0, num(r.credit))
+      }));
+  }
+
+  async function importContableOpeningFromFile(file){
+    if(!file) return;
+    try{
+      const content = await file.text();
+      const items = parseContableOpeningImportText(content);
+      if(!items.length){
+        toast('warn','Sin datos','El archivo no trae saldos iniciales válidos. Usa cuenta y débito/crédito o valor/tipo.');
+        return;
+      }
+      normalizeAccountingState();
+      const chart = state.accounting.chartAccounts || [];
+      let created=0, linked=0, skipped=0;
+      const opening = [];
+      items.forEach(item=>{
+        let acc = chart.find(a=>String(a.code||'')===String(item.code));
+        if(!acc){
+          if(item.name && item.class){
+            acc = {id:uid('acc'), code:item.code, name:item.name, class:item.class, nature:contableNatureForClass(item.class), system:false};
+            chart.push(acc);
+            created++;
+          } else {
+            skipped++;
+            return;
+          }
+        }
+        opening.push({
+          id:uid('ob'),
+          date:item.date || state.accounting.owner.openingDate || today(),
+          accountId:acc.id,
+          debit:item.debit,
+          credit:item.credit,
+          notes:item.notes || '',
+          imported:true
+        });
+        linked++;
+      });
+      state.accounting.chartAccounts = chart;
+      state.accounting.openingBalances = opening;
+      normalizeAccountingState();
+      save();
+      const deb = opening.reduce((s,x)=>s+num(x.debit),0);
+      const cre = opening.reduce((s,x)=>s+num(x.credit),0);
+      const extra = Math.abs(deb-cre)>0.01 ? ' • Se ajustará automáticamente contra Capital aportado para cuadrar.' : '';
+      toast('ok','Balance inicial importado', `${linked} filas cargadas • ${created} cuentas creadas${skipped?` • ${skipped} omitidas`:''}${extra}`);
+      renderContable();
+    }catch(err){
+      console.error(err);
+      toast('bad','Error al importar','Usa CSV o JSON con code, debit, credit o value, type.');
+    }
+  }
+
+  function triggerContableOpeningImport(){
+    let input = document.getElementById('contaOpeningImportFile');
+    if(!input){
+      input = document.createElement('input');
+      input.type = 'file';
+      input.id = 'contaOpeningImportFile';
+      input.accept = '.csv,.json,text/csv,application/json';
+      input.style.display = 'none';
+      input.addEventListener('change', async ()=>{
+        const f = input.files && input.files[0];
+        await importContableOpeningFromFile(f);
+        input.value = '';
+      });
+      document.body.appendChild(input);
+    }
+    input.click();
+  }
+
   function renderContableSummary(range){
     const allEntries = contableBuildJournal();
     const journal = contableFilterEntries(allEntries, range.from, range.to);
@@ -15076,6 +20650,15 @@ view.innerHTML = shell(
       <div class="helpCard contaReport">
         <div class="helpHd"><div><b>Plan de cuentas</b><div class="muted">Catálogo base editable</div></div><span class="tag info">${accounts.length}</span></div>
         <div class="muted" style="margin:8px 0 10px">Puedes importar cuentas contables en CSV o JSON con columnas: <b>code</b>, <b>name</b>, <b>class</b> y <b>nature</b> opcional.</div>
+        <div class="contaMini" style="margin:0 0 10px">
+          <b>Formato para balance inicial:</b> una fila por cuenta. Puedes usar <b>code,debit,credit</b> o <b>code,value,type</b>. Opcionales: <b>name</b>, <b>class</b>, <b>date</b>, <b>notes</b>.
+          <div style="margin-top:6px" class="mono">Ejemplo 1: code,name,debit,credit</div>
+          <div class="mono">110505,Caja General,5000000,0</div>
+          <div class="mono">220505,Proveedores,0,3500000</div>
+          <div style="margin-top:6px" class="mono">Ejemplo 2: code,name,value,type</div>
+          <div class="mono">111005,Bancos,12000000,debito</div>
+          <div class="mono">310505,Capital aportado,13500000,credito</div>
+        </div>
         <div class="wrap"><table>
           <thead><tr><th>Código</th><th>Cuenta</th><th>Clase</th><th>Naturaleza</th><th></th></tr></thead>
           <tbody>${accounts.map(a=>`<tr><td class="mono">${esc(a.code)}</td><td>${esc(a.name)}${a.system?`<div class="contaMini">Cuenta base del sistema</div>`:""}</td><td>${esc(contableClassLabel(a.class))}</td><td>${esc(a.nature)}</td><td style="white-space:nowrap"><button class="btn" data-conta-edit-account="${a.id}">Editar</button>${a.system?"":` <button class="btn danger" data-conta-del-account="${a.id}">Borrar</button>`}</td></tr>`).join("")}</tbody>
@@ -15161,6 +20744,7 @@ view.innerHTML = shell(
         <button class="btn" id="contaNewEntry">Nuevo asiento</button>
         <button class="btn" id="contaNewAccount">Nueva cuenta</button>
         <button class="btn" id="contaImportAccounts">Importar cuentas</button>
+        <button class="btn" id="contaImportOpening">Importar balance inicial</button>
         <button class="btn" id="contaOwnerBtn">Capital inicial</button>
         <span class="contaBadge">Periodo</span>${periodSel}
       </div>`,
@@ -15172,6 +20756,7 @@ view.innerHTML = shell(
     const ne = $("#contaNewEntry"); if(ne) ne.onclick = ()=>openContableEntry();
     const na = $("#contaNewAccount"); if(na) na.onclick = ()=>openContableAccount();
     const ia = $("#contaImportAccounts"); if(ia) ia.onclick = ()=>triggerContableImport();
+    const iob = $("#contaImportOpening"); if(iob) iob.onclick = ()=>triggerContableOpeningImport();
     const ob = $("#contaOwnerBtn"); if(ob) ob.onclick = ()=>openContableOwner();
 
     view.onclick = (e)=>{
@@ -15196,121 +20781,217 @@ view.innerHTML = shell(
 
   // ------- Tareas -------
   function renderTasks(){
-    const now=today();
-    const allTasks=(state.tasks||[])
+    syncSanitaryProtocolTasks();
+    const now = today();
+    const allTasks = (state.tasks||[])
       .filter(t=>matchQ(t.title,t.dueDate,t.priority,t.status,t.notes))
-      .sort((a,b)=>(a.status||"").localeCompare(b.status||"") || (a.dueDate||"").localeCompare(b.dueDate||""));
+      .sort((a,b)=>{
+        const aDone = (a.status||"")==="hecha" ? 1 : 0;
+        const bDone = (b.status||"")==="hecha" ? 1 : 0;
+        return aDone - bDone || String(a.dueDate||"").localeCompare(String(b.dueDate||"")) || String(a.priority||"").localeCompare(String(b.priority||""));
+      });
 
-    const taskGroups=[
+    const taskGroups = [
       {
         key:"general",
-        label:"Alertas generales",
-        sub:"Destete, cobros, chequeos, tareas manuales y otras alertas existentes.",
+        label:"Generales",
+        sub:"Destete, cobros, chequeos y tareas manuales.",
         filter:(t)=>!(t && t.autoKind==="sanitary_protocol")
       },
       {
         key:"gestation",
-        label:"Cerdas gestantes",
-        sub:"Protocolos y alertas sanitarias de gestación.",
+        label:"Gestación",
+        sub:"Protocolos y alertas de cerdas gestantes.",
         filter:(t)=>!!(t && t.autoKind==="sanitary_protocol" && t.protocolGroup==="gestation")
       },
       {
         key:"lactation",
-        label:"Cerdas en lactancia",
-        sub:"Protocolos y alertas sanitarias post-parto.",
+        label:"Lactancia",
+        sub:"Protocolos post-parto para cerdas en lactancia.",
         filter:(t)=>!!(t && t.autoKind==="sanitary_protocol" && t.protocolGroup==="lactation")
       },
       {
         key:"piglets",
         label:"Lechones",
-        sub:"Vacunas, procedimientos y alertas sanitarias de lechones.",
+        sub:"Vacunas, hierro, corte y seguimiento de lechones.",
         filter:(t)=>!!(t && t.autoKind==="sanitary_protocol" && t.protocolGroup==="piglets")
       }
     ];
 
-    const taskRow=(t)=>{
-      const dueIn=t.dueDate?daysBetween(now,t.dueDate):null;
-      const st=t.status||"pendiente";
-      const tag=st==="hecha"?`<span class="tag ok">Hecha</span>`:(dueIn!==null&&dueIn<0?`<span class="tag bad">Vencida</span>`:`<span class="tag warn">Pendiente</span>`);
+    const counts = {};
+    taskGroups.forEach(g=>counts[g.key]=allTasks.filter(g.filter).length);
+
+    const pending = allTasks.filter(t=>(t.status||"")!=="hecha");
+    const overdue = pending.filter(t=>t.dueDate && daysBetween(now,t.dueDate)<0);
+    const dueToday = pending.filter(t=>t.dueDate===now);
+    const next7 = pending.filter(t=>{
+      if(!t.dueDate) return false;
+      const d = daysBetween(now,t.dueDate);
+      return d>=0 && d<=7;
+    });
+
+    const defaultGroup = taskGroups.find(g=>counts[g.key]>0)?.key || "general";
+    const savedGroup = window.__taskGroupOpen;
+    const openGroup = savedGroup === "__closed__"
+      ? ""
+      : ((savedGroup === "__urgent__" || (savedGroup && taskGroups.some(g=>g.key===savedGroup)))
+          ? savedGroup
+          : defaultGroup);
+
+    const relatedLabel = (t)=>{
+      if(t.relatedType==="batch") return "Camada";
+      if(t.relatedType==="farrowing") return "Parto";
+      if(t.relatedType==="breeding") return "Servicio";
+      if(t.relatedType==="sow") return "Cerda";
+      if(t.relatedType==="animal") return "Cerdo";
+      if(t.relatedType==="pen") return "Cajón";
+      if(t.relatedType==="engorde") return "Engorde";
+      if(t.relatedType==="sale") return "Venta";
+      if(t.relatedType==="inventory") return "Insumo";
+      return t.relatedType || "—";
+    };
+
+    const stateTag = (t)=>{
+      if((t.status||"")==="hecha") return `<span class="tag ok">Hecha</span>`;
+      const dueIn = t.dueDate ? daysBetween(now, t.dueDate) : null;
+      if(dueIn!==null && dueIn<0) return `<span class="tag bad">Vencida</span>`;
+      if(dueIn===0) return `<span class="tag warn">Hoy</span>`;
+      return `<span class="tag">Pendiente</span>`;
+    };
+
+    const taskRow = (t)=>{
+      const dueIn = t.dueDate ? daysBetween(now, t.dueDate) : null;
+      const whenText = dueIn===null ? "Sin fecha"
+        : dueIn>0 ? `En ${dueIn} día(s)`
+        : dueIn===0 ? "Vence hoy"
+        : `${Math.abs(dueIn)} día(s) tarde`;
       return `<tr>
-        <td>${tag} <span class="tag">${esc(t.priority||"media")}</span></td>
-        <td><b>${esc(t.title)}</b><div class="muted">${esc(t.notes||"")}</div></td>
-        <td class="mono">${esc(t.dueDate||"—")}<div class="muted">${dueIn!==null?(dueIn>=0?`${dueIn} días`:`${Math.abs(dueIn)} días tarde`):""}</div></td>
-        <td class="mono">${esc(t.relatedType||"—")} ${t.relatedId?esc(t.relatedId.slice(-6)):""}</td>
+        <td>${stateTag(t)} <span class="tag">${esc(t.priority||"media")}</span></td>
+        <td><b>${esc(t.title||"")}</b><div class="muted">${esc(t.notes||"")}</div></td>
+        <td class="mono">${esc(t.dueDate||"—")}<div class="muted">${esc(whenText)}</div></td>
+        <td class="mono">${esc(relatedLabel(t))}${t.relatedId?` · ${esc(String(t.relatedId).slice(-6))}`:""}</td>
         <td>
-          ${st!=="hecha"?`<button class="btn" data-act="done" data-id="${t.id}">Hecha</button>`:`<button class="btn" data-act="undo" data-id="${t.id}">Reabrir</button>`}
-          <button class="btn danger" data-act="del" data-id="${t.id}">Eliminar</button>
+          ${(t.status||"")!=="hecha"
+            ? `<button type="button" class="btn" data-act="done" data-id="${t.id}">Hecha</button>`
+            : `<button type="button" class="btn" data-act="undo" data-id="${t.id}">Reabrir</button>`}
+          <button type="button" class="btn danger" data-act="del" data-id="${t.id}">Eliminar</button>
         </td>
       </tr>`;
     };
 
-    const counts={};
-    taskGroups.forEach(g=>counts[g.key]=allTasks.filter(g.filter).length);
-    const currentGroup=(window.__taskGroupOpen && taskGroups.some(g=>g.key===window.__taskGroupOpen)) ? window.__taskGroupOpen : "";
+    const urgentTasks = overdue.concat(dueToday.filter(t=>!overdue.includes(t))).slice(0,8);
+    const urgentCount = urgentTasks.length;
+    const urgentRows = urgentTasks.map(t=>`<tr>
+      <td>${stateTag(t)} <span class="tag">${esc(t.priority||"media")}</span></td>
+      <td><b>${esc(t.title||"")}</b><div class="muted">${esc(t.notes||"")}</div></td>
+      <td class="mono">${esc(t.dueDate||"—")}</td>
+      <td class="mono">${esc(relatedLabel(t))}${t.relatedId?` · ${esc(String(t.relatedId).slice(-6))}`:""}</td>
+      <td>
+        ${(t.status||"")!=="hecha"
+          ? `<button type="button" class="btn" data-act="done" data-id="${t.id}">Hecha</button>`
+          : `<button type="button" class="btn" data-act="undo" data-id="${t.id}">Reabrir</button>`}
+        <button type="button" class="btn danger" data-act="del" data-id="${t.id}">Eliminar</button>
+      </td>
+    </tr>`).join("");
 
-    function renderGroupTable(key){
-      const group=taskGroups.find(g=>g.key===key);
-      if(!group) return "";
-      const rows=allTasks.filter(group.filter).map(taskRow).join("");
-      return `<div class="helpCard" style="margin-top:14px">
-        <div class="row" style="justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:10px">
-          <div>
-            <div class="title" style="margin-bottom:4px">${esc(group.label)}</div>
-            <div class="muted">${esc(group.sub)}</div>
-          </div>
-          <button class="btn" data-close-task-group="${group.key}">✕ Cerrar</button>
-        </div>
-        <div class="wrap"><table>
-          <thead><tr><th>Estado</th><th>Tarea</th><th>Vence</th><th>Relacionado</th><th>Acciones</th></tr></thead>
-          <tbody>${rows||`<tr><td colspan="5" class="muted">Sin tareas en este grupo.</td></tr>`}</tbody>
-        </table></div>
+    const openGroupObj = taskGroups.find(g=>g.key===openGroup) || null;
+    const isUrgentGroup = openGroup==="__urgent__";
+    const openTitle = isUrgentGroup ? "Lo más urgente" : (openGroupObj?.label || "");
+    const openSub = isUrgentGroup ? "Primero ves lo vencido y lo que vence hoy." : (openGroupObj?.sub || "");
+    const openRows = isUrgentGroup
+      ? urgentRows
+      : (openGroupObj ? allTasks.filter(openGroupObj.filter).map(taskRow).join("") : "");
+
+    const filterButtons = taskGroups.map(g=>{
+      const active = openGroup===g.key ? "is-active" : "";
+      return `<button type="button" class="taskFilterBtn ${active}" data-task-group="${g.key}">
+        <span class="taskFilterLabel">${esc(g.label)}</span>
+        <span class="taskFilterCount">${counts[g.key]||0}</span>
+      </button>`;
+    }).concat([
+      `<button type="button" class="taskFilterBtn ${openGroup==="__urgent__" ? "is-active" : ""}" data-task-group="__urgent__">
+        <span class="taskFilterLabel">Lo más urgente</span>
+        <span class="taskFilterCount">${urgentCount||0}</span>
+      </button>`
+    ]).join("");
+
+    const summaryCards = `
+      <div class="taskSummaryRow">
+        <div class="kpi"><div class="kpi-label">Pendientes</div><div class="kpi-value">${fmtNum(pending.length,0)}</div></div>
+        <div class="kpi"><div class="kpi-label">Vencidas</div><div class="kpi-value">${fmtNum(overdue.length,0)}</div></div>
+        <div class="kpi"><div class="kpi-label">Vencen hoy</div><div class="kpi-value">${fmtNum(dueToday.length,0)}</div></div>
+        <div class="kpi"><div class="kpi-label">Próximas 7 días</div><div class="kpi-value">${fmtNum(next7.length,0)}</div></div>
       </div>`;
-    }
-
-    const groupButtons = taskGroups.map(g=>{
-      const active = currentGroup===g.key ? "primary" : "";
-      return `<button class="btn ${active}" data-task-group="${g.key}">${esc(g.label)} <span class="tag">${counts[g.key]||0}</span></button>`;
-    }).join("");
-
-    const tableBlock = currentGroup
-      ? renderGroupTable(currentGroup)
-      : `<div class="helpCard" style="margin-top:14px"><div class="muted">Presiona uno de los botones para abrir la tabla correspondiente.</div></div>`;
 
     view.innerHTML = shell(
-      "Tareas",
+      "Tareas y alertas",
       "Agenda destete, chequeos, vacunación, cobros y alertas sanitarias automáticas para gestación, lactancia y lechones.",
-      `<div class="row" style="gap:10px;flex-wrap:wrap;justify-content:flex-end"><button class="btn primary" id="add"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-plus" xlink:href="#i-plus"></use></svg><span>Nueva tarea</span></button></div>`,
-      `<div class="helpCard">
-        <div class="title" style="margin-bottom:8px">Tablas de tareas</div>
-        <div class="muted" style="margin-bottom:10px">Abre cada tabla por botón: alertas generales, cerdas gestantes, cerdas en lactancia o lechones.</div>
-        <div class="row" style="gap:10px;flex-wrap:wrap">${groupButtons}</div>
-      </div>
-      ${tableBlock}`
+      `<div class="taskToolbar"><button type="button" class="btn primary" id="addTaskBtn"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-plus" xlink:href="#i-plus"></use></svg><span>Nueva tarea</span></button></div>`,
+      `${summaryCards}
+      <div class="taskDashboardLayout">
+        <div class="taskDashboardSide">
+          <div class="helpCard taskFiltersCard" data-table-collapse-exempt="1">
+            <div class="title" style="margin-bottom:4px">Grupos de alertas</div>
+            <div class="muted" style="margin-bottom:10px">Todo quedó separado por etapa para reducir ruido visual.</div>
+            <div class="taskFiltersRow">${filterButtons}</div>
+          </div>
+        </div>
+
+        <div class="taskDashboardMain">
+          ${openTitle ? `
+          <div class="helpCard taskOpenCard" style="margin-top:12px" data-table-collapse-exempt="1">
+            <div class="taskSectionHead">
+              <div>
+                <div class="title" style="margin-bottom:4px">${esc(openTitle)}</div>
+                <div class="muted">${esc(openSub)}</div>
+              </div>
+              <button type="button" class="btn secondary" id="closeTaskGroupBtn">Cerrar</button>
+            </div>
+            <div class="wrap taskTableWrap"><table>
+              <thead><tr><th>Estado</th><th>Tarea</th><th>Vence</th><th>Relacionado</th><th>Acciones</th></tr></thead>
+              <tbody>${openRows || `<tr><td colspan="5" class="muted">Sin tareas en este grupo.</td></tr>`}</tbody>
+            </table></div>
+          </div>
+          ` : ``}
+        </div>
+      </div>` 
     );
-    $("#add").onclick=()=>openTask();
-    view.onclick=(e)=>{
-      const groupBtn=e.target.closest("button[data-task-group]");
-      if(groupBtn){
-        const key=groupBtn.dataset.taskGroup||"";
-        window.__taskGroupOpen = window.__taskGroupOpen===key ? "" : key;
+
+    const addBtn = $("#addTaskBtn");
+    if(addBtn) addBtn.onclick = ()=>openTask();
+
+    const closeBtn = $("#closeTaskGroupBtn");
+    if(closeBtn) closeBtn.onclick = ()=>{ window.__taskGroupOpen="__closed__"; render(); };
+
+    view.querySelectorAll("button[data-task-group]").forEach(btn=>{
+      btn.onclick = ()=>{
+        const key = btn.dataset.taskGroup || "";
+        window.__taskGroupOpen = key;
         render();
-        return;
-      }
-      const closeBtn=e.target.closest("button[data-close-task-group]");
-      if(closeBtn){
-        window.__taskGroupOpen="";
+      };
+    });
+
+    view.querySelectorAll("button[data-act]").forEach(btn=>{
+      btn.onclick = ()=>{
+        const id = btn.dataset.id || "";
+        const act = btn.dataset.act || "";
+        if(!id || !act) return;
+        if(act==="del"){
+          state.tasks = (state.tasks||[]).filter(t=>t.id!==id);
+          save();
+          toast("ok","Eliminada","Tarea eliminada.");
+          render();
+          return;
+        }
+        const t = (state.tasks||[]).find(x=>x.id===id);
+        if(!t) return;
+        if(act==="done") t.status = "hecha";
+        if(act==="undo") t.status = "pendiente";
+        save();
+        toast("ok","Listo", act==="done" ? "Marcada como hecha." : "Reabierta.");
         render();
-        return;
-      }
-      const b=e.target.closest("button[data-act]"); if(!b) return;
-      const id=b.dataset.id, act=b.dataset.act;
-      if(act==="del"){ state.tasks=state.tasks.filter(t=>t.id!==id); save(); toast("ok","Eliminada","Tarea eliminada."); render(); }
-      if(act==="done"||act==="undo"){
-        const t=state.tasks.find(x=>x.id===id); if(!t) return;
-        t.status = act==="done" ? "hecha" : "pendiente";
-        save(); toast("ok","Listo", act==="done"?"Marcada como hecha.":"Reabierta."); render();
-      }
-    };
+      };
+    });
   }
 
   function taskForm(t){
@@ -16469,6 +22150,531 @@ header .brand .logo img.headerBrandLogoImg{
   }
 }
 
+
+/* Mejoras visuales para alertas */
+.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:var(--shadow)}
+.kpi-label{font-size:12px;color:var(--muted);margin-bottom:6px}
+.kpi-value{font-size:24px;font-weight:900;line-height:1}
+@media (max-width: 980px){.grid4{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media (max-width: 560px){.grid4{grid-template-columns:1fr;}}
+
+
+/* Orden visual módulo alertas */
+.alertsTopbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:12px;
+}
+.alertsTopbarLeft{min-width:0}
+.alertsTopTitle{
+  font-size:15px;
+  font-weight:900;
+  line-height:1.1;
+}
+.alertsTopSub{
+  font-size:12px;
+  color:var(--muted);
+  margin-top:3px;
+}
+.alertsTopbarRight{
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+.alertsFilterCard{
+  margin-top:0 !important;
+}
+.alertsFilterHead{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+  margin-bottom:10px;
+  flex-wrap:wrap;
+}
+.alertsFilterGrid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+.alertsFilterBtn{
+  border:none;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:12px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  cursor:pointer;
+  font-weight:800;
+  text-align:left;
+  box-shadow:0 6px 18px rgba(2,6,23,.04);
+  transition:.15s ease;
+}
+.alertsFilterBtn:hover{
+  transform:translateY(-1px);
+  border-color:rgba(23,158,114,.25);
+  background:rgba(23,158,114,.04);
+}
+.alertsFilterBtn.primary{
+  background:rgba(23,158,114,.10);
+  border-color:rgba(23,158,114,.28);
+  box-shadow:0 0 0 3px rgba(23,158,114,.10);
+}
+.alertsFilterText{
+  min-width:0;
+  overflow-wrap:anywhere;
+}
+.alertsFilterBadge{
+  flex:0 0 auto;
+}
+.helpCard .wrap{
+  overflow:auto;
+}
+@media (max-width: 900px){
+  .alertsFilterGrid{
+    grid-template-columns:1fr;
+  }
+}
+@media (max-width: 560px){
+  .alertsTopbar{
+    align-items:flex-start;
+  }
+  .alertsTopbarRight{
+    width:100%;
+  }
+  .alertsTopbarRight .btn{
+    width:100%;
+    justify-content:center;
+  }
+}
+
+
+/* ===== Dashboard ordenado de izquierda a derecha ===== */
+.dashboardRow,
+.dashboardGrid,
+.resumeGrid,
+.summaryGrid{
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.dashboardRow3,
+.dashboardGrid3{
+  display:grid !important;
+  grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.dashboardRow4,
+.dashboardGrid4{
+  display:grid !important;
+  grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.reports-stack{
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.reports-stack > .card{
+  width:100% !important;
+  margin:0 !important;
+}
+.view[data-view="dashboard"] .row,
+#view-dashboard .row,
+section[data-view="dashboard"] .row{
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.view[data-view="dashboard"] .row > .col-12,
+.view[data-view="dashboard"] .row > .col-8,
+.view[data-view="dashboard"] .row > .col-6,
+.view[data-view="dashboard"] .row > .col-4,
+.view[data-view="dashboard"] .row > .col-3,
+.view[data-view="dashboard"] .row > .col-2,
+#view-dashboard .row > .col-12,
+#view-dashboard .row > .col-8,
+#view-dashboard .row > .col-6,
+#view-dashboard .row > .col-4,
+#view-dashboard .row > .col-3,
+#view-dashboard .row > .col-2,
+section[data-view="dashboard"] .row > .col-12,
+section[data-view="dashboard"] .row > .col-8,
+section[data-view="dashboard"] .row > .col-6,
+section[data-view="dashboard"] .row > .col-4,
+section[data-view="dashboard"] .row > .col-3,
+section[data-view="dashboard"] .row > .col-2{
+  grid-column:auto !important;
+}
+.view[data-view="dashboard"] .row > .col-12,
+#view-dashboard .row > .col-12,
+section[data-view="dashboard"] .row > .col-12{
+  grid-column:span 2 !important;
+}
+.view[data-view="dashboard"] .toolbar,
+#view-dashboard .toolbar,
+section[data-view="dashboard"] .toolbar{
+  display:flex !important;
+  gap:10px !important;
+  flex-wrap:wrap !important;
+  align-items:center !important;
+}
+.view[data-view="dashboard"] .toolbar > *,
+#view-dashboard .toolbar > *,
+section[data-view="dashboard"] .toolbar > *{
+  flex:0 1 auto !important;
+}
+@media (max-width: 980px){
+  .dashboardRow,
+  .dashboardGrid,
+  .resumeGrid,
+  .summaryGrid,
+  .reports-stack,
+  .view[data-view="dashboard"] .row,
+  #view-dashboard .row,
+  section[data-view="dashboard"] .row{
+    grid-template-columns:1fr !important;
+  }
+  .view[data-view="dashboard"] .row > .col-12,
+  #view-dashboard .row > .col-12,
+  section[data-view="dashboard"] .row > .col-12{
+    grid-column:span 1 !important;
+  }
+}
+
+
+/* Ajuste limpio del módulo tareas y alertas */
+.taskToolbar{
+  display:flex;
+  justify-content:flex-end;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.taskSummaryGrid{
+  margin-bottom:12px;
+}
+.taskFiltersCard{
+  margin-top:0 !important;
+}
+.taskFiltersRow{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+}
+.taskFilterBtn{
+  border:1px solid var(--line);
+  background:#fff;
+  border-radius:16px;
+  padding:12px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  cursor:pointer;
+  box-shadow:0 6px 18px rgba(2,6,23,.04);
+  transition:.15s ease;
+}
+.taskFilterBtn:hover{
+  border-color:rgba(23,158,114,.28);
+  background:rgba(23,158,114,.04);
+}
+.taskFilterBtn.is-active{
+  background:rgba(23,158,114,.10);
+  border-color:rgba(23,158,114,.28);
+  box-shadow:0 0 0 3px rgba(23,158,114,.10);
+}
+.taskFilterLabel{
+  font-weight:800;
+  text-align:left;
+}
+.taskFilterCount{
+  min-width:28px;
+  height:28px;
+  padding:0 8px;
+  border-radius:999px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-size:12px;
+  font-weight:900;
+  background:rgba(23,158,114,.10);
+  color:var(--green-900);
+  border:1px solid rgba(23,158,114,.18);
+}
+.taskSectionHead{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:10px;
+}
+.taskTableWrap{
+  max-height:420px;
+  overflow:auto;
+}
+@media (max-width: 980px){
+  .taskFiltersRow{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+@media (max-width: 560px){
+  .taskToolbar .btn{
+    width:100%;
+    justify-content:center;
+  }
+  .taskFiltersRow{
+    grid-template-columns:1fr;
+  }
+}
+
+
+/* Dashboard organizado sin tocar otras vistas */
+.dashboardStack{
+  display:grid;
+  gap:12px;
+}
+.dashboardPair{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+  align-items:start;
+}
+.dashboardPair > .helpCard{
+  margin-top:0 !important;
+  height:100%;
+}
+.dashboardPair .wrap{
+  overflow:auto;
+}
+@media (max-width: 980px){
+  .dashboardPair{
+    grid-template-columns:1fr;
+  }
+}
+
+
+/* ===== Tareas y alertas: panel horizontal ===== */
+.taskDashboardLayout{
+  display:grid;
+  grid-template-columns: 360px minmax(0, 1fr);
+  gap:14px;
+  align-items:start;
+  margin-top:12px;
+}
+.taskDashboardSide,
+.taskDashboardMain{
+  min-width:0;
+}
+.taskDashboardSide .helpCard,
+.taskDashboardMain .helpCard{
+  margin-top:0 !important;
+}
+.taskDashboardMain .taskOpenCard{
+  min-height:100%;
+}
+.taskFiltersRow{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:10px;
+}
+.taskSummaryGrid{
+  margin-bottom:12px;
+}
+.taskTableWrap{
+  max-height:460px;
+  overflow:auto;
+}
+@media (max-width: 1100px){
+  .taskDashboardLayout{
+    grid-template-columns: 320px minmax(0, 1fr);
+  }
+}
+@media (max-width: 980px){
+  .taskDashboardLayout{
+    grid-template-columns:1fr;
+  }
+}
+
+
+/* Arriba del módulo tareas: horizontal real */
+.taskSummaryRow{
+  display:grid !important;
+  grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+  gap:12px !important;
+  margin-bottom:12px !important;
+  align-items:stretch !important;
+}
+.taskSummaryRow .kpi{
+  margin:0 !important;
+  min-width:0 !important;
+}
+@media (max-width: 1100px){
+  .taskSummaryRow{
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  }
+}
+@media (max-width: 560px){
+  .taskSummaryRow{
+    grid-template-columns:1fr !important;
+  }
+}
+
+
+/* Forzar KPIs de tareas en horizontal */
+.taskSummaryRow{
+  display:flex !important;
+  flex-direction:row !important;
+  flex-wrap:nowrap !important;
+  gap:12px !important;
+  align-items:stretch !important;
+  justify-content:space-between !important;
+  width:100% !important;
+  margin-bottom:12px !important;
+}
+.taskSummaryRow .kpi{
+  flex:1 1 0 !important;
+  width:auto !important;
+  min-width:0 !important;
+  margin:0 !important;
+}
+@media (max-width: 980px){
+  .taskSummaryRow{
+    flex-wrap:wrap !important;
+  }
+  .taskSummaryRow .kpi{
+    flex:1 1 calc(50% - 12px) !important;
+  }
+}
+@media (max-width: 560px){
+  .taskSummaryRow .kpi{
+    flex:1 1 100% !important;
+  }
+}
+
+
+/* Grupo de alertas horizontal arriba, tabla abajo */
+.taskDashboardLayout{
+  display:grid !important;
+  grid-template-columns:1fr !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.taskDashboardSide,
+.taskDashboardMain{
+  min-width:0 !important;
+}
+.taskFiltersCard{
+  margin-top:0 !important;
+}
+.taskFiltersRow{
+  display:flex !important;
+  flex-direction:row !important;
+  flex-wrap:wrap !important;
+  gap:10px !important;
+  align-items:stretch !important;
+}
+.taskFiltersRow > *{
+  flex:1 1 220px !important;
+  min-width:180px !important;
+}
+.taskDashboardMain .taskOpenCard{
+  margin-top:0 !important;
+}
+@media (max-width: 560px){
+  .taskFiltersRow > *{
+    flex:1 1 100% !important;
+    min-width:0 !important;
+  }
+}
+
+
+/* Tabla cerrada en alertas */
+.taskClosedHint{
+  min-height: 120px;
+  display:flex;
+  align-items:center;
+}
+
+
+/* Lo más urgente: hint cuando está cerrado */
+.taskMiniClosedHint{
+  margin-top:10px;
+  padding:12px 14px;
+  border:1px dashed var(--line);
+  border-radius:14px;
+  background:rgba(248,250,252,1);
+  color:var(--muted);
+  font-size:12px;
+}
+
+
+/* Ajuste: Lo más urgente como botón junto a grupos */
+.taskDashboardLayout{
+  grid-template-columns: 1fr !important;
+}
+.taskDashboardSide,
+.taskDashboardMain{
+  width:100% !important;
+}
+.taskFiltersRow{
+  display:flex !important;
+  flex-direction:row !important;
+  flex-wrap:wrap !important;
+  gap:10px !important;
+}
+.taskFiltersRow > *{
+  flex:1 1 180px !important;
+  min-width:180px !important;
+}
+.taskDashboardMain .taskOpenCard{
+  margin-top:12px !important;
+}
+@media (max-width:560px){
+  .taskFiltersRow > *{
+    flex:1 1 100% !important;
+    min-width:0 !important;
+  }
+}
+
+
+/* Reporte mensual de nacimientos */
+.finance-births-controls{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+.finance-births-controls select{
+  min-width:150px;
+}
+@media (max-width: 700px){
+  .finance-births-controls{
+    width:100%;
+  }
+  .finance-births-controls select,
+  .finance-births-controls .btn{
+    width:100%;
+  }
+}
+
+
+/* Importación de balance inicial */
+.contaMini .mono{display:block;margin-top:2px;}
+
 </style>
 
 
@@ -16780,6 +22986,531 @@ header .brand .logo img.headerBrandLogoImg{
     max-width: 400px !important;
   }
 }
+
+
+/* Mejoras visuales para alertas */
+.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:var(--shadow)}
+.kpi-label{font-size:12px;color:var(--muted);margin-bottom:6px}
+.kpi-value{font-size:24px;font-weight:900;line-height:1}
+@media (max-width: 980px){.grid4{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media (max-width: 560px){.grid4{grid-template-columns:1fr;}}
+
+
+/* Orden visual módulo alertas */
+.alertsTopbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:12px;
+}
+.alertsTopbarLeft{min-width:0}
+.alertsTopTitle{
+  font-size:15px;
+  font-weight:900;
+  line-height:1.1;
+}
+.alertsTopSub{
+  font-size:12px;
+  color:var(--muted);
+  margin-top:3px;
+}
+.alertsTopbarRight{
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+.alertsFilterCard{
+  margin-top:0 !important;
+}
+.alertsFilterHead{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+  margin-bottom:10px;
+  flex-wrap:wrap;
+}
+.alertsFilterGrid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+.alertsFilterBtn{
+  border:none;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:12px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  cursor:pointer;
+  font-weight:800;
+  text-align:left;
+  box-shadow:0 6px 18px rgba(2,6,23,.04);
+  transition:.15s ease;
+}
+.alertsFilterBtn:hover{
+  transform:translateY(-1px);
+  border-color:rgba(23,158,114,.25);
+  background:rgba(23,158,114,.04);
+}
+.alertsFilterBtn.primary{
+  background:rgba(23,158,114,.10);
+  border-color:rgba(23,158,114,.28);
+  box-shadow:0 0 0 3px rgba(23,158,114,.10);
+}
+.alertsFilterText{
+  min-width:0;
+  overflow-wrap:anywhere;
+}
+.alertsFilterBadge{
+  flex:0 0 auto;
+}
+.helpCard .wrap{
+  overflow:auto;
+}
+@media (max-width: 900px){
+  .alertsFilterGrid{
+    grid-template-columns:1fr;
+  }
+}
+@media (max-width: 560px){
+  .alertsTopbar{
+    align-items:flex-start;
+  }
+  .alertsTopbarRight{
+    width:100%;
+  }
+  .alertsTopbarRight .btn{
+    width:100%;
+    justify-content:center;
+  }
+}
+
+
+/* ===== Dashboard ordenado de izquierda a derecha ===== */
+.dashboardRow,
+.dashboardGrid,
+.resumeGrid,
+.summaryGrid{
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.dashboardRow3,
+.dashboardGrid3{
+  display:grid !important;
+  grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.dashboardRow4,
+.dashboardGrid4{
+  display:grid !important;
+  grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.reports-stack{
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.reports-stack > .card{
+  width:100% !important;
+  margin:0 !important;
+}
+.view[data-view="dashboard"] .row,
+#view-dashboard .row,
+section[data-view="dashboard"] .row{
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.view[data-view="dashboard"] .row > .col-12,
+.view[data-view="dashboard"] .row > .col-8,
+.view[data-view="dashboard"] .row > .col-6,
+.view[data-view="dashboard"] .row > .col-4,
+.view[data-view="dashboard"] .row > .col-3,
+.view[data-view="dashboard"] .row > .col-2,
+#view-dashboard .row > .col-12,
+#view-dashboard .row > .col-8,
+#view-dashboard .row > .col-6,
+#view-dashboard .row > .col-4,
+#view-dashboard .row > .col-3,
+#view-dashboard .row > .col-2,
+section[data-view="dashboard"] .row > .col-12,
+section[data-view="dashboard"] .row > .col-8,
+section[data-view="dashboard"] .row > .col-6,
+section[data-view="dashboard"] .row > .col-4,
+section[data-view="dashboard"] .row > .col-3,
+section[data-view="dashboard"] .row > .col-2{
+  grid-column:auto !important;
+}
+.view[data-view="dashboard"] .row > .col-12,
+#view-dashboard .row > .col-12,
+section[data-view="dashboard"] .row > .col-12{
+  grid-column:span 2 !important;
+}
+.view[data-view="dashboard"] .toolbar,
+#view-dashboard .toolbar,
+section[data-view="dashboard"] .toolbar{
+  display:flex !important;
+  gap:10px !important;
+  flex-wrap:wrap !important;
+  align-items:center !important;
+}
+.view[data-view="dashboard"] .toolbar > *,
+#view-dashboard .toolbar > *,
+section[data-view="dashboard"] .toolbar > *{
+  flex:0 1 auto !important;
+}
+@media (max-width: 980px){
+  .dashboardRow,
+  .dashboardGrid,
+  .resumeGrid,
+  .summaryGrid,
+  .reports-stack,
+  .view[data-view="dashboard"] .row,
+  #view-dashboard .row,
+  section[data-view="dashboard"] .row{
+    grid-template-columns:1fr !important;
+  }
+  .view[data-view="dashboard"] .row > .col-12,
+  #view-dashboard .row > .col-12,
+  section[data-view="dashboard"] .row > .col-12{
+    grid-column:span 1 !important;
+  }
+}
+
+
+/* Ajuste limpio del módulo tareas y alertas */
+.taskToolbar{
+  display:flex;
+  justify-content:flex-end;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.taskSummaryGrid{
+  margin-bottom:12px;
+}
+.taskFiltersCard{
+  margin-top:0 !important;
+}
+.taskFiltersRow{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+}
+.taskFilterBtn{
+  border:1px solid var(--line);
+  background:#fff;
+  border-radius:16px;
+  padding:12px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  cursor:pointer;
+  box-shadow:0 6px 18px rgba(2,6,23,.04);
+  transition:.15s ease;
+}
+.taskFilterBtn:hover{
+  border-color:rgba(23,158,114,.28);
+  background:rgba(23,158,114,.04);
+}
+.taskFilterBtn.is-active{
+  background:rgba(23,158,114,.10);
+  border-color:rgba(23,158,114,.28);
+  box-shadow:0 0 0 3px rgba(23,158,114,.10);
+}
+.taskFilterLabel{
+  font-weight:800;
+  text-align:left;
+}
+.taskFilterCount{
+  min-width:28px;
+  height:28px;
+  padding:0 8px;
+  border-radius:999px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-size:12px;
+  font-weight:900;
+  background:rgba(23,158,114,.10);
+  color:var(--green-900);
+  border:1px solid rgba(23,158,114,.18);
+}
+.taskSectionHead{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:10px;
+}
+.taskTableWrap{
+  max-height:420px;
+  overflow:auto;
+}
+@media (max-width: 980px){
+  .taskFiltersRow{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+@media (max-width: 560px){
+  .taskToolbar .btn{
+    width:100%;
+    justify-content:center;
+  }
+  .taskFiltersRow{
+    grid-template-columns:1fr;
+  }
+}
+
+
+/* Dashboard organizado sin tocar otras vistas */
+.dashboardStack{
+  display:grid;
+  gap:12px;
+}
+.dashboardPair{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+  align-items:start;
+}
+.dashboardPair > .helpCard{
+  margin-top:0 !important;
+  height:100%;
+}
+.dashboardPair .wrap{
+  overflow:auto;
+}
+@media (max-width: 980px){
+  .dashboardPair{
+    grid-template-columns:1fr;
+  }
+}
+
+
+/* ===== Tareas y alertas: panel horizontal ===== */
+.taskDashboardLayout{
+  display:grid;
+  grid-template-columns: 360px minmax(0, 1fr);
+  gap:14px;
+  align-items:start;
+  margin-top:12px;
+}
+.taskDashboardSide,
+.taskDashboardMain{
+  min-width:0;
+}
+.taskDashboardSide .helpCard,
+.taskDashboardMain .helpCard{
+  margin-top:0 !important;
+}
+.taskDashboardMain .taskOpenCard{
+  min-height:100%;
+}
+.taskFiltersRow{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:10px;
+}
+.taskSummaryGrid{
+  margin-bottom:12px;
+}
+.taskTableWrap{
+  max-height:460px;
+  overflow:auto;
+}
+@media (max-width: 1100px){
+  .taskDashboardLayout{
+    grid-template-columns: 320px minmax(0, 1fr);
+  }
+}
+@media (max-width: 980px){
+  .taskDashboardLayout{
+    grid-template-columns:1fr;
+  }
+}
+
+
+/* Arriba del módulo tareas: horizontal real */
+.taskSummaryRow{
+  display:grid !important;
+  grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+  gap:12px !important;
+  margin-bottom:12px !important;
+  align-items:stretch !important;
+}
+.taskSummaryRow .kpi{
+  margin:0 !important;
+  min-width:0 !important;
+}
+@media (max-width: 1100px){
+  .taskSummaryRow{
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  }
+}
+@media (max-width: 560px){
+  .taskSummaryRow{
+    grid-template-columns:1fr !important;
+  }
+}
+
+
+/* Forzar KPIs de tareas en horizontal */
+.taskSummaryRow{
+  display:flex !important;
+  flex-direction:row !important;
+  flex-wrap:nowrap !important;
+  gap:12px !important;
+  align-items:stretch !important;
+  justify-content:space-between !important;
+  width:100% !important;
+  margin-bottom:12px !important;
+}
+.taskSummaryRow .kpi{
+  flex:1 1 0 !important;
+  width:auto !important;
+  min-width:0 !important;
+  margin:0 !important;
+}
+@media (max-width: 980px){
+  .taskSummaryRow{
+    flex-wrap:wrap !important;
+  }
+  .taskSummaryRow .kpi{
+    flex:1 1 calc(50% - 12px) !important;
+  }
+}
+@media (max-width: 560px){
+  .taskSummaryRow .kpi{
+    flex:1 1 100% !important;
+  }
+}
+
+
+/* Grupo de alertas horizontal arriba, tabla abajo */
+.taskDashboardLayout{
+  display:grid !important;
+  grid-template-columns:1fr !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.taskDashboardSide,
+.taskDashboardMain{
+  min-width:0 !important;
+}
+.taskFiltersCard{
+  margin-top:0 !important;
+}
+.taskFiltersRow{
+  display:flex !important;
+  flex-direction:row !important;
+  flex-wrap:wrap !important;
+  gap:10px !important;
+  align-items:stretch !important;
+}
+.taskFiltersRow > *{
+  flex:1 1 220px !important;
+  min-width:180px !important;
+}
+.taskDashboardMain .taskOpenCard{
+  margin-top:0 !important;
+}
+@media (max-width: 560px){
+  .taskFiltersRow > *{
+    flex:1 1 100% !important;
+    min-width:0 !important;
+  }
+}
+
+
+/* Tabla cerrada en alertas */
+.taskClosedHint{
+  min-height: 120px;
+  display:flex;
+  align-items:center;
+}
+
+
+/* Lo más urgente: hint cuando está cerrado */
+.taskMiniClosedHint{
+  margin-top:10px;
+  padding:12px 14px;
+  border:1px dashed var(--line);
+  border-radius:14px;
+  background:rgba(248,250,252,1);
+  color:var(--muted);
+  font-size:12px;
+}
+
+
+/* Ajuste: Lo más urgente como botón junto a grupos */
+.taskDashboardLayout{
+  grid-template-columns: 1fr !important;
+}
+.taskDashboardSide,
+.taskDashboardMain{
+  width:100% !important;
+}
+.taskFiltersRow{
+  display:flex !important;
+  flex-direction:row !important;
+  flex-wrap:wrap !important;
+  gap:10px !important;
+}
+.taskFiltersRow > *{
+  flex:1 1 180px !important;
+  min-width:180px !important;
+}
+.taskDashboardMain .taskOpenCard{
+  margin-top:12px !important;
+}
+@media (max-width:560px){
+  .taskFiltersRow > *{
+    flex:1 1 100% !important;
+    min-width:0 !important;
+  }
+}
+
+
+/* Reporte mensual de nacimientos */
+.finance-births-controls{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+.finance-births-controls select{
+  min-width:150px;
+}
+@media (max-width: 700px){
+  .finance-births-controls{
+    width:100%;
+  }
+  .finance-births-controls select,
+  .finance-births-controls .btn{
+    width:100%;
+  }
+}
+
+
+/* Importación de balance inicial */
+.contaMini .mono{display:block;margin-top:2px;}
 
 </style>
 <script id="table-scroll-vertical-fix-script">
